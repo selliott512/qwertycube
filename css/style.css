@@ -1,0 +1,75 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+body {
+    overflow: hidden;
+}
+
+button {
+    position: absolute;
+    background-color: lightgreen;
+    border: solid;
+    border-radius: 6px;
+    visibility: hidden;
+}
+
+button:hover {
+    background-color: yellow;
+}
+
+table {
+    width: 100%
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: left;
+    white-space: nowrap;
+}
+
+#help {
+    margin: 3px;
+    padding: 3px;
+    position: absolute;
+    background-color: #B0FFFF;
+    border-radius: 6px;
+    opacity: 0.9;
+}
+
+#info {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+#info-text {
+    font-family: courier new;
+    position: absolute;
+    background-color: lightgreen;
+    border: solid;
+    border-radius: 6px;
+    visibility: hidden;
+}
+
+#status {
+    font-family: courier new;
+    font-size: 200%;
+    position: absolute;
+    background-color: #FFFF80;
+    border-radius: 6px;
+    opacity: 0.0;
+}
+
+#timer {
+    font-family: courier new;
+    font-size: 200%;
+    position: absolute;
+    border-radius: 6px;
+    opacity: 0.0;
+}
