@@ -4,6 +4,7 @@
 
 var scrambleMoves = [];
 var scrambleCount = 30;
+var scrambleType = "jsss";
 
 // Discard moves that produce the same cube a second time, which seems to be
 // rare.
@@ -92,7 +93,20 @@ var cube = {
 
 function scramble() {
     cube.reset();
-    scrambleMoves = cube.scramble();
+    if (scrambleType == "simple") {
+        scrambleMoves = cube.scramble();
+    } else if (scrambleType == "jsss") {
+        var scrambleMovesNulls = scramblers["333"].getRandomScramble().scramble_string.split(" ");
+        scrambleMoves.length = 0;
+        for (var i = 0; i < scrambleMovesNulls.length; i++) {
+            if (scrambleMovesNulls[i] != "") {
+                scrambleMoves.push(scrambleMovesNulls[i]);
+            }
+        }
+    } else {
+        // TODO: Probably prevent this in info.js.
+        console.log("Unknown scrambler type \"" + scrambleType + "\".");
+    }
 
     // Apply the scramble found.
     moveQueue.push.apply(moveQueue, scrambleMoves);

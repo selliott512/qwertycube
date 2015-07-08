@@ -14,6 +14,7 @@ var varNameDescs = [["animation", "If true then show animation as the cube moves
                     ["moveSec", "Number of moves per second when replaying."],
                     ["scrambleCount", "Number of random moves used to scramble the cube."],
                     ["scrambleMoves", "Moves used to scramble the cube."],
+                    ["scrambleType", "Type of scrambler used.  \"simple\" or \"jsss\"."],
                     ["statusSecs", "How long status is displayed at the top of the browser."],
                     ["timerInspectionSecs", "The amount of inspection time before solving."]];
 
