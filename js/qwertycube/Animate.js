@@ -5,6 +5,7 @@
 var animation = true;
 var animationLimit = 2;
 var animateNeeded = false;
+var animationRequested = false;
 var aspectRatio = 0.0;
 var camera;
 var cameraAdjusting = false;
@@ -59,9 +60,10 @@ function animateCondReq(needed) {
     animateNeeded = needed;
 
     // This method requests that doAnimate() be called next frame if need be.
-    if (animateNeeded || moveCurrent || moveQueue.length || statusDisplayed
-            || cameraAdjusting || timer) {
+    if ((!animationRequested) && (animateNeeded || moveCurrent ||
+            moveQueue.length || statusDisplayed || cameraAdjusting || timer)) {
         window.requestAnimationFrame(doAnimate);
+        animationRequested = true;
     }
 }
 
@@ -200,6 +202,9 @@ function animateUpdateTimer() {
 // Private methods
 
 function doAnimate() {
+    // Animation not requested since starting this animation frame.
+    animationRequested = false;
+
     // If only the timer is displayed then much of the animation code can be
     // bypassed. Also, the frame rate can be reduced saving CPU.
     var timerOnly = timer
