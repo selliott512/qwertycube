@@ -1,0 +1,7 @@
+In it's current form QWERTYcube includes both MIT and GPLv3 licensed code
+which means it's dual licensed under both licenses.  However, the GPL code
+can be removed by removing the JSSS scrambler, which is GPLv3:
+    git revert 0f4c5f4a6608b60b91aeba6fc6d47737aba8b9e8
+For the licenses see the specific license file:
+    LICENSE-GPLv3.txt
+    LICENSE-MIT.txt
