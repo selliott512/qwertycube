@@ -72,7 +72,7 @@ function setup() {
     }
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
-    renderer.setClearColor(0x808080);
+    renderer.setClearColor(parseInt(cubiesColorBackground));
 
     // Center things, etc.
     animateResize();

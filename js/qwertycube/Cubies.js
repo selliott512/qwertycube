@@ -10,6 +10,7 @@ var cubiesSize = 100;
 var cubiesGap = cubiesSize / 10;
 var cubiesOff = cubiesSize + cubiesGap;
 var cubiesCenterNum = 13; // The one in the center.
+var cubiesColorBackground = "0x808080";
 var cubiesColorScheme = "standard";
 
 // Other than black the colors are ordered in the same was as it is for

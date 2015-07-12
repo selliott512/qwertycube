@@ -8,7 +8,8 @@ var infoInitialText =
     "# abandon the changes.\n\n";
 var varNameDescs = [["animation", "If true then show animation as the cube moves (A key toggle)."],
                     ["animationLimit", "Bypass animation when more than this number of moves are queued up."],
-                    ["cubiesColorScheme", "Color scheme to use.  \"standard\" or \"high-contrast\"."],
+                    ["cubiesColorBackground", "Backgroud color to use.  Some color names work. Effective next page load."],
+                    ["cubiesColorScheme", "Color scheme to use.  \"standard\" or \"high-contrast\". Effective next page load."],
                     ["dispOrientationLabels", "Display labels that to show the orientation (O key toggle)."],
                     ["moveHistory", "All moves made since loading the page."],
                     ["moveHistoryNext", "Next move to be made if a redo (Shift-G) is done."],
@@ -122,6 +123,7 @@ function infoResize() {
     
     infoTextEl.style.left = textLeft + "px"
     infoTextEl.style.top = textTop + "px";
+    infoTextEl.style.height = (window.innerHeight - 55) + "px";
     
     infoCancelEl.style.left = textLeft + "px";
     infoCancelEl.style.top = (textTop + infoTextEl.offsetHeight + 10) + "px";
@@ -170,4 +172,5 @@ function goToAfterInit() {
     infoTextEl.focus();
     var initLen = infoInitialText.length;
     infoTextEl.setSelectionRange(initLen, initLen);
+    infoTextEl.scrollTop = 0;
 }

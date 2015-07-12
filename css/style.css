@@ -9,7 +9,7 @@ body {
 
 button {
     position: absolute;
-    background-color: lightgreen;
+    background-color: #C0FFC0;
     border: solid;
     border-radius: 6px;
     visibility: hidden;
@@ -51,7 +51,7 @@ th, td {
 #info-text {
     font-family: courier new;
     position: absolute;
-    background-color: lightgreen;
+    background-color: #C0FFC0;
     border: solid;
     border-radius: 6px;
     visibility: hidden;
