@@ -10,9 +10,13 @@ var cubiesSize = 100;
 var cubiesGap = cubiesSize / 10;
 var cubiesOff = cubiesSize + cubiesGap;
 var cubiesCenterNum = 13; // The one in the center.
+var cubiesColorScheme = "standard";
 
-// Other than black ordered in the same was as it is for MeshFaceMaterial.
-var colorValues = {
+// Other than black the colors are ordered in the same was as it is for
+// MeshFaceMaterial.
+
+// High contrast. Each color should be distinct on all monitors.
+var highContrastColors = {
     black : 0x000000,
     red : 0xFF0000, // R
     orange : 0xFF00FF, // L
@@ -21,6 +25,23 @@ var colorValues = {
     blue : 0x0000FF, // F
     green : 0x00FF00
 // B
+};
+
+// Typical Rubik's cube colors.
+var standardColors = {
+    black : 0x000000,
+    red : 0x71000C, // R
+    orange : 0xF54300, // L
+    yellow : 0xDDB600, // U
+    white : 0xDCDCDC, // D
+    blue : 0x003270, // F
+    green : 0x005D26
+// B
+};
+
+var colorTable = {
+    "high-contrast" : highContrastColors,
+    "standard" : standardColors
 };
 
 // The above, but in to material instead of number.
@@ -125,6 +146,7 @@ function angleIsLarge(angle) {
 
 // Initialize colorMatts based on colorValues.
 function initMaterials() {
+    var colorValues = colorTable[cubiesColorScheme];
     for ( var color in colorValues) {
         colorMatts[color] = new THREE.MeshBasicMaterial({
             color : colorValues[color],
