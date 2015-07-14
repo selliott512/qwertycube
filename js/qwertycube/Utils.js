@@ -40,3 +40,26 @@ function elapsedMsecToStr(elapsedMsec) {
 
     return elapsedStr;
 }
+
+// Set a global variable by name while preserving the type of the global.
+function setGlobal(varName, varValueStr) {
+    var varValue;
+    var varType = window[varName].constructor;
+    if (!varType) {
+        console.log("Ignoring unknown variable \"" + varName + "\".");
+        return;
+    }
+    if (varType === Array) {
+        varValue = varValueStr.split(" ");
+    }
+    else if (varType === Boolean) {
+        varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
+    }
+    else if (varType === Number) {
+        varValue = parseInt(varValueStr);
+    }
+    else {
+        varValue = varValueStr;
+    }
+    window[varName] = varValue;
+}

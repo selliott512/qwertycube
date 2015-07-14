@@ -137,6 +137,16 @@ function onKeyDown(event) {
                     + " orientation labels.");
             animateCondReq(true);
             break;
+        case "P": // (P)ersistence storage clear
+            if (alt && shift) {
+                // This message probably won't be seen.
+                animateUpdateStatus("Persistence storage clear");
+                initClearStorage();
+                location.reload();
+            } else {
+                animateUpdateStatus("Persistence storage clear?  Alt-Shift-P");
+            }
+            break;
         case "T": // (T)imer
             timer = !timer;
             console.log("timer: " + timer);

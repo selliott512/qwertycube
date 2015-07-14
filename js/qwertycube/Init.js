@@ -11,10 +11,14 @@ var infoOkEl;
 var statusEl;
 var timerEl;
 
+// Prefix to apply to entries in localStorage.
+var presistentPrefix = "QC";
+
 // Public methods
 
 function initLoad() {
     getElements();
+    initLoadStorage();
     infoOnLoad();
     setup();
     fillScene();
@@ -22,10 +26,55 @@ function initLoad() {
     animateCondReq(true);
 }
 
+function initClearStorage() {
+    for (var i = 0; i < infoVarNameDescs.length; i++) {
+        var varNameDesc = infoVarNameDescs[i];
+        var varName = varNameDesc[0];
+        var varPersist = varNameDesc[1];
+        if (!varPersist) {
+            continue;
+        }
+        localStorage.removeItem(presistentPrefix + varName);
+    }
+}
+
+function initLoadStorage() {
+    for (var i = 0; i < infoVarNameDescs.length; i++) {
+        var varNameDesc = infoVarNameDescs[i];
+        var varName = varNameDesc[0];
+        var varPersist = varNameDesc[1];
+        if (!varPersist) {
+            continue;
+        }
+        var varValueStr = localStorage.getItem(presistentPrefix + varName);
+        if (varValueStr !== null) {
+            setGlobal(varName, varValueStr);
+        }
+    }
+}
+
+function initSaveStorage() {
+    for (var i = 0; i < infoVarNameDescs.length; i++) {
+        var varNameDesc = infoVarNameDescs[i];
+        var varName = varNameDesc[0];
+        var varPersist = varNameDesc[1];
+        if (!varPersist) {
+            continue;
+        }
+        localStorage.setItem(presistentPrefix + varName, window[varName]);
+    }
+}
+
 // Init miscellaneous variables.
 function initVars() {
     // Calculate radians per msec given the moves (half turns) per second.
     moveRadMsec = (moveSec / 1000.0) * (Math.PI / 2.0);
+}
+
+function initSetBackgroundColor() {
+    renderer
+            .setClearColor(cubiesColorBackground.toLowerCase().indexOf("0x") === -1 ? cubiesColorBackground
+                    : parseInt(cubiesColorBackground));
 }
 
 // Private methods
@@ -70,8 +119,8 @@ function setup() {
                 + "Renderer, which may be slow.");
         renderer = new THREE.CanvasRenderer();
     }
-    renderer.setClearColor(cubiesColorBackground.toLowerCase().indexOf("0x") === -1 ?
-            cubiesColorBackground : parseInt(cubiesColorBackground));
+
+    initSetBackgroundColor();
 
     // Center things, etc.
     animateResize();

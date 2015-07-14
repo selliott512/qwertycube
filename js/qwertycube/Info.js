@@ -5,20 +5,23 @@ var infoInitialText =
     "# This information dialog can be used to view and modify various variables in\n" +
     "# QWERTYcube.  Edit variables below, if need be, and click the ok button (or \n" +
     "# Ctrl-Enter) to apply the changes, or click the cancel button (or Esc) to\n" +
-    "# abandon the changes.\n\n";
-var varNameDescs = [["animation", "If true then show animation as the cube moves (A key toggle)."],
-                    ["animationLimit", "Bypass animation when more than this number of moves are queued up."],
-                    ["cubiesColorBackground", "Backgroud color to use.  Some color names work. Effective next page load."],
-                    ["cubiesColorScheme", "Color scheme to use.  \"high-contrast\", \"standard\" and \"white-cube\". Effective next page load."],
-                    ["dispOrientationLabels", "Display labels that to show the orientation (O key toggle)."],
-                    ["moveHistory", "All moves made since loading the page."],
-                    ["moveHistoryNext", "Next move to be made if a redo (Shift-G) is done."],
-                    ["moveSec", "Number of moves per second when replaying."],
-                    ["scrambleCount", "Number of random moves used to scramble the cube."],
-                    ["scrambleMoves", "Moves used to scramble the cube."],
-                    ["scrambleType", "Type of scrambler used.  \"simple\" or \"jsss\"."],
-                    ["statusSecs", "How long status is displayed at the top of the browser."],
-                    ["timerInspectionSecs", "The amount of inspection time before solving."]];
+    "# abandon the changes.  Variables marked with \"persist=true\" are stored in\n" +
+    "# local storage.\n\n";
+// Each entry is name, persist, description
+var infoVarNameDescs = [
+    ["animation", true, "If true then show animation as the cube moves (A key toggle)."],
+    ["animationLimit", true, "Bypass animation when more than this number of moves are queued up."],
+    ["cubiesColorBackground", true, "Backgroud color to use.  Some color names work."],
+    ["cubiesColorScheme", true, "Color scheme for the next cube.  \"black\", \"high-contrast\" and \"white\"."],
+    ["dispOrientationLabels", true, "Display labels that to show the orientation (O key toggle)."],
+    ["moveHistory", false, "All moves made since loading the page."],
+    ["moveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
+    ["moveSec", true, "Number of moves per second when replaying."],
+    ["scrambleCount", true, "Number of random moves used to scramble the cube."],
+    ["scrambleMoves", false, "Moves used to scramble the cube."],
+    ["scrambleType", true, "Type of scrambler used.  \"simple\" or \"jsss\"."],
+    ["statusSecs", true, "How long status is displayed at the top of the browser."],
+    ["timerInspectionSecs", true, "The amount of inspection time before solving."]];
 
 // Public methods
 
@@ -57,33 +60,20 @@ function infoOk() {
         }
         var varName = line.substr(0, eqIndex).trim();
         var varValueStr = line.substr(eqIndex + 1).trim();
-        var varValue;
-        var varType = window[varName].constructor;
-        if (!varType) {
-            console.log("Ignoring unknown variable \"" + varName + "\".");
-            continue;
-        }
-        if (varType === Array) {
-            varValue = varValueStr.split(" ");
-        }
-        else if (varType === Boolean) {
-            varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
-        }
-        else if (varType === Number) {
-            varValue = parseInt(varValueStr);
-        }
-        else {
-            varValue = varValueStr;
-        }
-        window[varName] = varValue;
+        setGlobal(varName, varValueStr);
     }
-    
+
     // Miscellaneous checks for variables.
     if (moveHistoryNext > moveHistory.length) {
         moveHistoryNext = moveHistory.length;
     }
+
+    // Now that the globals have been updated save to persistent storage.
+    initSaveStorage();
+
     initVars();
-    
+    initSetBackgroundColor();
+
     // Apply the new move history to the cube.
     moveQueue = moveHistory.slice(0, moveHistoryNext);
     moveHistory.length = 0; // The moveQueue will be appended.
@@ -145,11 +135,12 @@ function infoShow() {
     
     infoTextEl.value = infoInitialText;
     
-    for (var i = 0; i < varNameDescs.length; i++) {
-        var varNameDesc = varNameDescs[i];
+    for (var i = 0; i < infoVarNameDescs.length; i++) {
+        var varNameDesc = infoVarNameDescs[i];
         var varName = varNameDesc[0];
-        var varDesc = varNameDesc[1];
-        infoTextEl.value += "\n# " + varDesc + "\n";
+        var varPersist = varNameDesc[1];
+        var varDesc = varNameDesc[2];
+        infoTextEl.value += "\n# " + varDesc + " persist=" + varPersist + "\n";
         var varValue = window[varName];
         var line = varName + "=";
         if (varValue.constructor === Array) {
