@@ -11,10 +11,22 @@ var cubiesGap = cubiesSize / 10;
 var cubiesOff = cubiesSize + cubiesGap;
 var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
-var cubiesColorScheme = "standard";
+var cubiesColorScheme = "black";
 
 // Other than black the colors are ordered in the same was as it is for
 // MeshFaceMaterial.
+
+// A black cube
+var blackColors = {
+    black : 0x000000,
+    red : 0x9B1516, // R
+    orange : 0xFF6020, // L
+    yellow : 0xDBE94E, // U
+    white : 0xE4E9E5, // D
+    blue : 0x125AC8, // F
+    green : 0x00B52C
+// B
+};
 
 // High contrast. Each color should be distinct on all monitors.
 var highContrastColors = {
@@ -28,21 +40,22 @@ var highContrastColors = {
 // B
 };
 
-// Typical Rubik's cube colors.
-var standardColors = {
-    black : 0x000000,
-    red : 0x71000C, // R
-    orange : 0xF54300, // L
-    yellow : 0xDDB600, // U
-    white : 0xDCDCDC, // D
-    blue : 0x003270, // F
-    green : 0x005D26
+// A white cube
+var whiteColors = {
+    black : 0xFFFFFF,
+    red : 0x9B1516, // R
+    orange : 0xFF6020, // L
+    yellow : 0xDBE94E, // U
+    white : 0xE4E9E5, // D
+    blue : 0x125AC8, // F
+    green : 0x00B52C
 // B
 };
 
 var colorTable = {
+    "black" : blackColors,
     "high-contrast" : highContrastColors,
-    "standard" : standardColors
+    "white" : whiteColors
 };
 
 // The above, but in to material instead of number.

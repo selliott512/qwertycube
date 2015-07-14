@@ -9,7 +9,7 @@ var infoInitialText =
 var varNameDescs = [["animation", "If true then show animation as the cube moves (A key toggle)."],
                     ["animationLimit", "Bypass animation when more than this number of moves are queued up."],
                     ["cubiesColorBackground", "Backgroud color to use.  Some color names work. Effective next page load."],
-                    ["cubiesColorScheme", "Color scheme to use.  \"standard\" or \"high-contrast\". Effective next page load."],
+                    ["cubiesColorScheme", "Color scheme to use.  \"high-contrast\", \"standard\" and \"white-cube\". Effective next page load."],
                     ["dispOrientationLabels", "Display labels that to show the orientation (O key toggle)."],
                     ["moveHistory", "All moves made since loading the page."],
                     ["moveHistoryNext", "Next move to be made if a redo (Shift-G) is done."],
