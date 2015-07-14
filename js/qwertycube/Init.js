@@ -70,9 +70,8 @@ function setup() {
                 + "Renderer, which may be slow.");
         renderer = new THREE.CanvasRenderer();
     }
-    renderer.gammaInput = true;
-    renderer.gammaOutput = true;
-    renderer.setClearColor(parseInt(cubiesColorBackground));
+    renderer.setClearColor(cubiesColorBackground.toLowerCase().indexOf("0x") === -1 ?
+            cubiesColorBackground : parseInt(cubiesColorBackground));
 
     // Center things, etc.
     animateResize();
