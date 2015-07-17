@@ -127,12 +127,12 @@ function setup() {
 
     animateSetCamera();
 
-    // CameraControls:
-    cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-
     // Register event listeners (keys, etc.).
     eventListenersAdd();
 
+    // CameraControls:
+    cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+    
     // Add the renderer to the page.
     containerEl.appendChild(renderer.domElement);
 }

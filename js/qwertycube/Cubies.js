@@ -9,6 +9,7 @@ var cubies = [];
 var cubiesSize = 100;
 var cubiesGap = cubiesSize / 10;
 var cubiesOff = cubiesSize + cubiesGap;
+var cubiesRadius = 0 | (cubiesSize / 2 + cubiesOff);
 var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
 var cubiesColorScheme = "black";
@@ -98,6 +99,55 @@ function cubiesNumberToInitVector3(num) {
     var z = cubiesOff * (num % 3 - 1);
 
     return new THREE.Vector3(x, y, z);
+}
+
+// Figure out where on the surface of the cube the user clicked, or return null
+// if not on the surface of the cube.
+function cubiesEventToCubeCoord(event, onAxis) {
+    // Convert from the screen coordinates to world coordinates.
+    var worldCoord = new THREE.Vector3();
+    worldCoord.set((event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+    worldCoord.unproject(camera);
+
+    var axes = onAxis ? [ onAxis ] : [ "x", "y", "z" ];
+    for (var i = 0; i <= axes.length; i++) {
+        var axis = axes[i];
+        // Of the two sides for each axis we only need to consider the one
+        // closest to the camera.
+        var side = (camera.position[axis] >= 0) ? cubiesRadius : -cubiesRadius;
+
+        // A unit normal vector that points from the camera toward the point
+        // on the cube that we're trying to find.
+        var towardCube = worldCoord.clone().sub(camera.position).normalize();
+
+        if (!towardCube[axis]) {
+            // Avoid division by zero.
+            continue;
+        }
+
+        // The distance from the camera to the side being considered.
+        var toCube = -(camera.position[axis] - side) / towardCube[axis];
+
+        // The location clicked that may be in the cube.
+        var clicked = camera.position.clone().add(
+                towardCube.multiplyScalar(toCube));
+
+        // For the point clicked to be on the surface of the cube all three
+        // coordinates have to be in range, otherwise try the next one.
+        // If an axis was specified (onAxis) then accept the point even if it's
+        // not in the cube as the user is allowed to drag the mouse out of 
+        // the cube.
+        if (onAxis
+                || ((Math.abs(clicked.x) <= cubiesRadius)
+                        && (Math.abs(clicked.y) <= cubiesRadius) && (Math
+                        .abs(clicked.z) <= cubiesRadius))) {
+            return {axis: axis, pos: clicked};
+        }
+    }
+
+    // The location clicked was not on the cube.
+    return null;
 }
 
 // Return true if the cube is solved.

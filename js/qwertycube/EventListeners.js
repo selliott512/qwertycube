@@ -4,14 +4,18 @@
 
 var escLast = false;
 var helpMsgDisplayed = false;
+var moveStart = null;
 
 // Public methods
 
 function eventListenersAdd() {
-    // Register event listeners that are needed by this program.
-    window.addEventListener("keydown", onKeyDown, false);
-    window.addEventListener("mousedown", onMouseDown, false);
-    window.addEventListener("mouseup", onMouseUp, false);
+    // Register event listeners that are needed by this program. Note that
+    // document is used as mouse events need to be processed here before
+    // OrbitControls does.
+    document.addEventListener("keydown", onKeyDown, false);
+    document.addEventListener("mousedown", onMouseDown, false);
+    document.addEventListener("mouseup", onMouseUp, false);
+
     window.addEventListener("resize", onResize, false);
 }
 
@@ -171,6 +175,14 @@ function onKeyDown(event) {
 }
 
 function onMouseDown(event) {
+    if (event.button === 0) {
+        // Left mouse button was clicked.
+        moveStart = cubiesEventToCubeCoord(event, null);
+
+        // Don't rotate the cube if the user clicked on it.
+        cameraControls.enabled = moveStart ? false : true;
+    }
+
     // The user may be adjusting the camera if a mouse button is done. When
     // in doubt animate.
     if (!infoDisplayed) {
@@ -180,6 +192,33 @@ function onMouseDown(event) {
 }
 
 function onMouseUp(event) {
+    if (event.button !== 0) {
+        // Only handle the left mouse button.
+        return;
+    }
+
+    if ((event.button === 0) && moveStart) {
+        var moveEnd = cubiesEventToCubeCoord(event, moveStart.axis);
+        if (moveEnd) {
+            // Assuming cube was touched at moveStart and moveStart to moveEnd
+            // is the direction force was applied calculate the torque given the
+            // center of the cube as a pivot.
+            var force = moveEnd.pos.clone();
+            force.sub(moveStart.pos);
+            var torque = new THREE.Vector3();
+            torque.crossVectors(moveStart.pos, force);
+            
+            // Rotate the entire cube for now.
+            var axis = largestAbsoluteAxis(torque);
+            var suffix = torque[axis] >= 0 ? "'" : "";
+            moveQueue.push(axis + suffix);
+        }
+        moveStart = null;
+        animateCondReq(true);
+    }
+
+    cameraControls.enabled = true;
+
     if (!infoDisplayed) {
         cameraAdjusting = false;
     }

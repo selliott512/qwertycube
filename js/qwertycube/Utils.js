@@ -41,6 +41,22 @@ function elapsedMsecToStr(elapsedMsec) {
     return elapsedStr;
 }
 
+// Return the name of the coordinate that has the largest absolute value.
+function largestAbsoluteAxis(vector) {
+    var axes = [ "x", "y", "z" ];
+    var axisMax = -1;
+    var axisName;
+    for (var i = 0; i <= axes.length; i++) {
+        var axis = axes[i];
+        var axisAbs = Math.abs(vector[axis]);
+        if (axisAbs > axisMax) {
+            axisMax = axisAbs;
+            axisName = axis;
+        }
+    }
+    return axisName;
+}
+
 // Set a global variable by name while preserving the type of the global.
 function setGlobal(varName, varValueStr) {
     var varValue;
@@ -51,14 +67,11 @@ function setGlobal(varName, varValueStr) {
     }
     if (varType === Array) {
         varValue = varValueStr.split(" ");
-    }
-    else if (varType === Boolean) {
+    } else if (varType === Boolean) {
         varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
-    }
-    else if (varType === Number) {
+    } else if (varType === Number) {
         varValue = parseInt(varValueStr);
-    }
-    else {
+    } else {
         varValue = varValueStr;
     }
     window[varName] = varValue;

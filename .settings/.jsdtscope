@@ -2,5 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="lib"/>
 	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="js"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
