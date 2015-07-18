@@ -59,6 +59,7 @@ function largestAbsoluteAxis(vector) {
 
 // Set a global variable by name while preserving the type of the global.
 function setGlobal(varName, varValueStr) {
+    console.log("setting global " + varName);
     var varValue;
     var varType = window[varName].constructor;
     if (!varType) {
@@ -67,6 +68,15 @@ function setGlobal(varName, varValueStr) {
     }
     if (varType === Array) {
         varValue = varValueStr.split(" ");
+        if ((window[varName].length > 0)
+                && (window[varName][0].constructor === Number)) {
+            // If the array contained integers then convert to that.
+            var varValueNum = [];
+            for (var i = 0; i < varValue.length; i++) {
+                varValueNum.push(parseInt(varValue[i]));
+            }
+            varValue = varValueNum;
+        }
     } else if (varType === Boolean) {
         varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
     } else if (varType === Number) {

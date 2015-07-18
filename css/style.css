@@ -40,6 +40,7 @@ th, td {
     background-color: #B0FFFF;
     border-radius: 6px;
     opacity: 0.9;
+    visibility: hidden;
 }
 
 #info {

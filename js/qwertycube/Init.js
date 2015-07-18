@@ -61,7 +61,17 @@ function initSaveStorage() {
         if (!varPersist) {
             continue;
         }
-        localStorage.setItem(presistentPrefix + varName, window[varName]);
+        if (window[varName].constructor === Array) {
+            // Write arrays space separated.
+            var varValue = "";
+            for (var i = 0; i < window[varName].length; i++) {
+                varValue += (i ? " " : "") + window[varName][i];
+            }
+        }
+        else {
+            varValue = window[varName];
+        }
+        localStorage.setItem(presistentPrefix + varName, varValue);
     }
 }
 
@@ -69,6 +79,9 @@ function initSaveStorage() {
 function initVars() {
     // Calculate radians per msec given the moves (half turns) per second.
     moveRadMsec = (moveSec / 1000.0) * (Math.PI / 2.0);
+
+    // Set the visibility of the help dialog.
+    helpEl.style.visibility = help ? "visible" : "hidden";
 }
 
 function initSetBackgroundColor() {

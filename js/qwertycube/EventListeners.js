@@ -108,8 +108,7 @@ function onKeyDown(event) {
         case "H": // (H)help toggle
             help = !help;
             console.log("Help is " + help);
-            var visibility = help ? "visible" : "hidden";
-            helpEl.style.visibility = visibility;
+            helpEl.style.visibility = help ? "visible" : "hidden";
             if (!helpMsgDisplayed) {
                 animateUpdateStatus("Press H to see the help again.");
                 helpMsgDisplayed = true;

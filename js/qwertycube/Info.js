@@ -11,9 +11,11 @@ var infoInitialText =
 var infoVarNameDescs = [
     ["animation", true, "If true then show animation as the cube moves (A key toggle)."],
     ["animationLimit", true, "Bypass animation when more than this number of moves are queued up."],
+    ["cameraLocation", true, "Location of the camera."],
     ["cubiesColorBackground", true, "Backgroud color to use.  Some color names work."],
     ["cubiesColorScheme", true, "Color scheme for the next cube.  \"black\", \"high-contrast\" and \"white\"."],
     ["dispOrientationLabels", true, "Display labels that to show the orientation (O key toggle)."],
+    ["help", true, "If true then the help dialog is displayed."],
     ["moveHistory", false, "All moves made since loading the page."],
     ["moveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
     ["moveSec", true, "Number of moves per second when replaying."],
@@ -73,6 +75,7 @@ function infoOk() {
 
     initVars();
     initSetBackgroundColor();
+    animateSetCamera();
 
     // Apply the new move history to the cube.
     moveQueue = moveHistory.slice(0, moveHistoryNext);
@@ -127,13 +130,18 @@ function infoResize() {
 function infoShow() {
     // The orbit controls grab events that are needed.
     cameraControls.enabled = false;
-    
+
     infoTextEl.style.visibility = "visible";
     infoCancelEl.style.visibility = "visible";
     infoOkEl.style.visibility = "visible";
     infoResize();
     
     infoTextEl.value = infoInitialText;
+    
+    // Update variables that may need updating.
+    cameraLocation[0] = Math.round(camera.position.x);
+    cameraLocation[1] = Math.round(camera.position.y);
+    cameraLocation[2] = Math.round(camera.position.z);
     
     for (var i = 0; i < infoVarNameDescs.length; i++) {
         var varNameDesc = infoVarNameDescs[i];

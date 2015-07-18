@@ -9,7 +9,7 @@ var animationRequested = false;
 var aspectRatio = 0.0;
 var camera;
 var cameraAdjusting = false;
-var cameraAxisDist = 470;
+var cameraLocation = [470, 470, 470];
 var cameraControls;
 var canvasHeight = 0;
 var canvasWidth = 0;
@@ -122,7 +122,7 @@ function animateSetCamera() {
     if (!camera) {
         camera = new THREE.PerspectiveCamera(45, aspectRatio, 100, 1000);
     }
-    camera.position.set(cameraAxisDist, cameraAxisDist, cameraAxisDist);
+    camera.position.set(cameraLocation[0], cameraLocation[1], cameraLocation[2]);
 }
 
 function animateUpdateStatus(message) {
