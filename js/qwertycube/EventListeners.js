@@ -121,8 +121,9 @@ function onKeyDown(event) {
             event.preventDefault();
             break;
         case "J": // (J)umble (S was taken)
-            var msg = "Jumbling (scrambling) the cube with " + scrambleCount
-                    + " moves.  \"I\" to see the scramble.";
+            var msg = "Jumbling the cube with " + (
+                    scrambleType == "jsss" ? "jsss" : (scrambleCount
+                    + " moves")) + ". \"I\" to see the scramble.";
             animateUpdateStatus(msg);
             scramble();
             break;
@@ -223,8 +224,6 @@ function onMouseUp(event) {
             var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
                     : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
             
-            console.log("ls=" + layerStart + " le=" + layerEnd);
-
             if (Math.abs(layerStart - layerEnd) == 1) {
                 // Since double layer moves are not in the eventToRotation
                 // table convert to single layer, but make a note that it's
