@@ -207,11 +207,68 @@ function onMouseUp(event) {
             force.sub(moveStart.pos);
             var torque = new THREE.Vector3();
             torque.crossVectors(moveStart.pos, force);
-            
-            // Rotate the entire cube for now.
+
+            // The axis that had the most torque is assumed the one that the
+            // move is to be around.  The sign is in the vector rotation sense
+            // (counter clockwise positive) and not the cube sense (clockwise 
+            // positive).
             var axis = largestAbsoluteAxis(torque);
-            var suffix = torque[axis] >= 0 ? "'" : "";
-            moveQueue.push(axis + suffix);
+            var sign = torque[axis] >= 0 ? "+" : "-";
+
+            // Convert from the coordinate along the rotating axis to one of
+            // three layers -1, 0 and 1. cubiesSep is right in the middle of the
+            // gap between layers.
+            var layerStart = (moveStart.pos[axis] < -cubiesSep) ? -1
+                    : ((moveStart.pos[axis] > cubiesSep) ? 1 : 0);
+            var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
+                    : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
+            
+            console.log("ls=" + layerStart + " le=" + layerEnd);
+
+            if (Math.abs(layerStart - layerEnd) == 1) {
+                // Since double layer moves are not in the eventToRotation
+                // table convert to single layer, but make a note that it's
+                // really a double layer.
+                var doubleLayer = true;
+                if (!layerStart) {
+                    layerStart = layerEnd;
+                } else {
+                    layerEnd = layerStart;
+                }
+            } else {
+                var doubleLayer = false;
+            }
+
+            if (layerStart < layerEnd) {
+                var layerMin = layerStart;
+                var layerMax = layerEnd;
+            } else {
+                var layerMin = layerEnd;
+                var layerMax = layerStart;
+            }
+
+            // Look for the move in eventToRotation.
+            for ( var move in eventToRotation) {
+                var args = eventToRotation[move];
+                if ((args[1] == axis)
+                        && (args[2] == layerMin) && (args[3] == layerMax)) {
+                    // Found a match.  Create the move.
+                    if (doubleLayer) {
+                        move = move.toLowerCase();
+                    }
+                    if (args[0] !== sign) {
+                        // Either the direction of the unmodified move in the 
+                        // table, or the direction the user specified about the
+                        // axis, is negative.  Go the other way.
+                        move += "'";
+                    }
+
+                    // Queue the move up.
+                    moveQueue.push(move);
+
+                    break;
+                }
+            }
         }
         moveStart = null;
         animateCondReq(true);

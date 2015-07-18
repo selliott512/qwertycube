@@ -7,8 +7,9 @@ var cubies = [];
 
 // The size of the cubies.
 var cubiesSize = 100;
-var cubiesGap = cubiesSize / 10;
+var cubiesGap = 0 | (cubiesSize / 10);
 var cubiesOff = cubiesSize + cubiesGap;
+var cubiesSep = 0 | ((cubiesSize + cubiesGap) / 2);
 var cubiesRadius = 0 | (cubiesSize / 2 + cubiesOff);
 var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
@@ -104,7 +105,9 @@ function cubiesNumberToInitVector3(num) {
 // Figure out where on the surface of the cube the user clicked, or return null
 // if not on the surface of the cube.
 function cubiesEventToCubeCoord(event, onAxis) {
-    // Convert from the screen coordinates to world coordinates.
+    // Convert from the screen coordinates to world coordinates. Note that
+    // 0.5 is used because it's somewhere between the near and far clipping
+    // planes.
     var worldCoord = new THREE.Vector3();
     worldCoord.set((event.clientX / window.innerWidth) * 2 - 1,
             -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
@@ -136,13 +139,16 @@ function cubiesEventToCubeCoord(event, onAxis) {
         // For the point clicked to be on the surface of the cube all three
         // coordinates have to be in range, otherwise try the next one.
         // If an axis was specified (onAxis) then accept the point even if it's
-        // not in the cube as the user is allowed to drag the mouse out of 
+        // not in the cube as the user is allowed to drag the mouse out of
         // the cube.
         if (onAxis
                 || ((Math.abs(clicked.x) <= cubiesRadius)
                         && (Math.abs(clicked.y) <= cubiesRadius) && (Math
                         .abs(clicked.z) <= cubiesRadius))) {
-            return {axis: axis, pos: clicked};
+            return {
+                axis : axis,
+                pos : clicked
+            };
         }
     }
 
