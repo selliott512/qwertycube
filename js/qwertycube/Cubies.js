@@ -13,25 +13,13 @@ var cubiesRadius;
 var cubiesSep;
 var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
-var cubiesColorScheme = "black";
+var cubiesColorScheme = "std-black";
 
 // Other than black the colors are ordered in the same was as it is for
 // MeshFaceMaterial.
 
-// A black cube
-var blackColors = {
-    black : 0x000000,
-    red : 0x9B1516, // R
-    orange : 0xFF6020, // L
-    yellow : 0xDBE94E, // U
-    white : 0xE4E9E5, // D
-    blue : 0x125AC8, // F
-    green : 0x00B52C
-// B
-};
-
-// High contrast. Each color should be distinct on all monitors.
-var highContrastColors = {
+//High contrast. Each color should be distinct on all monitors.
+var hcBlackColors = {
     black : 0x000000,
     red : 0xFF0000, // R
     orange : 0xFF00FF, // L
@@ -42,9 +30,13 @@ var highContrastColors = {
 // B
 };
 
-// A white cube
-var whiteColors = {
-    black : 0xFFFFFF,
+//A white cube with standard colors.
+var hcWhiteColors = copyMap(hcBlackColors);
+hcWhiteColors.black = 0xFFFFFF;
+
+// A black cube with standard colors.
+var stdBlackColors = {
+    black : 0x000000,
     red : 0x9B1516, // R
     orange : 0xFF6020, // L
     yellow : 0xDBE94E, // U
@@ -54,10 +46,15 @@ var whiteColors = {
 // B
 };
 
+// A white cube with standard colors.
+var stdWhiteColors = copyMap(stdBlackColors);
+stdWhiteColors.black = 0xFFFFFF;
+
 var colorTable = {
-    "black" : blackColors,
-    "high-contrast" : highContrastColors,
-    "white" : whiteColors
+    "hc-black" : hcBlackColors,
+    "hc-white" : hcWhiteColors,
+    "std-black" : stdBlackColors,
+    "std-white" : stdWhiteColors
 };
 
 // The above, but in to material instead of number.

@@ -2,6 +2,15 @@
 
 // Public methods
 
+// Copy a map.  Note that this is not a deep/recursive copy.
+function copyMap(oldMap) {
+    var newMap = {};
+    for (var item in oldMap) {
+        newMap[item] = oldMap[item];
+    }
+    return newMap;
+}
+
 // For a given move return the inverse move that will undo it.
 function getInverseMove(move) {
     if (move.indexOf("2") !== -1) {
