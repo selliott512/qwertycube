@@ -2,30 +2,31 @@
 
 var infoDisplayed = false;
 var infoInitialText = 
-    "# This information dialog can be used to view and modify various variables in\n" +
-    "# QWERTYcube.  Edit variables below, if need be, and click the ok button (or \n" +
-    "# Ctrl-Enter) to apply the changes, or click the cancel button (or Esc) to\n" +
-    "# abandon the changes.  Variables marked with \"persist=true\" are stored in\n" +
-    "# local storage.\n\n";
-// Each entry is name, persist, description
+    "# This information dialog can be used to view and modify various variables in QWERTYcube.  Edit\n" +
+    "# variables below, if need be, and click the ok button (or Ctrl-Enter) to apply the changes, or\n" +
+    "# click the cancel button (or Esc) to abandon the changes.  Variables marked with \"persist\" are\n" +
+    "# stored in local storage so that they'll have that value the next time QWERTYcube is loaded.\n" +
+    "# Variables marked with \"new-cube\" will not take effect until a new cube (Alt-Shift-N) is created.\n\n";
+   
+// Each entry is name, persist, new-cube, description
 var infoVarNameDescs = [
-    ["animation", true, "If true then show animation as the cube moves (A key toggle)."],
-    ["animationLimit", true, "Bypass animation when more than this number of moves are queued up."],
-    ["cameraLocation", true, "Location of the camera."],
-    ["cubiesColorBackground", true, "Background color to use.  Some color names work."],
-    ["cubiesColorScheme", true, "Color scheme for the next cube.  \"black\", \"high-contrast\" and \"white\"."],
-    ["cubiesGap", true, "The size of the gaps between cubies."],
-    ["cubiesSize", true, "The size of each cubie."],
-    ["dispOrientationLabels", true, "Display labels that to show the orientation (O key toggle)."],
-    ["help", true, "If true then the help dialog is displayed."],
-    ["moveHistory", false, "All moves made since loading the page."],
-    ["moveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
-    ["moveSec", true, "Number of moves per second when replaying."],
-    ["scrambleCount", true, "Number of random moves used to scramble the cube."],
-    ["scrambleMoves", false, "Moves used to scramble the cube."],
-    ["scrambleType", true, "Type of scrambler used.  \"simple\" or \"jsss\"."],
-    ["statusSecs", true, "How long status is displayed at the top of the browser."],
-    ["timerInspectionSecs", true, "The amount of inspection time before solving."]];
+    ["animation", true, false, "If true then show animation as the cube moves (A key toggle)."],
+    ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
+    ["cameraLocation", true, false, "Location of the camera."],
+    ["cubiesColorBackground", true, true, "Background color to use.  Some color names work."],
+    ["cubiesColorScheme", true, true, "Color scheme for the next cube.  \"black\", \"high-contrast\" and \"white\"."],
+    ["cubiesGap", true, true, "The size of the gaps between cubies."],
+    ["cubiesSize", true, true, "The size of each cubie."],
+    ["dispOrientationLabels", true, false, "Display labels that to show the orientation (O key toggle)."],
+    ["help", true, false, "If true then the help dialog is displayed."],
+    ["moveHistory", false, false, "All moves made since loading the page."],
+    ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
+    ["moveSec", true, false, false, "Number of moves per second when replaying."],
+    ["scrambleCount", true, false, "Number of random moves used to scramble the cube."],
+    ["scrambleMoves", false, false, "Moves used to scramble the cube."],
+    ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
+    ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
+    ["timerInspectionSecs", true, false, "The amount of inspection time before solving."]];
 
 // Public methods
 
@@ -151,8 +152,10 @@ function infoShow() {
         var varNameDesc = infoVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
-        var varDesc = varNameDesc[2];
-        infoTextEl.value += "\n# " + varDesc + " persist=" + varPersist + "\n";
+        var varNewCube = varNameDesc[2];
+        var varDesc = varNameDesc[3];
+        infoTextEl.value += "\n# " + varDesc + (varPersist ? " persist" : "") + 
+            (varNewCube ? " new-cube" : "") + "\n";
         var varValue = window[varName];
         var line = varName + "=";
         if (varValue.constructor === Array) {
