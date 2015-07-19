@@ -7,10 +7,10 @@ var cubies = [];
 
 // The size of the cubies.
 var cubiesSize = 100;
-var cubiesGap = 0 | (cubiesSize / 10);
-var cubiesOff = cubiesSize + cubiesGap;
-var cubiesSep = 0 | ((cubiesSize + cubiesGap) / 2);
-var cubiesRadius = 0 | (cubiesSize / 2 + cubiesOff);
+var cubiesGap = Math.round(cubiesSize / 10);
+var cubiesOff;
+var cubiesRadius;
+var cubiesSep;
 var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
 var cubiesColorScheme = "black";

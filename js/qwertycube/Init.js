@@ -21,8 +21,8 @@ function initLoad() {
     initLoadStorage();
     infoOnLoad();
     setup();
-    fillScene();
     initVars();
+    fillScene();
     animateCondReq(true);
 }
 
@@ -82,6 +82,11 @@ function initVars() {
 
     // Set the visibility of the help dialog.
     helpEl.style.visibility = help ? "visible" : "hidden";
+
+    // Use to find the position of each cubie.
+    cubiesOff = cubiesSize + cubiesGap;
+    cubiesRadius = Math.round(cubiesSize / 2 + cubiesOff);
+    cubiesSep = Math.round((cubiesSize + cubiesGap) / 2);
 }
 
 function initSetBackgroundColor() {
