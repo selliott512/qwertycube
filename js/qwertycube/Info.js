@@ -72,6 +72,8 @@ function infoOk() {
 
     // Now that the globals have been updated save to persistent storage.
     initSaveStorage();
+    animateUpdateStatus("Variables saved to persistent state.  " +
+    		"Alt-Shift-P to clear.");
 
     initVars();
     initSetBackgroundColor();
