@@ -15,40 +15,39 @@ var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
 var cubiesColorScheme = "std-black";
 
-// Other than black the colors are ordered in the same was as it is for
-// MeshFaceMaterial.
+// Other than the first color the colors are ordered in the same was as it is
+// for MeshFaceMaterial.  I is interior (the color of the gaps).  The remaining
+// letters are named after the faces.
 
-//High contrast. Each color should be distinct on all monitors.
+// High contrast black. Each color should be distinct on all monitors.
 var hcBlackColors = {
-    black : 0x000000,
-    red : 0xFF0000, // R
-    orange : 0xFF00FF, // L
-    yellow : 0xFFFF00, // U
-    white : 0xFFFFFF, // D
-    blue : 0x0000FF, // F
-    green : 0x00FF00
-// B
+    I : 0x000000,
+    R : 0xFF0000,
+    L : 0xFF00FF,
+    U : 0xFFFF00,
+    D : 0xFFFFFF,
+    F : 0x0000FF,
+    B : 0x00FF00
 };
 
-//A white cube with standard colors.
+// High contrast white. Each color should be distinct on all monitors.
 var hcWhiteColors = copyMap(hcBlackColors);
-hcWhiteColors.black = hcBlackColors.white;
+hcWhiteColors.I = hcBlackColors.D;
 
 // A black cube with standard colors.
 var stdBlackColors = {
-    black : 0x000000,
-    red : 0x9B1516, // R
-    orange : 0xFF6020, // L
-    yellow : 0xDBE94E, // U
-    white : 0xE4E9E5, // D
-    blue : 0x125AC8, // F
-    green : 0x00B52C
-// B
+    I : 0x000000,
+    R : 0x9B1516,
+    L : 0xFF6020,
+    U : 0xDBE94E,
+    D : 0xE4E9E5,
+    F : 0x125AC8,
+    B : 0x00B52C
 };
 
 // A white cube with standard colors.
 var stdWhiteColors = copyMap(stdBlackColors);
-stdWhiteColors.black = stdWhiteColors.white;
+stdWhiteColors.I = stdWhiteColors.D;
 
 var colorTable = {
     "hc-black" : hcBlackColors,
@@ -70,13 +69,12 @@ function cubiesCreate() {
     for (var num = 0; num < 27; num++) {
         var vec = cubiesNumberToInitVector3(num);
         var sideMaterial = [
-                vec.x == cubiesOff ? colorMatts["red"] : colorMatts["black"],
-                vec.x == -cubiesOff ? colorMatts["orange"]
-                        : colorMatts["black"],
-                vec.y == cubiesOff ? colorMatts["yellow"] : colorMatts["black"],
-                vec.y == -cubiesOff ? colorMatts["white"] : colorMatts["black"],
-                vec.z == cubiesOff ? colorMatts["blue"] : colorMatts["black"],
-                vec.z == -cubiesOff ? colorMatts["green"] : colorMatts["black"] ];
+                vec.x == cubiesOff ? colorMatts.R : colorMatts.I,
+                vec.x == -cubiesOff ? colorMatts.L : colorMatts.I,
+                vec.y == cubiesOff ? colorMatts.U : colorMatts.I,
+                vec.y == -cubiesOff ? colorMatts.D : colorMatts.I,
+                vec.z == cubiesOff ? colorMatts.F : colorMatts.I,
+                vec.z == -cubiesOff ? colorMatts.B : colorMatts.I ];
 
         var cubieMesh = new THREE.Mesh(cubieGeometry,
                 new THREE.MeshFaceMaterial(sideMaterial));
