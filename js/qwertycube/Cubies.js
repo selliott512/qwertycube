@@ -32,7 +32,7 @@ var hcBlackColors = {
 
 //A white cube with standard colors.
 var hcWhiteColors = copyMap(hcBlackColors);
-hcWhiteColors.black = 0xFFFFFF;
+hcWhiteColors.black = hcBlackColors.white;
 
 // A black cube with standard colors.
 var stdBlackColors = {
@@ -48,7 +48,7 @@ var stdBlackColors = {
 
 // A white cube with standard colors.
 var stdWhiteColors = copyMap(stdBlackColors);
-stdWhiteColors.black = 0xFFFFFF;
+stdWhiteColors.black = stdWhiteColors.white;
 
 var colorTable = {
     "hc-black" : hcBlackColors,
