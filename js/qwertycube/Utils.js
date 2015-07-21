@@ -2,10 +2,10 @@
 
 // Public methods
 
-// Copy a map.  Note that this is not a deep/recursive copy.
+// Copy a map. Note that this is not a deep/recursive copy.
 function copyMap(oldMap) {
     var newMap = {};
-    for (var item in oldMap) {
+    for ( var item in oldMap) {
         newMap[item] = oldMap[item];
     }
     return newMap;
@@ -66,6 +66,26 @@ function largestAbsoluteAxis(vector) {
     return axisName;
 }
 
+// Convert a map to a space separated key:value list.
+function mapToString(map) {
+    var first = true;
+    var str = "";
+    for ( var item in map) {
+        str += (first ? "" : " ") + item + ":" + map[item];
+        first = false;
+    }
+    return str;
+}
+
+function normalizeColor(color) {
+    if (color.constructor === Number) {
+        return color;
+    } else {
+        return color.toLowerCase().indexOf("0x") === -1 ? color
+                : parseInt(color)
+    }
+}
+
 // Set a global variable by name while preserving the type of the global.
 function setGlobal(varName, varValueStr) {
     console.log("setting global " + varName);
@@ -90,6 +110,23 @@ function setGlobal(varName, varValueStr) {
         varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
     } else if (varType === Number) {
         varValue = parseInt(varValueStr);
+    } else if (varType === Object) {
+        varValue = varValueStr.split(" ");
+        var varValueMap = {};
+        for (var i = 0; i < varValue.length; i++) {
+            var entry = varValue[i];
+            if (!entry) {
+                continue;
+            }
+            var keyValue = entry.split(":");
+            var key = keyValue[0];
+            var value = keyValue[1];
+            if (!key || !value) {
+                continue;
+            }
+            varValueMap[key] = value;
+        }
+        varValue = varValueMap;
     } else {
         varValue = varValueStr;
     }

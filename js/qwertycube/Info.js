@@ -14,6 +14,7 @@ var infoVarNameDescs = [
     ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
     ["cameraLocation", true, false, "Location of the camera."],
     ["cubiesColorBackground", true, true, "Background color to use.  Some color names work."],
+    ["cubiesColorOverrides", true, true, "Override the color scheme per side.  Space separated. Ex I:grey U:yellow"],
     ["cubiesColorScheme", true, true, "Cube color scheme.  \"hc-black\", \"hc-white\", \"std-black\" and \"std-white\"."],
     ["cubiesGap", true, true, "The size of the gaps between cubies."],
     ["cubiesSize", true, true, "The size of each cubie."],
@@ -160,6 +161,9 @@ function infoShow() {
         var line = varName + "=";
         if (varValue.constructor === Array) {
             line += varValue.join(" ");
+        }
+        else if (varValue.constructor === Object) {
+            line += mapToString(varValue);
         }
         else {
             line += varValue;

@@ -13,10 +13,11 @@ var cubiesRadius;
 var cubiesSep;
 var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
+var cubiesColorOverrides = {};
 var cubiesColorScheme = "std-black";
 
 // Other than the first color the colors are ordered in the same was as it is
-// for MeshFaceMaterial.  I is interior (the color of the gaps).  The remaining
+// for MeshFaceMaterial. I is interior (the color of the gaps). The remaining
 // letters are named after the faces.
 
 // High contrast black. Each color should be distinct on all monitors.
@@ -68,8 +69,7 @@ function cubiesCreate() {
             cubiesSize);
     for (var num = 0; num < 27; num++) {
         var vec = cubiesNumberToInitVector3(num);
-        var sideMaterial = [
-                vec.x == cubiesOff ? colorMatts.R : colorMatts.I,
+        var sideMaterial = [ vec.x == cubiesOff ? colorMatts.R : colorMatts.I,
                 vec.x == -cubiesOff ? colorMatts.L : colorMatts.I,
                 vec.y == cubiesOff ? colorMatts.U : colorMatts.I,
                 vec.y == -cubiesOff ? colorMatts.D : colorMatts.I,
@@ -212,9 +212,15 @@ function angleIsLarge(angle) {
 // Initialize colorMatts based on colorValues.
 function initMaterials() {
     var colorValues = colorTable[cubiesColorScheme];
-    for ( var color in colorValues) {
-        colorMatts[color] = new THREE.MeshBasicMaterial({
-            color : colorValues[color],
+    for ( var side in colorValues) {
+        var color = colorValues[side];
+        var colorOverride = cubiesColorOverrides[side];
+        if (colorOverride) {
+            color = colorOverride;
+        }
+        color = normalizeColor(color);
+        colorMatts[side] = new THREE.MeshBasicMaterial({
+            color : color,
         });
     }
 }

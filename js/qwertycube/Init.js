@@ -67,8 +67,10 @@ function initSaveStorage() {
             for (var i = 0; i < window[varName].length; i++) {
                 varValue += (i ? " " : "") + window[varName][i];
             }
-        }
-        else {
+        } else if (window[varName].constructor === Object) {
+            // Write maps space separated key:value list.
+            varValue = mapToString(window[varName]);
+        } else {
             varValue = window[varName];
         }
         localStorage.setItem(presistentPrefix + varName, varValue);
@@ -90,9 +92,7 @@ function initVars() {
 }
 
 function initSetBackgroundColor() {
-    renderer
-            .setClearColor(cubiesColorBackground.toLowerCase().indexOf("0x") === -1 ? cubiesColorBackground
-                    : parseInt(cubiesColorBackground));
+    renderer.setClearColor(normalizeColor(cubiesColorBackground));
 }
 
 // Private methods
@@ -150,7 +150,7 @@ function setup() {
 
     // CameraControls:
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-    
+
     // Add the renderer to the page.
     containerEl.appendChild(renderer.domElement);
 }
