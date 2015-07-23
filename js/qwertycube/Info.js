@@ -17,6 +17,7 @@ var infoVarNameDescs = [
     ["cubiesColorOverrides", true, true, "Override the color scheme per side.  Space separated. Ex I:grey U:yellow"],
     ["cubiesColorScheme", true, true, "Cube color scheme.  \"hc-black\", \"hc-white\", \"std-black\" and \"std-white\"."],
     ["cubiesGap", true, true, "The size of the gaps between cubies."],
+    ["cubiesInitFacelets", true, true, "Facelet pattern used for new cubes.  Order is URFDLB."],
     ["cubiesSize", true, true, "The size of each cubie."],
     ["dispOrientationLabels", true, false, "Display labels that to show the orientation (O key toggle)."],
     ["help", true, false, "If true then the help dialog is displayed."],
@@ -72,6 +73,12 @@ function infoOk() {
     // Miscellaneous checks for variables.
     if (moveHistoryNext > moveHistory.length) {
         moveHistoryNext = moveHistory.length;
+    }
+    // Standard upper case, no spaces, truncate if too long.
+    cubiesInitFacelets = cubiesInitFacelets.replace(/ /g, "").toUpperCase().substring(0, 54);
+    while (cubiesInitFacelets.length < 54) {
+        // Just use internal if the string is too short for some reason.
+        cubiesInitFacelets += "I";
     }
 
     // Now that the globals have been updated save to persistent storage.

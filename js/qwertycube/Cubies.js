@@ -15,6 +15,7 @@ var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
 var cubiesColorOverrides = {};
 var cubiesColorScheme = "std-black";
+var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 
 // Other than the first color the colors are ordered in the same was as it is
 // for MeshFaceMaterial. I is interior (the color of the gaps). The remaining
@@ -60,6 +61,22 @@ var colorTable = {
 // The above, but in to material instead of number.
 var colorMatts = {};
 
+// Points to one of the color tables after initMaterials is called.
+var colorValues;
+
+// How axis relate to the offset in standard facelets order.
+var faceletAxisMults = {
+    U : [ 1, 0, 3 ],
+    R : [ 0, -3, -1 ],
+    F : [ 1, -3, 0 ],
+    D : [ 1, 0, -3 ],
+    L : [ 0, -3, 1 ],
+    B : [ -1, -3, 0 ]
+}
+
+// Used to index into cubiesInitFacelets
+var faceletOrder = "URFDLB";
+
 // Public methods
 
 function cubiesCreate() {
@@ -69,13 +86,22 @@ function cubiesCreate() {
             cubiesSize);
     for (var num = 0; num < 27; num++) {
         var vec = cubiesNumberToInitVector3(num);
-        var sideMaterial = [ vec.x == cubiesOff ? colorMatts.R : colorMatts.I,
-                vec.x == -cubiesOff ? colorMatts.L : colorMatts.I,
-                vec.y == cubiesOff ? colorMatts.U : colorMatts.I,
-                vec.y == -cubiesOff ? colorMatts.D : colorMatts.I,
-                vec.z == cubiesOff ? colorMatts.F : colorMatts.I,
-                vec.z == -cubiesOff ? colorMatts.B : colorMatts.I ];
+        var sideMaterial = [];
+        for ( var face in colorValues) {
+            if (face == "I") {
+                continue;
+            }
 
+            var args = eventToRotation[face];
+            // The meaning of sign is the opposite here - it's positive if
+            // the face is on the positive side of the axis.
+            var sign = args[0] == "-" ? 1 : -1;
+            var axis = args[1];
+            sideMaterial
+                    .push(vec[axis] == sign * cubiesOff ? colorMatts[faceVectorToFacelet(
+                            face, vec)]
+                            : colorMatts.I);
+        }
         var cubieMesh = new THREE.Mesh(cubieGeometry,
                 new THREE.MeshFaceMaterial(sideMaterial));
         cubies.push(cubieMesh);
@@ -209,9 +235,32 @@ function angleIsLarge(angle) {
     return ((Math.abs(angle) + 0.1) % (2 * Math.PI)) > 0.2;
 }
 
+// Given a face and a vector return the facelet (sticker).
+function faceVectorToFacelet(face, vec) {
+    var base = 9 * faceletOrder.indexOf(face);
+    if (base < 0) {
+        console.log("Unable to find face \"" + face + "\".");
+    }
+
+    // Scale the vector to [-1, -1, -1] - [1, 1, 1].
+    var vecOne = vec.clone();
+    vecOne.x = Math.round(vecOne.x / cubiesOff);
+    vecOne.y = Math.round(vecOne.y / cubiesOff);
+    vecOne.z = Math.round(vecOne.z / cubiesOff);
+
+    var mults = faceletAxisMults[face];
+    // The center has offset 4 in each face section in the sequence of
+    // facelets. Relative to that apply the multipliers to the vecOne to
+    // find the offset.
+    var offset = 4 + mults[0] * vecOne.x + mults[1] * vecOne.y + mults[2]
+            * vecOne.z;
+
+    return cubiesInitFacelets[base + offset];
+}
+
 // Initialize colorMatts based on colorValues.
 function initMaterials() {
-    var colorValues = colorTable[cubiesColorScheme];
+    colorValues = colorTable[cubiesColorScheme];
     for ( var side in colorValues) {
         var color = colorValues[side];
         var colorOverride = cubiesColorOverrides[side];
