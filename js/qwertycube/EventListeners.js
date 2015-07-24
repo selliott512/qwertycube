@@ -4,6 +4,8 @@
 
 var escLast = false;
 var helpMsgDisplayed = false;
+var keyMap = {};
+var keyMapSize = 0;
 var moveStart = null;
 
 // Public methods
@@ -22,8 +24,11 @@ function eventListenersAdd() {
 // Private methods
 
 function onKeyDown(event) {
+    if ((event.keyCode == 16) || (event.keyCode == 18)) {
+        // Ignore shift and alt being pressed by themselves.
+        return;
+    }
     var eventChar = String.fromCharCode(event.keyCode);
-    var args = eventToRotation[eventChar];
     var alt = escLast || event.altKey;
     var shift = event.shiftKey;
     if (infoDisplayed) {
@@ -36,6 +41,36 @@ function onKeyDown(event) {
         console.log("Ignoring key event due to the control key.");
         return;
     }
+
+    if (keyMapSize) {    
+        // Look for the keystroke in the keymap.
+        // Order matters here.
+        var prefix = (alt ? "A" : "") + (shift ? "S" : "");
+        var keyMapValue = keyMap[prefix + eventChar];
+        if (!keyMapValue) {
+            // If the character could not be found try the key code.
+            keyMapValue = keyMap[prefix + event.keyCode];
+        }
+        if (keyMapValue) {
+            if (keyMapValue[0] == "k") {
+                // Map the keystroke to a different keystroke.
+                eventChar = keyMapValue.slice(-1);
+                alt = keyMapValue.indexOf("A") !== -1;
+                shift = keyMapValue.indexOf("S") !== -1;
+            } else if (keyMapValue[0] == "m") {
+                // Map directly to a move and return.
+                var move = keyMapValue.substring(1);
+                moveQueue.push(move);
+                animateCondReq(true);
+                escLast = false;
+                return;
+            } else {
+                console.log("Unknown keyMap value \"" + keyMapValue + "\".");
+            }
+        }
+    }
+
+    var args = eventToRotation[eventChar];
     if (event.keyCode == 27) {
         escLast = true;
     } else if (args) {
@@ -60,6 +95,16 @@ function onKeyDown(event) {
                     + (animation ? ("on at " + moveSec + " TPS") : "off");
             animateUpdateStatus(msg);
             break;
+        case "C":
+            // (C)heckpoint
+            if ((moveHistory[moveHistoryNext - 1] == "|")
+                    || (moveHistory[moveHistoryNext] == "|")) {
+                animateUpdateStatus("Checkpoint already set");
+            } else {
+                animateUpdateStatus("Checkpoint set");
+                moveHistory.splice(moveHistoryNext++, 0, "|");
+            }
+            break
         case "G": // Undo (like Ctrl-G in Emacs). Shift to redo.
             if (moveCurrent || moveQueue.length) {
                 console.log("Ignoring undo/redo due to pending moves.");
@@ -83,8 +128,8 @@ function onKeyDown(event) {
                     }
                 }
                 if (alt && (move == "|")) {
-                    // A mark was reached with the alt key pressed, so stop
-                    // without processing the mark.
+                    // A checkpoint was reached with the alt key pressed, so
+                    // stop without processing the checkpoint.
                     moveHistoryNext = moveHistoryNextOld;
                     break;
                 }
@@ -157,18 +202,7 @@ function onKeyDown(event) {
             animateCondReq(true);
             break;
         default:
-            // Miscellaneous key strokes that don't convert nicely to their
-            // character equivalent.
-            if ((event.keyCode == 220) && shift) {
-                // Pipe (|) - mark
-                if ((moveHistory[moveHistoryNext - 1] == "|")
-                        || (moveHistory[moveHistoryNext] == "|")) {
-                    animateUpdateStatus("Mark already set");
-                } else {
-                    animateUpdateStatus("Mark set");
-                    moveHistory.splice(moveHistoryNext++, 0, "|");
-                }
-            }
+            console.log("Ignoring unknown key \"" + eventChar + "\".");
             break;
         }
     }

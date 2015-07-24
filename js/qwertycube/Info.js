@@ -25,6 +25,7 @@ var infoVarNameDescs = [
     ["cubiesSize", true, true, "The size of each cubie."],
     ["dispOrientationLabels", true, false, "Display labels that to show the orientation (O key toggle)."],
     ["help", true, false, "If true then the help dialog is displayed."],
+    ["keyMap", true, false, "Key map.  Example, to map Alt-Shift-W to move R2 and Q to default key J: ASW:mR2 Q:kJ"],
     ["moveHistory", false, false, "All moves made since loading the page."],
     ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
     ["moveSec", true, false, "Number of moves per second when replaying."],

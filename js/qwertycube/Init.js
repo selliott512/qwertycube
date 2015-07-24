@@ -89,6 +89,12 @@ function initVars() {
     cubiesOff = cubiesSize + cubiesGap;
     cubiesRadius = Math.round(cubiesSize / 2 + cubiesOff);
     cubiesSep = Math.round((cubiesSize + cubiesGap) / 2);
+
+    // Save the size of the key map to speed things up.
+    keyMapSize = 0;
+    for (var key in keyMap) {
+        keyMapSize++;
+    }
 }
 
 function initSetBackgroundColor() {
