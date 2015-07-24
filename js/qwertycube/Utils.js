@@ -88,7 +88,7 @@ function normalizeColor(color) {
 
 // Set a global variable by name while preserving the type of the global.
 function setGlobal(varName, varValueStr) {
-    console.log("setting global " + varName);
+    console.log("setting global " + varName + " to " + varValueStr);
     var varValue;
     var varType = window[varName].constructor;
     if (!varType) {
@@ -131,4 +131,25 @@ function setGlobal(varName, varValueStr) {
         varValue = varValueStr;
     }
     window[varName] = varValue;
+}
+
+// Wrap the next so that no line exceeds cols columns.
+function wrapWithComments(text, cols) {
+    var result = "";
+    for (var idx = 0; idx < text.length; idx = end + 1) {
+        if ((idx + cols - 2) < text.length) {
+            var sp = text.substring(idx, idx + cols - 2).lastIndexOf(" ");
+            if (sp === -1) {
+                console.log("Could not find a space in \"" + text + "\".");
+                return result;
+            }
+            var end = idx + sp;
+        }
+        else {
+            var end = text.length;
+        }
+        var line = "# " + text.substring(idx, end);
+        result += (result ? "\n" : "") + line;
+    }
+    return result;
 }

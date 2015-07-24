@@ -1,12 +1,16 @@
 "use strict";
 
 var infoDisplayed = false;
+var infoExtraLen = " persist new-cube".length;
 var infoInitialText = 
-    "# This information dialog can be used to view and modify various variables in QWERTYcube.  Edit\n" +
-    "# variables below, if need be, and click the ok button (or Ctrl-Enter) to apply the changes, or\n" +
-    "# click the cancel button (or Esc) to abandon the changes.  Variables marked with \"persist\" are\n" +
-    "# stored in local storage so that they'll have that value the next time QWERTYcube is loaded.\n" +
-    "# Variables marked with \"new-cube\" will not take effect until a new cube (Alt-Shift-N) is created.\n\n";
+    "This information dialog can be used to view and modify various " +
+    "variables in QWERTYcube.  Edit variables below, if need be, and click " +
+    "the ok button (or Ctrl-Enter) to apply the changes, or click the cancel " +
+    "button (or Esc) to abandon the changes.  They're in alphabetical order. " +
+    "You may have to scroll to see some. Variables marked with \"persist\" are " +
+    "stored in local storage so that they'll have that value the next time " +
+    "QWERTYcube is loaded. Variables marked with \"new-cube\" will not take " +
+    "effect until a new cube (Alt-Shift-N) is created.";
    
 // Each entry is name, persist, new-cube, description
 var infoVarNameDescs = [
@@ -23,9 +27,9 @@ var infoVarNameDescs = [
     ["help", true, false, "If true then the help dialog is displayed."],
     ["moveHistory", false, false, "All moves made since loading the page."],
     ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
-    ["moveSec", true, false, false, "Number of moves per second when replaying."],
+    ["moveSec", true, false, "Number of moves per second when replaying."],
     ["scrambleCount", true, false, "Number of random moves used to scramble the cube."],
-    ["scrambleMoves", false, false, "Moves used to scramble the cube."],
+    ["scrambleMoves", false, false, "Moves used to scramble the cube for the \"simple\" scrambler."],
     ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
     ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
     ["timerInspectionSecs", true, false, "The amount of inspection time before solving."]];
@@ -115,7 +119,6 @@ function infoOnKeyDown(event) {
 
 function infoOnLoad() {
     console.log("onLoad()");
-
     infoResize();
     goToAfterInit();
 }
@@ -149,7 +152,8 @@ function infoShow() {
     infoOkEl.style.visibility = "visible";
     infoResize();
     
-    infoTextEl.value = infoInitialText;
+    infoTextEl.value = wrapWithComments(infoInitialText, 
+            infoTextEl.cols - 1) + "\n";
     
     // Update variables that may need updating.
     cameraLocation[0] = Math.round(camera.position.x);
@@ -162,8 +166,9 @@ function infoShow() {
         var varPersist = varNameDesc[1];
         var varNewCube = varNameDesc[2];
         var varDesc = varNameDesc[3];
-        infoTextEl.value += "\n# " + varDesc + (varPersist ? " persist" : "") + 
-            (varNewCube ? " new-cube" : "") + "\n";
+        infoTextEl.value += "\n" + wrapWithComments(varDesc  + 
+                (varPersist ? " persist" : "") + 
+                (varNewCube ? " new-cube" : ""), infoTextEl.cols - 1) + "\n";
         var varValue = window[varName];
         var line = varName + "=";
         if (varValue.constructor === Array) {
