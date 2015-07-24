@@ -152,7 +152,7 @@ function setup() {
     animateSetCamera();
 
     // Register event listeners (keys, etc.).
-    eventListenersAdd();
+    eventAdd();
 
     // CameraControls:
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);

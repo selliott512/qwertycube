@@ -10,7 +10,7 @@ var moveStart = null;
 
 // Public methods
 
-function eventListenersAdd() {
+function eventAdd() {
     // Register event listeners that are needed by this program. Note that
     // document is used as mouse events need to be processed here before
     // OrbitControls does.
@@ -95,8 +95,7 @@ function onKeyDown(event) {
                     + (animation ? ("on at " + moveSec + " TPS") : "off");
             animateUpdateStatus(msg);
             break;
-        case "C":
-            // (C)heckpoint
+        case "C": // (C)heckpoint
             if ((moveHistory[moveHistoryNext - 1] == "|")
                     || (moveHistory[moveHistoryNext] == "|")) {
                 animateUpdateStatus("Checkpoint already set");
