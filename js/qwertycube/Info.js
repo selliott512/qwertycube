@@ -17,7 +17,7 @@ var infoVarNameDescs = [
     ["animation", true, false, "If true then show animation as the cube moves (A key toggle)."],
     ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
     ["cameraLocation", true, false, "Location of the camera."],
-    ["cubiesColorBackground", true, true, "Background color to use.  Some color names work."],
+    ["cubiesColorBackground", true, false, "Background color to use.  Some color names work."],
     ["cubiesColorOverrides", true, true, "Override the color scheme per side.  Space separated. Ex I:grey U:yellow"],
     ["cubiesColorScheme", true, true, "Cube color scheme.  \"hc-black\", \"hc-white\", \"std-black\" and \"std-white\"."],
     ["cubiesGap", true, true, "The size of the gaps between cubies."],

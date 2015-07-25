@@ -64,8 +64,8 @@ function initSaveStorage() {
         if (window[varName].constructor === Array) {
             // Write arrays space separated.
             var varValue = "";
-            for (var i = 0; i < window[varName].length; i++) {
-                varValue += (i ? " " : "") + window[varName][i];
+            for (var j = 0; j < window[varName].length; j++) {
+                varValue += (j ? " " : "") + window[varName][j];
             }
         } else if (window[varName].constructor === Object) {
             // Write maps space separated key:value list.
