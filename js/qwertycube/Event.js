@@ -208,6 +208,10 @@ function onKeyDown(event) {
 }
 
 function onMouseDown(event) {
+    if (infoDisplayed) {
+        return;
+    }
+    
     if (event.button === 0) {
         // Left mouse button was clicked.
         moveStart = cubiesEventToCubeCoord(event, null);
@@ -218,13 +222,15 @@ function onMouseDown(event) {
 
     // The user may be adjusting the camera if a mouse button is done. When
     // in doubt animate.
-    if (!infoDisplayed) {
-        cameraAdjusting = true;
-        animateCondReq(true);
-    }
+    cameraAdjusting = true;
+    animateCondReq(true);
 }
 
 function onMouseUp(event) {
+    if (infoDisplayed) {
+        return;
+    }
+
     if (event.button !== 0) {
         // Only handle the left mouse button.
         return;
@@ -306,10 +312,7 @@ function onMouseUp(event) {
     }
 
     cameraControls.enabled = true;
-
-    if (!infoDisplayed) {
-        cameraAdjusting = false;
-    }
+    cameraAdjusting = false;
 }
 
 function onResize(event) {
