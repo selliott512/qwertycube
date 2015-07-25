@@ -14,23 +14,30 @@ var infoInitialText =
    
 // Each entry is name, persist, new-cube, description
 var infoVarNameDescs = [
-    ["animation", true, false, "If true then show animation as the cube moves (A key toggle)."],
+    ["animation", true, false, "If true then show animation as the cube moves. \"A\" toggles."],
     ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
     ["cameraLocation", true, false, "Location of the camera."],
-    ["cubiesColorBackground", true, false, "Background color to use.  Some color names work."],
-    ["cubiesColorOverrides", true, true, "Override the color scheme per side.  Space separated. Ex I:grey U:yellow"],
-    ["cubiesColorScheme", true, true, "Cube color scheme.  \"hc-black\", \"hc-white\", \"std-black\" and \"std-white\"."],
+    ["cubiesColorBackground", true, false, "Background color to use.  Some color names work as well as 0xRRGGBB."],
+    ["cubiesColorOverrides", true, true, "Color overrides.  Space separated list of color override items " +
+    		"where each item has the form <side>:<color>. For example, to map the right side to grey, the " +
+    		"left side to magenta and the interior to 0x224466: R:grey L:magenta I:0x224466"],
+    ["cubiesColorScheme", true, true, "Cube color scheme.  Valid values are \"hc-black\", \"hc-white\", " +
+    		"\"std-black\" and \"std-white\".  \"hc\" is high contrast."],
     ["cubiesGap", true, true, "The size of the gaps between cubies."],
-    ["cubiesInitFacelets", true, true, "Facelet pattern used for new cubes.  Order is URFDLB."],
+    ["cubiesInitFacelets", true, true, "Facelet pattern used for new cubes.  The pattern specified is " +
+    		"considered to be solved (the timer will stop when it's reached). Order is URFDLB."],
     ["cubiesSize", true, true, "The size of each cubie."],
-    ["dispOrientationLabels", true, false, "Display labels that to show the orientation (O key toggle)."],
-    ["help", true, false, "If true then the help dialog is displayed."],
-    ["keyMap", true, false, "Key map.  Example, to map Alt-Shift-W to move R2 and Q to default key J: ASW:mR2 Q:kJ"],
+    ["dispOrientationLabels", true, false, "Display labels that to show the orientation \"O\" toggles)."],
+    ["dispHelp", true, false, "If true then the help dialog is displayed. \"H\" toggles."],
+    ["keyMap", true, false, "Key map.  Space separated list of key mapping items where each item has the form " +
+    		"[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
+    		"before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
+    		"ASW:mR2 Q:kJ SX:mr"],
     ["moveHistory", false, false, "All moves made since loading the page."],
     ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
     ["moveSec", true, false, "Number of moves per second when replaying."],
-    ["scrambleCount", true, false, "Number of random moves used to scramble the cube."],
-    ["scrambleMoves", false, false, "Moves used to scramble the cube for the \"simple\" scrambler."],
+    ["scrambleCount", true, false, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
+    ["scrambleMoves", false, false, "Moves used to scramble the cube."],
     ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
     ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
     ["timerInspectionSecs", true, false, "The amount of inspection time before solving."]];

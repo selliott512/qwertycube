@@ -83,7 +83,7 @@ function initVars() {
     moveRadMsec = (moveSec / 1000.0) * (Math.PI / 2.0);
 
     // Set the visibility of the help dialog.
-    helpEl.style.visibility = help ? "visible" : "hidden";
+    helpEl.style.visibility = dispHelp ? "visible" : "hidden";
 
     // Use to find the position of each cubie.
     cubiesOff = cubiesSize + cubiesGap;

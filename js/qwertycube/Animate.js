@@ -14,8 +14,8 @@ var cameraControls;
 var canvasHeight = 0;
 var canvasWidth = 0;
 var cubies = [];
+var dispHelp = true;
 var dispOrientationLabels = false;
-var help = true;
 var moveCurrent = "";
 var moveHistory = [];
 var moveHistoryNext = 0;
@@ -172,7 +172,7 @@ function animateUpdateTimer() {
             var elapsedMsec = (1000 * timerInspectionSecs)
                     - (Date.now() - timerStart);
             if (elapsedMsec <= 0) {
-                // If they ran out of inspection time switchto solve and get
+                // If they ran out of inspection time switch to solve and get
                 // the next animation.
                 timerState = "solve";
                 timerStart = Date.now();
