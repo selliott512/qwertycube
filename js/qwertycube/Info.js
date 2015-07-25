@@ -106,7 +106,7 @@ function infoOk() {
     moveQueue = moveHistory.slice(0, moveHistoryNext);
     moveHistory.length = 0; // The moveQueue will be appended.
     moveHistoryNext = 0;
-    animateCondReq();
+    animateCondReq(true);
 }
 
 function infoOnKeyDown(event) {

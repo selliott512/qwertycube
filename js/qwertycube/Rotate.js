@@ -108,5 +108,5 @@ function inRangeRotate(axisSign, axisOfRot, limLo, limHi) {
     for (var i = 0; i < active.length; i++) {
         THREE.SceneUtils.attach(active[i], scene, pivot);
     }
-    animateCondReq();
+    animateCondReq(true);
 }

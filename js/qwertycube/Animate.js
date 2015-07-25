@@ -215,16 +215,9 @@ function doAnimate() {
         // Something other than the timer needs to be updated.
         cameraControls.update();
         var endMove = false;
-
-        if (dispOrientationLabels) {
-            for (var i = 0; i < text.length; i++) {
-                scene.add(text[i]);
-                text[i].lookAt(camera.position);
-            }
-        } else {
-            for (var i = 0; i < text.length; i++)
-                scene.remove(text[i]);
-        }
+        
+        // Display or hide the orientation labels.
+        textSetVisible(dispOrientationLabels);
 
         if (!moveCurrent) {
             moveCurrent = moveQueue.shift();

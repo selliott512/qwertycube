@@ -180,7 +180,7 @@ function onKeyDown(event) {
             break;
         case "O": // (O)rientation display toggle.
             dispOrientationLabels = !dispOrientationLabels;
-            animateUpdateStatus((dispOrientationLabels ? "Display"
+            animateUpdateStatus((dispOrientationLabels ? "Displaying"
                     : "Not displaying")
                     + " orientation labels.");
             animateCondReq(true);

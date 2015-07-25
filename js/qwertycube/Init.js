@@ -114,10 +114,6 @@ function fillScene() {
     // Add cubies (Child cubes) to scene
     for (var i = 0; i < cubies.length; i++) {
         scene.add(cubies[i]);
-        if (i >= text.length)
-            continue;
-
-        scene.add(text[i]);
     }
 }
 
