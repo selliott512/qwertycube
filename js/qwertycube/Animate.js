@@ -19,6 +19,7 @@ var dispOrientationLabels = false;
 var moveCurrent = "";
 var moveHistory = [];
 var moveHistoryNext = 0;
+var moveHistoryNextLast = -1; // Not set
 var moveQueue = [];
 var moveRadMsec = 0.0;
 var moveSec = 10.0;
@@ -272,6 +273,8 @@ function doAnimate() {
                         timerSolved = Date.now();
                     }
                 }
+                // We're done replaying moves.
+                moveHistoryNextLast = -1;
             }
         }
         animateUpdateStatus(null);

@@ -34,8 +34,7 @@ var infoVarNameDescs = [
     		"before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
     		"ASW:mR2 Q:kJ SX:mr"],
     ["moveHistory", false, false, "All moves made since loading the page."],
-    ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done.  Note that this " +
-    		"must be set to the length of moveHistory in order to avoid truncating moveHistory."],
+    ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
     ["moveSec", true, false, "Number of moves per second when replaying."],
     ["scrambleCount", true, false, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
     ["scrambleMoves", false, false, "Moves used to scramble the cube."],
@@ -106,9 +105,12 @@ function infoOk() {
     // Apply the new move history to the cube.
     // TODO: If the cube is partially rewound then those moves after
     // moveHistoryNext are lost upon restore.
-    moveQueue = moveHistory.slice(0, moveHistoryNext);
-    moveHistory.length = 0; // The moveQueue will be appended.
-    moveHistoryNext = 0;
+    moveQueue = moveHistory.slice();
+    if (moveHistory.length) {
+        moveHistory.length = 0; // The moveQueue will be appended.
+        moveHistoryNextLast = moveHistoryNext;
+        moveHistoryNext = 0;
+    }
     animateCondReq(true);
 }
 

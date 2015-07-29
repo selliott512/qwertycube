@@ -16,17 +16,27 @@ var rotateTwoLayer = false;
 // Public methods
 
 function rotateBegin(move) {
-    if (move == "|") {
-        // Not much to do for marks.
+    // If true then moves are being replayed (ok button clicked) and the we've
+    // reached the point where the user is.
+    var endOfReplay = (moveHistoryNextLast != -1) && (moveHistoryNext >= moveHistoryNextLast);
+    
+    if ((move == "|") || endOfReplay) {
+        // Avoid actually doing the move in the following cases 1) It's a mark,
+        // in which case there is no actual moving to do. 2) The user has
+        // clicked ok in the info dialog in which case we don't want to replay
+        // moves after and including moveHistoryNext.
         moveHistory.push(move);
-        moveHistoryNext++;
+        if (!endOfReplay) {
+            // End reached.
+            moveHistoryNext++;
+        }
         return;
     }
     var moveBase = move[0];
     var moveFace = moveBase.toUpperCase();
     var args = eventToRotation[moveFace];
     if (!args) {
-        return false;
+        return;
     }
 
     args = args.slice(); // Copy so the original is not changed.
@@ -72,9 +82,6 @@ function rotateBegin(move) {
         moveHistory.push(move);
         moveHistoryNext++;
     }
-
-    // A move was made.
-    return true;
 }
 
 function rotateEnd() {
