@@ -15,8 +15,10 @@ function eventAdd() {
     // document is used as mouse events need to be processed here before
     // OrbitControls does.
     document.addEventListener("keydown", onKeyDown, false);
-    document.addEventListener("mousedown", onMouseDown, false);
-    document.addEventListener("mouseup", onMouseUp, false);
+    document.addEventListener(mobile ? "touchstart" : "mousedown", onMouseDown,
+            false);
+    document.addEventListener(mobile ? "touchend" : "mouseup", onMouseUp,
+            false);
 
     window.addEventListener("resize", onResize, false);
 }
@@ -42,7 +44,7 @@ function onKeyDown(event) {
         return;
     }
 
-    if (keyMapSize) {    
+    if (keyMapSize) {
         // Look for the keystroke in the keymap.
         // Order matters here.
         var prefix = (alt ? "A" : "") + (shift ? "S" : "");
@@ -164,9 +166,10 @@ function onKeyDown(event) {
             event.preventDefault();
             break;
         case "J": // (J)umble (S was taken)
-            var msg = "Jumbling the cube with " + (
-                    scrambleType == "jsss" ? "jsss" : (scrambleCount
-                    + " moves")) + ". \"I\" to see the scramble.";
+            var msg = "Jumbling the cube with "
+                    + (scrambleType == "jsss" ? "jsss"
+                            : (scrambleCount + " moves"))
+                    + ". \"I\" to see the scramble.";
             animateUpdateStatus(msg);
             scramble();
             break;
@@ -211,7 +214,7 @@ function onMouseDown(event) {
     if (infoDisplayed) {
         return;
     }
-    
+
     if (event.button === 0) {
         // Left mouse button was clicked.
         moveStart = cubiesEventToCubeCoord(event, null);
@@ -248,8 +251,8 @@ function onMouseUp(event) {
             torque.crossVectors(moveStart.pos, force);
 
             // The axis that had the most torque is assumed the one that the
-            // move is to be around.  The sign is in the vector rotation sense
-            // (counter clockwise positive) and not the cube sense (clockwise 
+            // move is to be around. The sign is in the vector rotation sense
+            // (counter clockwise positive) and not the cube sense (clockwise
             // positive).
             var axis = largestAbsoluteAxis(torque);
             var sign = torque[axis] >= 0 ? "+" : "-";
@@ -261,7 +264,7 @@ function onMouseUp(event) {
                     : ((moveStart.pos[axis] > cubiesSep) ? 1 : 0);
             var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
                     : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
-            
+
             if (Math.abs(layerStart - layerEnd) == 1) {
                 // Since double layer moves are not in the eventToRotation
                 // table convert to single layer, but make a note that it's
@@ -287,16 +290,16 @@ function onMouseUp(event) {
             // Look for the move in eventToRotation.
             for ( var move in eventToRotation) {
                 var args = eventToRotation[move];
-                if ((args[1] == axis)
-                        && (args[2] == layerMin) && (args[3] == layerMax)) {
-                    // Found a match.  Create the move.
+                if ((args[1] == axis) && (args[2] == layerMin)
+                        && (args[3] == layerMax)) {
+                    // Found a match. Create the move.
                     if (doubleLayer) {
                         move = move.toLowerCase();
                     }
                     if (args[0] !== sign) {
-                        // Either the direction of the unmodified move in the 
+                        // Either the direction of the unmodified move in the
                         // table, or the direction the user specified about the
-                        // axis, is negative.  Go the other way.
+                        // axis, is negative. Go the other way.
                         move += "'";
                     }
 

@@ -1,6 +1,7 @@
 "use strict";
 
 // Globals
+var mobile = false;
 
 // Elements that are never recreated, so they're stored globally.
 var containerEl;
@@ -81,6 +82,10 @@ function initSaveStorage() {
 function initVars() {
     // Calculate radians per msec given the moves (half turns) per second.
     moveRadMsec = (moveSec / 1000.0) * (Math.PI / 2.0);
+
+    // Don't display the help dialog for mobile devices.
+    mobile = isMobile();
+    dispHelp = !mobile;
 
     // Set the visibility of the help dialog.
     helpEl.style.visibility = dispHelp ? "visible" : "hidden";

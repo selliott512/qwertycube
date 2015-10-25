@@ -1,5 +1,9 @@
 "use strict";
 
+// Globals
+var mobileUserAgentREs = [ /Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
+        /iPod/i, /webOS/i, /Windows, Phone/i ];
+
 // Public methods
 
 // Copy a map. Note that this is not a deep/recursive copy.
@@ -80,6 +84,7 @@ function mapToString(map) {
     return str;
 }
 
+// Normalize the color.
 function normalizeColor(color) {
     if (color.constructor === Number) {
         return color;
@@ -87,6 +92,18 @@ function normalizeColor(color) {
         return color.toLowerCase().indexOf("0x") === -1 ? color
                 : parseInt(color)
     }
+}
+
+// Return true if the device is mobile. Inspired by:
+// http://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
+function isMobile() {
+    for (var i = 0; i < mobileUserAgentREs.length; i++) {
+        var re = mobileUserAgentREs[i];
+        if (navigator.userAgent.match(re)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // Set a global variable by name while preserving the type of the global.
@@ -147,8 +164,7 @@ function wrapWithComments(text, cols) {
                 return result;
             }
             var end = idx + sp;
-        }
-        else {
+        } else {
             var end = text.length;
         }
         var line = "# " + text.substring(idx, end);
