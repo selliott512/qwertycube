@@ -29,6 +29,9 @@ function getInverseMove(move) {
 
 // Convert an elapsed amount of time to mm:ss.x format.
 function elapsedMsecToStr(elapsedMsec) {
+    if (elapsedMsec == null) {
+        return "";
+    }
     // Work with integers and then add the decimal later.
     var deciSecs = 0 | ((elapsedMsec + 0.5) / 100);
     var minutes = 0 | ((deciSecs + 0.5) / 600);

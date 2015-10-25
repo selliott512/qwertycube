@@ -36,7 +36,7 @@ var timerFrameNext = 0;
 var timerInspectionSecs = 15;
 var timerSolved;
 var timerStart = Date.now();
-var timerState = "new";
+var timerState = "solve";
 
 // The following lookup tables should be kept in sync and in alphabetical order
 // by key.
@@ -115,6 +115,7 @@ function animateNewCube() {
     moveHistoryNext = 0;
     rotateEnd();
     animateResetScene();
+    timerState = "solve";
     timerStart = Date.now();
     animateCondReq(true);
 }
@@ -179,12 +180,20 @@ function animateUpdateTimer() {
                 timerStart = Date.now();
                 return;
             }
+        } else if (timerState == "scramble") {
+            timerEl.style.backgroundColor = "#808080";
+            var elapsedMsec = null;
+        } else if (timerState == "solve") {
+            timerEl.style.backgroundColor = "#80ff80";
+            var elapsedMsec = Date.now() - timerStart;
         } else if (timerState == "solved") {
             timerEl.style.backgroundColor = "#ffff80";
             var elapsedMsec = timerSolved - timerStart;
         } else {
-            timerEl.style.backgroundColor = "#80ff80";
-            var elapsedMsec = Date.now() - timerStart;
+            timerEl.style.backgroundColor = "#ff80ff";
+            // Unknown timerState.  This should not happen.
+            animateUpdateStatus("Unknown timerState \"" + timerState + "\"");
+            var elapsedMsec = -1;
         }
         timerEl.innerHTML = elapsedMsecToStr(elapsedMsec)
 
@@ -216,7 +225,7 @@ function doAnimate() {
         // Something other than the timer needs to be updated.
         cameraControls.update();
         var endMove = false;
-        
+
         // Display or hide the orientation labels.
         textSetVisible(dispOrientationLabels);
 
