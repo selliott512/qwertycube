@@ -221,6 +221,10 @@ function onMouseDown(event) {
         return;
     }
 
+    // Prevent the browser from scrolling or otherwise attempting to respond
+    // to the event.
+    event.preventDefault();
+
     // Primary button - true for the left mouse button or any touch event.
     var primaryButton = mobile || (event.button === 0);
     if (primaryButton && ((!mobile) || event.touches.length)) {
@@ -248,6 +252,10 @@ function onMouseUp(event) {
     if (infoDisplayed) {
         return;
     }
+
+    // Prevent the browser from scrolling or otherwise attempting to respond
+    // to the event.
+    event.preventDefault();
 
     // Primary button - true for the left mouse button or any touch event.
     var primaryButton = mobile || (event.button === 0);
@@ -348,6 +356,10 @@ function onResize(event) {
 }
 
 function onTouchMove(event) {
+    // Prevent the browser from scrolling or otherwise attempting to respond
+    // to the event.
+    event.preventDefault();
+
     if (event.touches.length) {
         // Support multiple touches.  Average?
         lastTouchX = event.touches[0].pageX;
