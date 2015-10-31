@@ -8,6 +8,7 @@ var cubies = [];
 // The size of the cubies.
 var cubiesSize = 100;
 var cubiesGap = Math.round(cubiesSize / 10);
+var cubiesHalfSide;
 var cubiesOff;
 var cubiesRadius;
 var cubiesSep;
@@ -139,7 +140,7 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
         var axis = axes[i];
         // Of the two sides for each axis we only need to consider the one
         // closest to the camera.
-        var side = (camera.position[axis] >= 0) ? cubiesRadius : -cubiesRadius;
+        var side = (camera.position[axis] >= 0) ? cubiesHalfSide : -cubiesHalfSide;
 
         // A unit normal vector that points from the camera toward the point
         // on the cube that we're trying to find.
@@ -163,9 +164,9 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
         // not in the cube as the user is allowed to drag the mouse out of
         // the cube.
         if (onAxis
-                || ((Math.abs(clicked.x) <= cubiesRadius)
-                        && (Math.abs(clicked.y) <= cubiesRadius) && (Math
-                        .abs(clicked.z) <= cubiesRadius))) {
+                || ((Math.abs(clicked.x) <= cubiesHalfSide)
+                        && (Math.abs(clicked.y) <= cubiesHalfSide) && (Math
+                        .abs(clicked.z) <= cubiesHalfSide))) {
             return {
                 axis : axis,
                 pos : clicked

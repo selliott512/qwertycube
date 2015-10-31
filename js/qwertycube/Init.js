@@ -84,7 +84,7 @@ function initVars() {
     // Calculate radians per msec given the moves (half turns) per second.
     moveRadMsec = (moveSec / 1000.0) * (Math.PI / 2.0);
 
-    // Don't display the help dialog for mobile devices.  Leave it be for
+    // Don't display the help dialog for mobile devices. Leave it be for
     // non-mobile.
     mobile = isMobile();
     console.log("Mobile: " + mobile);
@@ -95,14 +95,25 @@ function initVars() {
     // Set the visibility of the help dialog.
     helpEl.style.visibility = dispHelp ? "visible" : "hidden";
 
-    // Use to find the position of each cubie.
+    // Used to find the position of each cubie.
     cubiesOff = cubiesSize + cubiesGap;
-    cubiesRadius = Math.round(cubiesSize / 2 + cubiesOff);
+    cubiesHalfSide = Math.round(cubiesSize / 2 + cubiesOff);
     cubiesSep = Math.round((cubiesSize + cubiesGap) / 2);
+
+    // Radius of the smallest sphere that completely encloses the entire cube.
+    cubiesRadius = Math.sqrt(3.0) * cubiesHalfSide;
+
+    // Radius of the smallest sphere centered at the origin that encloses both
+    // the cube and the camera (or, distance from the camera to the origin).
+    cameraRadius = 0.0;
+    for (var i = 0; i < cameraLocation.length; i++) {
+        cameraRadius += cameraLocation[i] * cameraLocation[i];
+    }
+    cameraRadius = Math.sqrt(cameraRadius);
 
     // Save the size of the key map to speed things up.
     keyMapSize = 0;
-    for (var key in keyMap) {
+    for ( var key in keyMap) {
         keyMapSize++;
     }
 }

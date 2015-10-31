@@ -9,13 +9,16 @@ var animationRequested = false;
 var aspectRatio = 0.0;
 var camera;
 var cameraAdjusting = false;
-var cameraLocation = [470, 470, 470];
 var cameraControls;
+var cameraLocation = [ 470, 470, 470 ];
+var cameraRadius;
 var canvasHeight = 0;
+var canvasMin = 0;
 var canvasWidth = 0;
 var cubies = [];
 var dispHelp = true;
 var dispOrientationLabels = false;
+var fov = 0.0;
 var moveCurrent = "";
 var moveHistory = [];
 var moveHistoryNext = 0;
@@ -61,8 +64,9 @@ function animateCondReq(needed) {
     animateNeeded = needed;
 
     // This method requests that doAnimate() be called next frame if need be.
-    if ((!animationRequested) && (animateNeeded || moveCurrent ||
-            moveQueue.length || statusDisplayed || cameraAdjusting || timer)) {
+    if ((!animationRequested)
+            && (animateNeeded || moveCurrent || moveQueue.length
+                    || statusDisplayed || cameraAdjusting || timer)) {
         window.requestAnimationFrame(doAnimate);
         animationRequested = true;
     }
@@ -86,10 +90,24 @@ function animateResetScene() {
 function animateResize() {
     canvasWidth = window.innerWidth;
     canvasHeight = window.innerHeight;
+    canvasMin = Math.min(canvasWidth, canvasHeight);
     renderer.setSize(canvasWidth, canvasHeight);
     aspectRatio = canvasWidth / canvasHeight;
+    if (aspectRatio >= 1.0) {
+        // Simple case.
+        var sin = cubiesRadius / cameraRadius;
+        var angle = Math.asin(sin);
+    } else {
+        // In this case the aspect ratio scales the tangent.
+        var tan = Math.sqrt((cubiesRadius * cubiesRadius)
+                / (cameraRadius * cameraRadius - cubiesRadius * cubiesRadius));
+        tan /= aspectRatio;
+        var angle = Math.atan(tan);
+    }
+    fov = (180.0 / Math.PI) * (2.0 * angle);
     if (camera) {
         camera.aspect = aspectRatio;
+        camera.fov = fov;
         camera.updateProjectionMatrix();
     }
 
@@ -122,9 +140,14 @@ function animateNewCube() {
 
 function animateSetCamera() {
     if (!camera) {
-        camera = new THREE.PerspectiveCamera(45, aspectRatio, 100, 1000);
+        camera = new THREE.PerspectiveCamera(fov, aspectRatio, 100, 1000);
     }
-    camera.position.set(cameraLocation[0], cameraLocation[1], cameraLocation[2]);
+    camera.position
+            .set(cameraLocation[0], cameraLocation[1], cameraLocation[2]);
+    console.log("Camera at [" + cameraLocation[0] + ", "
+            + cameraLocation[1] + ", " + cameraLocation[2] + "] fov="
+            + Math.floor(10 * fov) / 10.0 + " aspectRatio="
+            + Math.floor(100 * aspectRatio) / 100.0);
 }
 
 function animateUpdateStatus(message) {
@@ -191,7 +214,7 @@ function animateUpdateTimer() {
             var elapsedMsec = timerSolved - timerStart;
         } else {
             timerEl.style.backgroundColor = "#ff80ff";
-            // Unknown timerState.  This should not happen.
+            // Unknown timerState. This should not happen.
             animateUpdateStatus("Unknown timerState \"" + timerState + "\"");
             var elapsedMsec = -1;
         }
