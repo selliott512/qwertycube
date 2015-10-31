@@ -6,6 +6,8 @@ var escLast = false;
 var helpMsgDisplayed = false;
 var keyMap = {};
 var keyMapSize = 0;
+var lastTouchX;
+var lastTouchY;
 var moveStart = null;
 
 // Public methods
@@ -14,11 +16,15 @@ function eventAdd() {
     // Register event listeners that are needed by this program. Note that
     // document is used as mouse events need to be processed here before
     // OrbitControls does.
+    console.log("Adding event listeners.");
     document.addEventListener("keydown", onKeyDown, false);
     document.addEventListener(mobile ? "touchstart" : "mousedown", onMouseDown,
             false);
     document.addEventListener(mobile ? "touchend" : "mouseup", onMouseUp,
             false);
+    if (mobile) {
+        document.addEventListener("touchmove", onTouchMove);
+    }
 
     window.addEventListener("resize", onResize, false);
 }
@@ -215,9 +221,18 @@ function onMouseDown(event) {
         return;
     }
 
-    if (event.button === 0) {
+    // Primary button - true for the left mouse button or any touch event.
+    var primaryButton = mobile || (event.button === 0);
+    if (primaryButton && ((!mobile) || event.touches.length)) {
+        if (mobile) {
+            var x = event.touches[0].pageX;
+            var y = event.touches[0].pageY;
+        } else {
+            var x = event.clientX;
+            var y = event.clientY;
+        }
         // Left mouse button was clicked.
-        moveStart = cubiesEventToCubeCoord(event, null);
+        moveStart = cubiesEventToCubeCoord(x, y, null);
 
         // Don't rotate the cube if the user clicked on it.
         cameraControls.enabled = moveStart ? false : true;
@@ -234,13 +249,22 @@ function onMouseUp(event) {
         return;
     }
 
-    if (event.button !== 0) {
-        // Only handle the left mouse button.
+    // Primary button - true for the left mouse button or any touch event.
+    var primaryButton = mobile || (event.button === 0);
+    if (!primaryButton) {
+        // Only handle the left mouse button and touch events.
         return;
     }
 
-    if ((event.button === 0) && moveStart) {
-        var moveEnd = cubiesEventToCubeCoord(event, moveStart.axis);
+    if (primaryButton && moveStart) {
+        if (mobile) {
+            var x = lastTouchX;
+            var y = lastTouchY;
+        } else {
+            var x = event.clientX;
+            var y = event.clientY;
+        }
+        var moveEnd = cubiesEventToCubeCoord(x, y, moveStart.axis);
         if (moveEnd) {
             // Assuming cube was touched at moveStart and moveStart to moveEnd
             // is the direction force was applied calculate the torque given the
@@ -321,4 +345,16 @@ function onMouseUp(event) {
 function onResize(event) {
     animateResize();
     animateCondReq(true);
+}
+
+function onTouchMove(event) {
+    if (event.touches.length) {
+        // Support multiple touches.  Average?
+        lastTouchX = event.touches[0].pageX;
+        lastTouchY = event.touches[0].pageY;
+    }
+    else {
+        lastTouchX = null;
+        lastTouchY = null;
+    }
 }

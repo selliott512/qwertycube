@@ -125,13 +125,13 @@ function cubiesNumberToInitVector3(num) {
 
 // Figure out where on the surface of the cube the user clicked, or return null
 // if not on the surface of the cube.
-function cubiesEventToCubeCoord(event, onAxis) {
+function cubiesEventToCubeCoord(x, y, onAxis) {
     // Convert from the screen coordinates to world coordinates. Note that
     // 0.5 is used because it's somewhere between the near and far clipping
     // planes.
     var worldCoord = new THREE.Vector3();
-    worldCoord.set((event.clientX / window.innerWidth) * 2 - 1,
-            -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+    worldCoord.set((x / window.innerWidth) * 2 - 1,
+            -(y / window.innerHeight) * 2 + 1, 0.5);
     worldCoord.unproject(camera);
 
     var axes = onAxis ? [ onAxis ] : [ "x", "y", "z" ];

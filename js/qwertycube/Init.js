@@ -21,9 +21,9 @@ function initLoad() {
     getElements();
     initLoadStorage();
     infoOnLoad();
-    setup();
     initVars();
     eventAdd();
+    setup();
     fillScene();
     animateCondReq(true);
 }
@@ -87,6 +87,7 @@ function initVars() {
     // Don't display the help dialog for mobile devices.  Leave it be for
     // non-mobile.
     mobile = isMobile();
+    console.log("Mobile: " + mobile);
     if (mobile) {
         dispHelp = false;
     }
