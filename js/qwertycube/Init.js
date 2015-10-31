@@ -23,6 +23,7 @@ function initLoad() {
     infoOnLoad();
     setup();
     initVars();
+    eventAdd();
     fillScene();
     animateCondReq(true);
 }
@@ -83,9 +84,12 @@ function initVars() {
     // Calculate radians per msec given the moves (half turns) per second.
     moveRadMsec = (moveSec / 1000.0) * (Math.PI / 2.0);
 
-    // Don't display the help dialog for mobile devices.
+    // Don't display the help dialog for mobile devices.  Leave it be for
+    // non-mobile.
     mobile = isMobile();
-    dispHelp = !mobile;
+    if (mobile) {
+        dispHelp = false;
+    }
 
     // Set the visibility of the help dialog.
     helpEl.style.visibility = dispHelp ? "visible" : "hidden";
@@ -151,9 +155,6 @@ function setup() {
     animateResize();
 
     animateSetCamera();
-
-    // Register event listeners (keys, etc.).
-    eventAdd();
 
     // CameraControls:
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
