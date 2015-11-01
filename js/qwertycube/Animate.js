@@ -40,6 +40,7 @@ var timerInspectionSecs = 15;
 var timerSolved;
 var timerStart = Date.now();
 var timerState = "solve";
+var wireframeSphere = false;
 
 // The following lookup tables should be kept in sync and in alphabetical order
 // by key.
@@ -83,6 +84,11 @@ function animateResetScene() {
     cubies = new cubiesCreate();
     for (var i = 0; i < cubies.length; i++) {
         scene.add(cubies[i]);
+    }
+
+    if (wireframeSphere) {
+        // Enclose the cube in a wireframe sphere.
+        animateWireframeSphere();
     }
 }
 
@@ -144,10 +150,9 @@ function animateSetCamera() {
     }
     camera.position
             .set(cameraLocation[0], cameraLocation[1], cameraLocation[2]);
-    console.log("Camera at [" + cameraLocation[0] + ", "
-            + cameraLocation[1] + ", " + cameraLocation[2] + "] fov="
-            + Math.floor(10 * fov) / 10.0 + " aspectRatio="
-            + Math.floor(100 * aspectRatio) / 100.0);
+    console.log("Camera at [" + cameraLocation[0] + ", " + cameraLocation[1]
+            + ", " + cameraLocation[2] + "] fov=" + Math.floor(10 * fov) / 10.0
+            + " aspectRatio=" + Math.floor(100 * aspectRatio) / 100.0);
 }
 
 function animateUpdateStatus(message) {
@@ -230,6 +235,15 @@ function animateUpdateTimer() {
     } else {
         timerEl.style.opacity = 0.0;
     }
+}
+
+function animateWireframeSphere() {
+    // Add a sphere around the origin.
+    var matt = new THREE.MeshBasicMaterial({color : "darkgreen",
+        wireframe: true});
+    var geometry = new THREE.SphereGeometry(cubiesRadius, 64, 64);
+    var sphere = new THREE.Mesh(geometry, matt);
+    scene.add(sphere);
 }
 
 // Private methods

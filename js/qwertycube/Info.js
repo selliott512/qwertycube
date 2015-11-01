@@ -2,7 +2,7 @@
 
 var infoDisplayed = false;
 var infoExtraLen = " persist new-cube".length;
-var infoInitialText = 
+var infoInitialText =
     "This information dialog can be used to view and modify various " +
     "variables in QWERTYcube.  Edit variables below, if need be, and click " +
     "the ok button (or Ctrl-Enter) to apply the changes, or click the cancel " +
@@ -11,7 +11,7 @@ var infoInitialText =
     "stored in local storage so that they'll have that value the next time " +
     "QWERTYcube is loaded. Variables marked with \"new-cube\" will not take " +
     "effect until a new cube (Alt-Shift-N) is created.";
-   
+
 // Each entry is name, persist, new-cube, description
 var infoVarNameDescs = [
     ["animation", true, false, "If true then show animation as the cube moves. \"A\" toggles."],
@@ -40,7 +40,9 @@ var infoVarNameDescs = [
     ["scrambleMoves", false, false, "Moves used to scramble the cube."],
     ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
     ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
-    ["timerInspectionSecs", true, false, "The amount of inspection time before solving."]];
+    ["timerInspectionSecs", true, false, "The amount of inspection time before solving."],
+    ["wireframeSphere", true, true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
+    		"so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
 // Public methods
 
@@ -62,11 +64,11 @@ function infoHide() {
 
 function infoOk() {
     console.log("Ok clicked");
-    infoHide(); 
-    
+    infoHide();
+
     // Reset the cube.
     animateNewCube();
-    
+
     // Now apply the variables.
     var lines = infoTextEl.value.split("\n");
     for (var i = 0; i < lines.length; i++) {
@@ -138,19 +140,19 @@ function infoOnLoad() {
 
 function infoResize() {
     console.log("infoResize()");
-    
+
     var textLeft = (window.innerWidth - infoTextEl.offsetWidth)/2;
-    var textTop = (window.innerHeight - (infoTextEl.offsetHeight + 
+    var textTop = (window.innerHeight - (infoTextEl.offsetHeight +
             infoCancelEl.offsetHeight + 10))/2;
-    
+
     infoTextEl.style.left = textLeft + "px"
     infoTextEl.style.top = textTop + "px";
     infoTextEl.style.height = (window.innerHeight - 55) + "px";
-    
+
     infoCancelEl.style.left = textLeft + "px";
     infoCancelEl.style.top = (textTop + infoTextEl.offsetHeight + 10) + "px";
     infoCancelEl.style.width = (infoTextEl.offsetWidth / 3) + "px";
-    
+
     infoOkEl.style.left = (textLeft + 2 * infoTextEl.offsetWidth / 3) + "px";
     infoOkEl.style.top = (textTop + infoTextEl.offsetHeight + 10) + "px";
     infoOkEl.style.width = (infoTextEl.offsetWidth / 3) + "px";
@@ -164,23 +166,23 @@ function infoShow() {
     infoCancelEl.style.visibility = "visible";
     infoOkEl.style.visibility = "visible";
     infoResize();
-    
-    infoTextEl.value = wrapWithComments(infoInitialText, 
+
+    infoTextEl.value = wrapWithComments(infoInitialText,
             infoTextEl.cols - 1) + "\n";
-    
+
     // Update variables that may need updating.
     cameraLocation[0] = Math.round(camera.position.x);
     cameraLocation[1] = Math.round(camera.position.y);
     cameraLocation[2] = Math.round(camera.position.z);
-    
+
     for (var i = 0; i < infoVarNameDescs.length; i++) {
         var varNameDesc = infoVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         var varNewCube = varNameDesc[2];
         var varDesc = varNameDesc[3];
-        infoTextEl.value += "\n" + wrapWithComments(varDesc  + 
-                (varPersist ? " persist" : "") + 
+        infoTextEl.value += "\n" + wrapWithComments(varDesc  +
+                (varPersist ? " persist" : "") +
                 (varNewCube ? " new-cube" : ""), infoTextEl.cols - 1) + "\n";
         var varValue = window[varName];
         var line = varName + "=";
@@ -195,7 +197,7 @@ function infoShow() {
         }
         infoTextEl.value += line + "\n";
     }
-    
+
     goToAfterInit();
     infoDisplayed = true;
 }

@@ -136,6 +136,11 @@ function fillScene() {
     for (var i = 0; i < cubies.length; i++) {
         scene.add(cubies[i]);
     }
+
+    if (wireframeSphere) {
+        // Enclose the cube in a wireframe sphere.
+        animateWireframeSphere();
+    }
 }
 
 function getElements() {
