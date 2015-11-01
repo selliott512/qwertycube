@@ -61,8 +61,8 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 
 	// How far you can orbit vertically, upper and lower limits.
 	// Range is 0 to Math.PI radians.
-	this.minPolarAngle = 0; // radians
-	this.maxPolarAngle = Math.PI; // radians
+	this.minPolarAngle = 0.000001; // radians
+	this.maxPolarAngle = Math.PI - this.minPolarAngle; // radians
 
 	// Set to true to disable use of the keys
 	this.noKeys = false;
@@ -73,8 +73,6 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 	// internals
 
 	var scope = this;
-
-	var EPS = 0.000001;
 
 	var rotateStart = new THREE.Vector2();
 	var rotateEnd = new THREE.Vector2();
@@ -89,6 +87,7 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 	var dollyDelta = new THREE.Vector2();
 
 	var phiDelta = 0;
+	var sign = 1;
 	var thetaDelta = 0;
 	var scale = 1;
 	var pan = new THREE.Vector3();
@@ -229,14 +228,23 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 
 		}
 
-		theta += thetaDelta;
-		phi += phiDelta;
+		theta += sign * thetaDelta;
+		phi += sign * phiDelta;
 
-		// restrict phi to be between desired limits
-		phi = Math.max( this.minPolarAngle, Math.min( this.maxPolarAngle, phi ) );
+		if ((phi < this.minPolarAngle) || (phi > this.maxPolarAngle)) {
+			sign = -sign;
 
-		// restrict phi to be betwee EPS and PI-EPS
-		phi = Math.max( EPS, Math.min( Math.PI - EPS, phi ) );
+			theta += Math.PI;
+			if (theta > Math.PI) {
+				theta -= 2 * Math.PI;
+			}
+
+			if (phi < this.minPolarAngle) {
+				phi = 2 * this.minPolarAngle - phi;
+			} else {
+				phi = 2 * this.maxPolarAngle - phi;
+			}
+		}
 
 		var radius = offset.length() * scale;
 
@@ -253,6 +261,10 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 		position.copy( this.target ).add( offset );
 
 		this.object.lookAt( this.target );
+
+		if (sign === -1) {
+			this.object.rotateOnAxis(new THREE.Vector3(0, 0, 1), Math.PI);
+		}
 
 		thetaDelta = 0;
 		phiDelta = 0;
