@@ -9,7 +9,6 @@ var animationRequested = false;
 var aspectRatio = 0.0;
 var camera;
 var cameraAdjusting = false;
-var cameraControls;
 var cameraLocation = [ 470, 470, 470 ];
 var cameraRadius;
 var canvasHeight = 0;
@@ -27,6 +26,7 @@ var moveQueue = [];
 var moveRadMsec = 0.0;
 var moveSec = 10.0;
 var moveStartMsec = 0;
+var orbitControls;
 var rendered = false;
 var renderer;
 var scene;
@@ -260,7 +260,7 @@ function doAnimate() {
 
     if (!timerOnly) {
         // Something other than the timer needs to be updated.
-        cameraControls.update();
+        orbitControls.update();
         var endMove = false;
 
         // Display or hide the orientation labels.

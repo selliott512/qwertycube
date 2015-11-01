@@ -52,7 +52,7 @@ function infoCancel() {
 }
 
 function infoHide() {
-    cameraControls.enabled = true;
+    orbitControls.enabled = true;
 
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
@@ -160,7 +160,7 @@ function infoResize() {
 
 function infoShow() {
     // The orbit controls grab events that are needed.
-    cameraControls.enabled = false;
+    orbitControls.enabled = false;
 
     infoTextEl.style.visibility = "visible";
     infoCancelEl.style.visibility = "visible";

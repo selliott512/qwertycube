@@ -173,8 +173,13 @@ function setup() {
 
     animateSetCamera();
 
-    // CameraControls:
-    cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+    // orbitControls:
+    orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // Limit manipulation that is not helpful.
+    orbitControls.noKeys = true;
+    orbitControls.noPan = true;
+    orbitControls.noZoom = true;
 
     // Add the renderer to the page.
     containerEl.appendChild(renderer.domElement);
