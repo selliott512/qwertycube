@@ -239,8 +239,10 @@ function animateUpdateTimer() {
 
 function animateWireframeSphere() {
     // Add a sphere around the origin.
-    var matt = new THREE.MeshBasicMaterial({color : "darkgreen",
-        wireframe: true});
+    var matt = new THREE.MeshBasicMaterial({
+        color : "darkgreen",
+        wireframe : true
+    });
     var geometry = new THREE.SphereGeometry(cubiesRadius, 64, 64);
     var sphere = new THREE.Mesh(geometry, matt);
     scene.add(sphere);

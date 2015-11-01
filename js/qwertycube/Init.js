@@ -180,6 +180,7 @@ function setup() {
     orbitControls.noKeys = true;
     orbitControls.noPan = true;
     orbitControls.noZoom = true;
+    orbitControls.useMinClient = true;
 
     // Add the renderer to the page.
     containerEl.appendChild(renderer.domElement);

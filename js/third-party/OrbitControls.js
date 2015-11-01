@@ -64,6 +64,11 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 	this.minPolarAngle = 0.000001; // radians
 	this.maxPolarAngle = Math.PI - this.minPolarAngle; // radians
 
+	// Set to true to use the minimum of clientWidth and clientHeight to scale
+	// events.  This causes the rotation angle per mouse movement pixel to be
+	// equal for horizontal and vertical rotation.
+	this.useMinClient = false;
+
 	// Set to true to disable use of the keys
 	this.noKeys = false;
 	// The four arrow keys
@@ -173,9 +178,12 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 		} else if ( scope.object.top !== undefined ) {
 
 			// orthographic
-			scope.panLeft( delta.x * (scope.object.right - scope.object.left) / element.clientWidth );
-			scope.panUp( delta.y * (scope.object.top - scope.object.bottom) / element.clientHeight );
-
+			scope.panLeft( delta.x * (scope.object.right - scope.object.left) /
+					scope.useMinClient ? Math.min(element.clientWidth,
+							element.clientHeight) : element.clientWidth);
+			scope.panUp( delta.y * (scope.object.top - scope.object.bottom) /
+					scope.useMinClient ? Math.min(element.clientWidth,
+					element.clientHeight) : element.clientHeight );
 		} else {
 
 			// camera neither orthographic or perspective - warn user
@@ -344,9 +352,13 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 			rotateDelta.subVectors( rotateEnd, rotateStart );
 
 			// rotating across whole screen goes 360 degrees around
-			scope.rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
+			scope.rotateLeft( 2 * Math.PI * rotateDelta.x / (scope.useMinClient ?
+					Math.min(element.clientWidth, element.clientHeight) :
+						element.clientWidth) * scope.rotateSpeed );
 			// rotating up and down along whole screen attempts to go 360, but limited to 180
-			scope.rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
+			scope.rotateUp( 2 * Math.PI * rotateDelta.y / (scope.useMinClient ?
+					Math.min(element.clientWidth, element.clientHeight) :
+						element.clientHeight) * scope.rotateSpeed );
 
 			rotateStart.copy( rotateEnd );
 
@@ -524,9 +536,13 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 				rotateDelta.subVectors( rotateEnd, rotateStart );
 
 				// rotating across whole screen goes 360 degrees around
-				scope.rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
+				scope.rotateLeft( 2 * Math.PI * rotateDelta.x / (scope.useMinClient ?
+						Math.min(element.clientWidth, element.clientHeight) :
+							element.clientWidth) * scope.rotateSpeed );
 				// rotating up and down along whole screen attempts to go 360, but limited to 180
-				scope.rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
+				scope.rotateUp( 2 * Math.PI * rotateDelta.y / (scope.useMinClient ?
+						Math.min(element.clientWidth, element.clientHeight) :
+							element.clientHeight) * scope.rotateSpeed );
 
 				rotateStart.copy( rotateEnd );
 				break;
