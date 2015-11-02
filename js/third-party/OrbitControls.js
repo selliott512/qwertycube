@@ -333,6 +333,7 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
 		scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
 		scope.domElement.addEventListener( 'mouseup', onMouseUp, false );
+		scope.domElement.addEventListener( 'mouseleave', onMouseUp, false );
 
 	}
 
@@ -406,6 +407,7 @@ THREE.OrbitControls = function ( object, domElement, localElement ) {
 		// Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
 		scope.domElement.removeEventListener( 'mousemove', onMouseMove, false );
 		scope.domElement.removeEventListener( 'mouseup', onMouseUp, false );
+		scope.domElement.removeEventListener( 'mouseleave', onMouseUp, false );
 
 		state = STATE.NONE;
 
