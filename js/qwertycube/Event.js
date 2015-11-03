@@ -9,6 +9,7 @@ var keyMapSize = 0;
 var lastTouchX;
 var lastTouchY;
 var moveStart = null;
+var rotationLock = false;
 
 // Public methods
 
@@ -239,7 +240,7 @@ function onMouseDown(event) {
         moveStart = cubiesEventToCubeCoord(x, y, null);
 
         // Don't rotate the cube if the user clicked on it.
-        orbitControls.enabled = moveStart ? false : true;
+        orbitControls.enabled = moveStart ? false : !rotationLock;
     }
 
     // The user may be adjusting the camera if a mouse button is done. When
@@ -346,7 +347,7 @@ function onMouseUp(event) {
         animateCondReq(true);
     }
 
-    orbitControls.enabled = true;
+    orbitControls.enabled = !rotationLock;
     cameraAdjusting = false;
 }
 

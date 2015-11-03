@@ -116,6 +116,11 @@ function initVars() {
     for ( var key in keyMap) {
         keyMapSize++;
     }
+
+    // Don't allow any rotation if rotationLock.
+    if (orbitControls) {
+        orbitControls.enabled = !rotationLock;
+    }
 }
 
 function initSetBackgroundColor() {
@@ -177,6 +182,7 @@ function setup() {
     orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
 
     // Limit manipulation that is not helpful.
+    orbitControls.enabled = !rotationLock;
     orbitControls.noKeys = true;
     orbitControls.noPan = true;
     orbitControls.noZoom = true;

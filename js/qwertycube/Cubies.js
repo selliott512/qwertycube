@@ -135,12 +135,16 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
             -(y / window.innerHeight) * 2 + 1, 0.5);
     worldCoord.unproject(camera);
 
+    var bestMove = null;
+    var bestMoveScore = 1000000;
+
     var axes = onAxis ? [ onAxis ] : [ "x", "y", "z" ];
     for (var i = 0; i <= axes.length; i++) {
         var axis = axes[i];
         // Of the two sides for each axis we only need to consider the one
         // closest to the camera.
-        var side = (camera.position[axis] >= 0) ? cubiesHalfSide : -cubiesHalfSide;
+        var side = (camera.position[axis] >= 0) ? cubiesHalfSide
+                : -cubiesHalfSide;
 
         // A unit normal vector that points from the camera toward the point
         // on the cube that we're trying to find.
@@ -163,19 +167,37 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
         // If an axis was specified (onAxis) then accept the point even if it's
         // not in the cube as the user is allowed to drag the mouse out of
         // the cube.
-        if (onAxis
-                || ((Math.abs(clicked.x) <= cubiesHalfSide)
-                        && (Math.abs(clicked.y) <= cubiesHalfSide) && (Math
-                        .abs(clicked.z) <= cubiesHalfSide))) {
-            return {
-                axis : axis,
-                pos : clicked
-            };
+        var move = {
+            axis : axis,
+            pos : clicked
+        };
+
+        if (onAxis) {
+            // If this is the move end then we use the mouse up location to
+            // indicate the direction of cube move regardless of where it is.
+            return move;
+        }
+
+        if ((Math.abs(clicked.x) <= cubiesHalfSide)
+                && (Math.abs(clicked.y) <= cubiesHalfSide)
+                && (Math.abs(clicked.z) <= cubiesHalfSide)) {
+            // The location found was on the cube, so no need to search
+            // further.
+            return move;
+        } else if (rotationLock) {
+            // For rotationLock find the best axis to use for the move begin
+            // even if it's not on the cube.
+            var moveScore = getMoveScore(move);
+            if (moveScore < bestMoveScore) {
+                bestMove = move;
+                bestMoveScore = moveScore;
+            }
         }
     }
 
-    // The location clicked was not on the cube.
-    return null;
+    // Either location clicked was not on the cube, or rotationLock is on in
+    // which case we return our best guess.
+    return rotationLock ? bestMove : null;
 }
 
 // Return true if the cube is solved.
@@ -257,6 +279,26 @@ function faceVectorToFacelet(face, vec) {
             * vecOne.z;
 
     return cubiesInitFacelets[base + offset];
+}
+
+// Determine which side a give click is closest to. Note that "move" is not the
+// simple rotation letter type of move it is elsewhere.
+function getMoveScore(move) {
+    var score = 0;
+    var axes = [ "x", "y", "z" ];
+    for (var i = 0; i <= axes.length; i++) {
+        var axis = axes[i];
+        if (axis !== move.axis) {
+            // A simple score - for the two axes perpendicular to move.axis
+            // add up the distance the clicked point is outside of the cube,
+            // if it's outside of the cube.
+            var axisScore = Math.abs(move.pos[axis]) - cubiesHalfSide;
+            if (axisScore > 0) {
+                score += axisScore;
+            }
+        }
+    }
+    return score;
 }
 
 // Initialize colorMatts based on colorValues.

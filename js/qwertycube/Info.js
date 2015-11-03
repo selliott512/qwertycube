@@ -19,30 +19,33 @@ var infoVarNameDescs = [
     ["cameraLocation", true, false, "Location of the camera."],
     ["cubiesColorBackground", true, false, "Background color to use.  Some color names work as well as 0xRRGGBB."],
     ["cubiesColorOverrides", true, true, "Color overrides.  Space separated list of color override items " +
-    		"where each item has the form <side>:<color>. For example, to map the right side to grey, the " +
-    		"left side to magenta and the interior to 0x224466: R:grey L:magenta I:0x224466"],
+            "where each item has the form <side>:<color>. For example, to map the right side to grey, the " +
+            "left side to magenta and the interior to 0x224466: R:grey L:magenta I:0x224466"],
     ["cubiesColorScheme", true, true, "Cube color scheme.  Valid values are \"hc-black\", \"hc-white\", " +
-    		"\"std-black\" and \"std-white\".  \"hc\" is high contrast."],
+            "\"std-black\" and \"std-white\".  \"hc\" is high contrast."],
     ["cubiesGap", true, true, "The size of the gaps between cubies."],
     ["cubiesInitFacelets", true, true, "Facelet pattern used for new cubes.  The pattern specified is " +
-    		"considered to be solved (the timer will stop when it's reached). Order is URFDLB."],
+            "considered to be solved (the timer will stop when it's reached). Order is URFDLB."],
     ["cubiesSize", true, true, "The size of each cubie."],
     ["dispOrientationLabels", true, false, "Display labels that to show the orientation \"O\" toggles)."],
     ["dispHelp", true, false, "If true then the help dialog is displayed. \"H\" toggles."],
     ["keyMap", true, false, "Key map.  Space separated list of key mapping items where each item has the form " +
-    		"[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
-    		"before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
-    		"ASW:mR2 Q:kJ SX:mr"],
+            "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
+            "before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
+            "ASW:mR2 Q:kJ SX:mr"],
     ["moveHistory", false, false, "All moves made since loading the page."],
     ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
     ["moveSec", true, false, "Number of moves per second when replaying."],
+    ["rotationLock", true, false, "If true then the cube is not rotated by clicking and moving on the grey " +
+            "background.  Instead, those clicks are interpreted as cube moves.  This both prevents accidental" +
+            "rotations and it makes it possible to have less precise mouse/touch movements for cube moves."],
     ["scrambleCount", true, false, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
     ["scrambleMoves", false, false, "Moves used to scramble the cube."],
     ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
     ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
     ["timerInspectionSecs", true, false, "The amount of inspection time before solving."],
     ["wireframeSphere", true, true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
-    		"so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
+            "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
 // Public methods
 
@@ -52,7 +55,7 @@ function infoCancel() {
 }
 
 function infoHide() {
-    orbitControls.enabled = true;
+    orbitControls.enabled = !rotationLock;
 
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
@@ -98,7 +101,7 @@ function infoOk() {
     // Now that the globals have been updated save to persistent storage.
     initSaveStorage();
     animateUpdateStatus("Variables saved to persistent state.  " +
-    		"Alt-Shift-P to clear.");
+            "Alt-Shift-P to clear.");
 
     initVars();
     initSetBackgroundColor();
@@ -135,7 +138,7 @@ function infoOnKeyDown(event) {
 function infoOnLoad() {
     console.log("onLoad()");
     infoResize();
-    goToAfterInit();
+    setCursorAfterInit();
 }
 
 function infoResize() {
@@ -198,13 +201,13 @@ function infoShow() {
         infoTextEl.value += line + "\n";
     }
 
-    goToAfterInit();
+    setCursorAfterInit();
     infoDisplayed = true;
 }
 
 // Private methods
 
-function goToAfterInit() {
+function setCursorAfterInit() {
     infoTextEl.spellcheck = false;
     infoTextEl.focus();
     var initLen = infoInitialText.length;
