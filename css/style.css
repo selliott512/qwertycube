@@ -19,8 +19,16 @@ button:hover {
     background-color: yellow;
 }
 
+.button-bar {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    visibility: visible;
+}
+
 table {
-    width: 100%
+    width: 100%;
+    height: 100%;
 }
 
 table, th, td {

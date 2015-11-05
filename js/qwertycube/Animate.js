@@ -103,6 +103,7 @@ function animateResize() {
     // reason to. For non-mobile mice the screen is bigger and mice are more
     // precise pointers, so less space.
     buttonBarHeight = (mobile ? 0.25 : 0.1) * window.innerHeight;
+    buttonBarEl.style.height = buttonBarHeight + "px";
     containerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
     canvasHeight = containerEl.clientHeight;
     canvasMin = Math.min(canvasWidth, canvasHeight);

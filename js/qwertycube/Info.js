@@ -144,13 +144,13 @@ function infoOnLoad() {
 function infoResize() {
     console.log("infoResize()");
 
-    var textLeft = (window.innerWidth - infoTextEl.offsetWidth)/2;
-    var textTop = (window.innerHeight - (infoTextEl.offsetHeight +
+    var textLeft = (canvasWidth - infoTextEl.offsetWidth)/2;
+    var textTop = (canvasHeight - (infoTextEl.offsetHeight +
             infoCancelEl.offsetHeight + 10))/2;
 
     infoTextEl.style.left = textLeft + "px"
     infoTextEl.style.top = textTop + "px";
-    infoTextEl.style.height = (window.innerHeight - 55) + "px";
+    infoTextEl.style.height = (canvasHeight - 55) + "px";
 
     infoCancelEl.style.left = textLeft + "px";
     infoCancelEl.style.top = (textTop + infoTextEl.offsetHeight + 10) + "px";

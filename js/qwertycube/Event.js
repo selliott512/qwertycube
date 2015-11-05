@@ -32,12 +32,19 @@ function eventAdd() {
 
 // Private methods
 
+function onButtonBarButton(key) {
+    // Create a pseudo event and pretend it was a key press.
+    var event = {buttonBarChar : key};
+    onKeyDown(event);
+}
+
 function onKeyDown(event) {
     if ((event.keyCode == 16) || (event.keyCode == 18)) {
         // Ignore shift and alt being pressed by themselves.
         return;
     }
-    var eventChar = String.fromCharCode(event.keyCode);
+    var eventChar = event.buttonBarChar ? event.buttonBarChar :
+        String.fromCharCode(event.keyCode);
     var alt = escLast || event.altKey;
     var shift = event.shiftKey;
     if (infoDisplayed) {

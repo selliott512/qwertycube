@@ -4,6 +4,7 @@
 var mobile = false;
 
 // Elements that are never recreated, so they're stored globally.
+var buttonBarEl;
 var containerEl;
 var helpEl;
 var infoTextEl;
@@ -149,6 +150,7 @@ function fillScene() {
 }
 
 function getElements() {
+    buttonBarEl = document.getElementById("button-bar");
     containerEl = document.getElementById("container");
     helpEl = document.getElementById("help");
     infoTextEl = document.getElementById("info-text");
