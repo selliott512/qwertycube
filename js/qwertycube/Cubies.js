@@ -131,8 +131,7 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     // 0.5 is used because it's somewhere between the near and far clipping
     // planes.
     var worldCoord = new THREE.Vector3();
-    worldCoord.set((x / window.innerWidth) * 2 - 1,
-            -(y / window.innerHeight) * 2 + 1, 0.5);
+    worldCoord.set((x / canvasWidth) * 2 - 1, -(y / canvasHeight) * 2 + 1, 0.5);
     worldCoord.unproject(camera);
 
     var bestMove = null;

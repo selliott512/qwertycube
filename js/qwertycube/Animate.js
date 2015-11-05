@@ -7,6 +7,7 @@ var animationLimit = 2;
 var animateNeeded = false;
 var animationRequested = false;
 var aspectRatio = 0.0;
+var buttonBarHeight = 0;
 var camera;
 var cameraAdjusting = false;
 var cameraLocation = [ 470, 470, 470 ];
@@ -95,10 +96,20 @@ function animateResetScene() {
 // Code that is common it init and resize events.
 function animateResize() {
     canvasWidth = window.innerWidth;
-    canvasHeight = window.innerHeight;
+    // The closest mobile phones get to being square in portrait mode is
+    // 3:4. Allow the lower fourth of the screen for the button bar. Any more
+    // would reduce the space available for the cube. It's assumed that people
+    // won't use this on their phones in landscape mode much since there's no
+    // reason to. For non-mobile mice the screen is bigger and mice are more
+    // precise pointers, so less space.
+    buttonBarHeight = (mobile ? 0.25 : 0.1) * window.innerHeight;
+    containerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
+    canvasHeight = containerEl.clientHeight;
     canvasMin = Math.min(canvasWidth, canvasHeight);
     renderer.setSize(canvasWidth, canvasHeight);
     aspectRatio = canvasWidth / canvasHeight;
+    console.log("Resize to " + canvasWidth + ", " + canvasHeight
+            + " aspect ratio " + Math.floor(1000 * aspectRatio) / 1000);
     if (aspectRatio >= 1.0) {
         // Simple case.
         var sin = cubiesRadius / cameraRadius;
