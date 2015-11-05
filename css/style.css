@@ -8,7 +8,6 @@ body {
 }
 
 button {
-    position: absolute;
     background-color: #C0FFC0;
     border: solid;
     border-radius: 6px;
@@ -20,8 +19,13 @@ button:hover {
 }
 
 .button-bar {
+   -webkit-box-sizing:content-box;
+   -moz-box-sizing:content-box;
+   -ms-box-sizing:content-box;
+   -o-box-sizing:content-box;
+    box-sizing: content-box;
     position: relative;
-    width: 100%;
+    width: 50%;
     height: 100%;
     visibility: visible;
 }

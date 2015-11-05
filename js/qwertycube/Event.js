@@ -9,7 +9,7 @@ var keyMapSize = 0;
 var lastTouchX;
 var lastTouchY;
 var moveStart = null;
-var rotationLock = false;
+var rotationLock = true;
 
 // Public methods
 
@@ -19,12 +19,12 @@ function eventAdd() {
     // OrbitControls does.
     console.log("Adding event listeners.");
     document.addEventListener("keydown", onKeyDown, false);
-    document.addEventListener(mobile ? "touchstart" : "mousedown", onMouseDown,
+    containerEl.addEventListener(mobile ? "touchstart" : "mousedown", onMouseDown,
             false);
-    document.addEventListener(mobile ? "touchend" : "mouseup", onMouseUp,
+    containerEl.addEventListener(mobile ? "touchend" : "mouseup", onMouseUp,
             false);
     if (mobile) {
-        document.addEventListener("touchmove", onTouchMove);
+        containerEl.addEventListener("touchmove", onTouchMove);
     }
 
     window.addEventListener("resize", onResize, false);
