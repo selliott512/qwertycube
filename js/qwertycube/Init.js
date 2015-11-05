@@ -130,6 +130,35 @@ function initSetBackgroundColor() {
 
 // Private methods
 
+function callIt() {
+    alert('xxdebug');
+}
+
+function addButtons() {
+    var buttonEl = document.createElement("button");
+
+    // Give it a name and make it visible.
+    buttonEl.id = "bb-new";
+
+    // Set the size and location.
+    buttonEl.style.top = canvasHeight + "px";
+    buttonEl.style.width= (canvasWidth / 2) + "px";
+    buttonEl.style.height= (buttonBarHeight / 2) + "px";
+
+    // Add a literal.
+    var literalEl = document.createTextNode("New");
+    buttonEl.appendChild(literalEl);
+
+    // Make it handle the click event as if it was a key event.
+    buttonEl.onclick = function() { onButtonBarButton("N"); };
+
+    // Make it visible.
+    buttonEl.style.visibility = "visible";
+
+    // Add it to the button bar.
+    buttonBarEl.appendChild(buttonEl);
+}
+
 function fillScene() {
     scene = new THREE.Scene();
     cubies = new cubiesCreate();
@@ -192,4 +221,7 @@ function setup() {
 
     // Add the renderer to the page.
     containerEl.appendChild(renderer.domElement);
+
+    // Dynamically add buttons to the button bar.
+    addButtons();
 }

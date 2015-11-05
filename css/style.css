@@ -19,13 +19,9 @@ button:hover {
 }
 
 .button-bar {
-   -webkit-box-sizing:content-box;
-   -moz-box-sizing:content-box;
-   -ms-box-sizing:content-box;
-   -o-box-sizing:content-box;
     box-sizing: content-box;
     position: relative;
-    width: 50%;
+    width: 100%;
     height: 100%;
     visibility: visible;
 }
