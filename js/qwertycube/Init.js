@@ -1,6 +1,26 @@
 "use strict";
 
 // Globals
+var buttonList = [ [ {
+    label : "New",
+    key : "N"
+}, {
+    label : "Lock",
+    key : "K"
+}, {
+    label : "Jumble",
+    key : "J"
+} ], [ {
+    label : "Undo",
+    key : "G"
+}, {
+    label : "Reset",
+    key : "P"
+}, {
+    label : "Redo",
+    key : "SG"
+} ] ];
+
 var mobile = false;
 
 // Elements that are never recreated, so they're stored globally.
@@ -130,33 +150,54 @@ function initSetBackgroundColor() {
 
 // Private methods
 
-function callIt() {
-    alert('xxdebug');
-}
-
 function addButtons() {
-    var buttonEl = document.createElement("button");
+    // Assume the array is rectangular.
+    var rows = buttonList.length;
+    var cols = buttonList[0].length;
 
-    // Give it a name and make it visible.
-    buttonEl.id = "bb-new";
+    // Calculate what the size of each mutton must be.
+    var buttonWidth = Math.floor(canvasWidth / cols);
+    var buttonHeight = Math.floor(buttonBarHeight / rows);
 
-    // Set the size and location.
-    buttonEl.style.top = canvasHeight + "px";
-    buttonEl.style.width= (canvasWidth / 2) + "px";
-    buttonEl.style.height= (buttonBarHeight / 2) + "px";
+    // Zero based rows and columns.
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var button = buttonList[row][col];
+            var buttonEl = document.createElement("button");
 
-    // Add a literal.
-    var literalEl = document.createTextNode("New");
-    buttonEl.appendChild(literalEl);
+            // Give it a name and make it visible.
+            buttonEl.id = "button-" + button.label.toLowerCase();
 
-    // Make it handle the click event as if it was a key event.
-    buttonEl.onclick = function() { onButtonBarButton("N"); };
+            // Set the size and location.
+            buttonEl.style.left = (col * buttonWidth) + "px";
+            buttonEl.style.top = (row * buttonHeight) + "px";
+            buttonEl.style.width = buttonWidth + "px";
+            buttonEl.style.height = buttonHeight + "px";
 
-    // Make it visible.
-    buttonEl.style.visibility = "visible";
+            // Add a literal.
+            var literalEl = document.createTextNode(button.label);
+            buttonEl.appendChild(literalEl);
 
-    // Add it to the button bar.
-    buttonBarEl.appendChild(buttonEl);
+            // Make the literal reasonably large.
+            buttonEl.style.fontSize = Math.floor(buttonHeight / 2) + "px";
+
+            // Make it handle the click event as if it was a key event.
+            buttonEl.onclick = (function(key) {
+                return function() {
+                    onButtonBarButton(key)
+                };
+            })(button.key);
+
+            // Don't respond to attempts to move the buttons.
+            buttonEl.addEventListener("touchmove", preventDefault);
+
+            // Make it visible.
+            buttonEl.style.visibility = "visible";
+
+            // Add it to the button bar.
+            buttonBarEl.appendChild(buttonEl);
+        }
+    }
 }
 
 function fillScene() {
@@ -210,7 +251,8 @@ function setup() {
     animateSetCamera();
 
     // orbitControls:
-    orbitControls = new THREE.OrbitControls(camera, renderer.domElement, renderer.domElement);
+    orbitControls = new THREE.OrbitControls(camera, renderer.domElement,
+            renderer.domElement);
 
     // Limit manipulation that is not helpful.
     orbitControls.enabled = !rotationLock;

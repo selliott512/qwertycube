@@ -9,7 +9,7 @@ var keyMapSize = 0;
 var lastTouchX;
 var lastTouchY;
 var moveStart = null;
-var rotationLock = true;
+var rotationLock = false;
 
 // Public methods
 
@@ -19,8 +19,8 @@ function eventAdd() {
     // OrbitControls does.
     console.log("Adding event listeners.");
     document.addEventListener("keydown", onKeyDown, false);
-    containerEl.addEventListener(mobile ? "touchstart" : "mousedown", onMouseDown,
-            false);
+    containerEl.addEventListener(mobile ? "touchstart" : "mousedown",
+            onMouseDown, false);
     containerEl.addEventListener(mobile ? "touchend" : "mouseup", onMouseUp,
             false);
     if (mobile) {
@@ -28,13 +28,37 @@ function eventAdd() {
     }
 
     window.addEventListener("resize", onResize, false);
+
+    // Make sure the button bar does not do anything with events other than
+    // click buttons.
+    if (mobile) {
+        containerEl.addEventListener("touchmove", preventDefault);
+    }
 }
 
 // Private methods
 
 function onButtonBarButton(key) {
     // Create a pseudo event and pretend it was a key press.
-    var event = {buttonBarChar : key};
+    var event = {
+        buttonBar : true
+    };
+    while (key.length > 1) {
+        var modifier = key[0];
+        key = key.substr(1);
+        switch (modifier) {
+        case "A":
+            event.altKey = true;
+            break;
+        case "S":
+            event.shiftKey = true;
+            break;
+        default:
+            // This should not happen.
+            console.log("Unknown modifier " + modifier);
+        }
+    }
+    event.buttonBarChar = key;
     onKeyDown(event);
 }
 
@@ -43,8 +67,9 @@ function onKeyDown(event) {
         // Ignore shift and alt being pressed by themselves.
         return;
     }
-    var eventChar = event.buttonBarChar ? event.buttonBarChar :
-        String.fromCharCode(event.keyCode);
+    var buttonBar = event.buttonBar;
+    var eventChar = event.buttonBarChar ? event.buttonBarChar : String
+            .fromCharCode(event.keyCode);
     var alt = escLast || event.altKey;
     var shift = event.shiftKey;
     if (infoDisplayed) {
@@ -58,7 +83,9 @@ function onKeyDown(event) {
         return;
     }
 
-    if (keyMapSize) {
+    // Apply a keymap, if any. If it came from the button bar interpret as is
+    // without mapping.
+    if (keyMapSize && !buttonBar) {
         // Look for the keystroke in the keymap.
         // Order matters here.
         var prefix = (alt ? "A" : "") + (shift ? "S" : "");
@@ -187,12 +214,20 @@ function onKeyDown(event) {
             animateUpdateStatus(msg);
             scramble();
             break;
+        case "K": // Toggle rotation lock.
+            rotationLock = !rotationLock;
+            animateUpdateStatus("Rotation lock "
+                    + (rotationLock ? "enabled" : "disabled") + ".")
+            animateCondReq(true);
+            break;
         case "N": // (N)new cube
-            if (alt && shift) {
+            if ((buttonBar && confirm("New cube?")) || (alt && shift)) {
                 animateUpdateStatus("New cube");
                 animateNewCube();
             } else {
-                animateUpdateStatus("New cube?  Alt-Shift-N");
+                if (!buttonBar) {
+                    animateUpdateStatus("New cube?  Alt-Shift-N");
+                }
             }
             break;
         case "O": // (O)rientation display toggle.
@@ -203,13 +238,15 @@ function onKeyDown(event) {
             animateCondReq(true);
             break;
         case "P": // (P)ersistence storage clear
-            if (alt && shift) {
+            if ((buttonBar && confirm("Persistence storage clear?")) || (alt && shift)) {
                 // This message probably won't be seen.
                 animateUpdateStatus("Persistence storage clear");
                 initClearStorage();
                 location.reload();
             } else {
-                animateUpdateStatus("Persistence storage clear?  Alt-Shift-P");
+                if (!buttonBar) {
+                    animateUpdateStatus("Persistence storage clear?  Alt-Shift-P");
+                }
             }
             break;
         case "T": // (T)imer
@@ -369,12 +406,15 @@ function onTouchMove(event) {
     event.preventDefault();
 
     if (event.touches.length) {
-        // Support multiple touches.  Average?
+        // Support multiple touches. Average?
         lastTouchX = event.touches[0].pageX;
         lastTouchY = event.touches[0].pageY;
-    }
-    else {
+    } else {
         lastTouchX = null;
         lastTouchY = null;
     }
+}
+
+function preventDefault(event) {
+    event.preventDefault();
 }

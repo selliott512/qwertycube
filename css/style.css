@@ -5,6 +5,7 @@
 
 body {
     overflow: hidden;
+    background-color: #808080;
 }
 
 button {
@@ -12,10 +13,6 @@ button {
     border: solid;
     border-radius: 6px;
     visibility: hidden;
-}
-
-button:hover {
-    background-color: yellow;
 }
 
 .button-bar {
