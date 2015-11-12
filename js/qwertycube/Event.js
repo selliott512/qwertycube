@@ -147,6 +147,10 @@ function onKeyDown(event) {
         }
     }
 
+    // Dismiss any existing status message upon a key event as it probably
+    // means the user is no longer reading the message.
+    animateClearStatus();
+
     var args = eventToRotation[eventChar];
     if (event.keyCode == 27) {
         if (helpDisplayed) {
@@ -166,9 +170,6 @@ function onKeyDown(event) {
         moveQueue.push(move);
         animateCondReq(true);
         escLast = false;
-
-        // If the user made a move they probably don't care about the message.
-        animateClearStatus();
     } else {
         // Special keys
         var validEventChar = true;
@@ -258,7 +259,8 @@ function onKeyDown(event) {
             // Scrambling is structured this way, with two messages, because
             // scrambling may be slow the first time. The first message is
             // not displayed until this function returns, so the setTimeout
-            // was needed.
+            // was needed.  10 msec is used so that the first status has
+            // a chance to be displayed before the blocking scrambler.
             if (!scramblerInitialized) {
                 animateUpdateStatus("Initializing scrambler");
                 scramblerInitialized = true;
@@ -270,7 +272,7 @@ function onKeyDown(event) {
                                 : (scrambleCount + " moves"))
                         + ". \"I\" to see the scramble.";
                 animateUpdateStatus(msg);
-            }, 0);
+            }, 10);
             break;
         case "K": // Toggle rotation lock.
             rotationLock = !rotationLock;
@@ -324,10 +326,6 @@ function onKeyDown(event) {
             if (buttons) {
                 initSetButtonColor(buttons[0], buttons[1], true);
             }
-
-            // If the user type a valid command character they probably don't
-            // care about the message.
-            animateClearStatus();
         }
     }
 }
