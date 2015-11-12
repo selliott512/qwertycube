@@ -1,18 +1,38 @@
 "use strict";
 
 // Globals
+
+// Buttons that appear at the bottom. Row is zero based.
 var buttonList = [ [ {
-    label : "New",
+    label : "New", // Start row 0
     key : "N"
 }, {
     label : "Lock",
     key : "K"
 }, {
+    label : "Timer",
+    key : "T"
+}, {
     label : "Jumble",
     key : "J"
 } ], [ {
-    label : "Undo",
+    label : "Undo All", // Start row 1
+    key : "AG"
+}, {
+    label : "Checkpoint",
+    key : "C"
+}, {
+    label : "Help",
+    key : "H"
+}, {
+    label : "Redo All",
+    key : "ASG"
+} ], [ {
+    label : "Undo", // Start row 2
     key : "G"
+}, {
+    label : "Info",
+    key : "I"
 }, {
     label : "Reset",
     key : "P"
@@ -150,7 +170,12 @@ function initSetBackgroundColor() {
 
 // Private methods
 
-function addButtons() {
+function addUpdateButtons() {
+    // Delete any existing buttons.
+    while (buttonBarEl.childNodes.length) {
+        buttonBarEl.removeChild(buttonBarEl.lastChild);
+    }
+
     // Assume the array is rectangular.
     var rows = buttonList.length;
     var cols = buttonList[0].length;
@@ -179,7 +204,9 @@ function addButtons() {
             buttonEl.appendChild(literalEl);
 
             // Make the literal reasonably large.
-            buttonEl.style.fontSize = Math.floor(buttonHeight / 2) + "px";
+            buttonEl.style.fontSize = Math.floor(buttonHeight
+                    / (mobile ? 3 : 2))
+                    + "px";
 
             // Make it handle the click event as if it was a key event.
             buttonEl.onclick = (function(key) {
@@ -189,7 +216,9 @@ function addButtons() {
             })(button.key);
 
             // Don't respond to attempts to move the buttons.
-            buttonEl.addEventListener("touchmove", preventDefault);
+            if (mobile) {
+                buttonEl.addEventListener("touchmove", preventDefault);
+            }
 
             // Make it visible.
             buttonEl.style.visibility = "visible";
@@ -265,5 +294,5 @@ function setup() {
     containerEl.appendChild(renderer.domElement);
 
     // Dynamically add buttons to the button bar.
-    addButtons();
+    addUpdateButtons();
 }

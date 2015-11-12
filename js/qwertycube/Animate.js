@@ -142,6 +142,8 @@ function animateResize() {
     helpEl.style.top = helpTop + "px";
 
     infoResize();
+
+    addUpdateButtons();
 }
 
 function animateNewCube() {
