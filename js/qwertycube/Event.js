@@ -171,7 +171,7 @@ function onKeyDown(event) {
         moveQueue.push(move);
         animateCondReq(true);
         escLast = false;
-    } else {
+    } else if (!helpDisplayed) {
         // Special keys
         var validEventChar = true;
         switch (eventChar) {
@@ -516,6 +516,7 @@ function showHelp(show) {
         helpEl.style.height = primaryHeight + "px";
     }
     helpEl.style.visibility = show ? "visible" : "hidden";
+    timerEl.style.visibility = show ? "hidden" : "visible";
 
     helpDisplayed = show;
 }
