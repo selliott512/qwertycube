@@ -204,7 +204,9 @@ function onKeyDown(event) {
             break;
         case "I": // (I)nformation
             infoShow();
-            event.preventDefault();
+            if (!buttonBar) {
+                event.preventDefault();
+            }
             break;
         case "J": // (J)umble (S was taken)
             var msg = "Jumbling the cube with "
@@ -238,7 +240,8 @@ function onKeyDown(event) {
             animateCondReq(true);
             break;
         case "P": // (P)ersistence storage clear
-            if ((buttonBar && confirm("Persistence storage clear?")) || (alt && shift)) {
+            if ((buttonBar && confirm("Persistence storage clear?"))
+                    || (alt && shift)) {
                 // This message probably won't be seen.
                 animateUpdateStatus("Persistence storage clear");
                 initClearStorage();

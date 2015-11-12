@@ -47,6 +47,15 @@ var infoVarNameDescs = [
     ["wireframeSphere", true, true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
+//Buttons that appear at the bottom. Row is zero based.
+var infoButtonList = [ [ {
+    label : "Cancel", // Start row 0
+    key : "InfoCancel"
+}, {
+    label : "Ok",
+    key : "InfoOk"
+} ] ];
+
 // Public methods
 
 function infoCancel() {
@@ -144,31 +153,25 @@ function infoOnLoad() {
 function infoResize() {
     console.log("infoResize()");
 
-    var textLeft = (canvasWidth - infoTextEl.offsetWidth)/2;
-    var textTop = (canvasHeight - (infoTextEl.offsetHeight +
-            infoCancelEl.offsetHeight + 10))/2;
+    var infoHeight = Math.floor((9 * window.innerHeight) / 10);
+    var buttonHeight = window.innerHeight- infoHeight;
 
-    infoTextEl.style.left = textLeft + "px"
-    infoTextEl.style.top = textTop + "px";
-    infoTextEl.style.height = (canvasHeight - 55) + "px";
-
-    infoCancelEl.style.left = textLeft + "px";
-    infoCancelEl.style.top = (textTop + infoTextEl.offsetHeight + 10) + "px";
-    infoCancelEl.style.width = (infoTextEl.offsetWidth / 3) + "px";
-
-    infoOkEl.style.left = (textLeft + 2 * infoTextEl.offsetWidth / 3) + "px";
-    infoOkEl.style.top = (textTop + infoTextEl.offsetHeight + 10) + "px";
-    infoOkEl.style.width = (infoTextEl.offsetWidth / 3) + "px";
+    infoTextEl.style.left = "0px";
+    infoTextEl.style.top = "0px";
+    infoTextEl.style.width = canvasWidth + "px";
+    infoTextEl.style.height = infoHeight + "px";
 }
 
 function infoShow() {
     // The orbit controls grab events that are needed.
     orbitControls.enabled = false;
 
+    addUpdateButtons(infoButtonList);
+
+    infoResize();
     infoTextEl.style.visibility = "visible";
     infoCancelEl.style.visibility = "visible";
     infoOkEl.style.visibility = "visible";
-    infoResize();
 
     infoTextEl.value = wrapWithComments(infoInitialText,
             infoTextEl.cols - 1) + "\n";

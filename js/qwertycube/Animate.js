@@ -143,7 +143,7 @@ function animateResize() {
 
     infoResize();
 
-    addUpdateButtons();
+    addUpdateButtons(mainButtonList);
 }
 
 function animateNewCube() {

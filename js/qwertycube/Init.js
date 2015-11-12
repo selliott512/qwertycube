@@ -3,7 +3,7 @@
 // Globals
 
 // Buttons that appear at the bottom. Row is zero based.
-var buttonList = [ [ {
+var mainButtonList = [ [ {
     label : "New", // Start row 0
     key : "N"
 }, {
@@ -170,7 +170,7 @@ function initSetBackgroundColor() {
 
 // Private methods
 
-function addUpdateButtons() {
+function addUpdateButtons(buttonList) {
     // Delete any existing buttons.
     while (buttonBarEl.childNodes.length) {
         buttonBarEl.removeChild(buttonBarEl.lastChild);
@@ -294,5 +294,5 @@ function setup() {
     containerEl.appendChild(renderer.domElement);
 
     // Dynamically add buttons to the button bar.
-    addUpdateButtons();
+    addUpdateButtons(mainButtonList);
 }
