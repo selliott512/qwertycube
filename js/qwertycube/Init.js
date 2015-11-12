@@ -294,7 +294,7 @@ function fillScene() {
 
     if (wireframeSphere) {
         // Enclose the cube in a wireframe sphere.
-        animateWireframeSphere();
+        animateWireframeSphere(true);
     }
 }
 
