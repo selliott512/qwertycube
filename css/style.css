@@ -1,79 +1,76 @@
+/* This file is ordered alphabetically.  Elements are first followed by Ids.
+   The properties are alphabetical too. */
+
 * {
-    margin: 0px;
-    padding: 0px;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important; 
     -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important; 
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important; 
+    margin: 0px;
     outline: none !important;
+    padding: 0px;
 }
 
 body {
-    overflow: hidden;
     background-color: #808080;
+    overflow: hidden;
 }
 
 button {
     background-color: lightgrey;
-    position: absolute;
-    border: solid;
     border-radius: 6px;
-    visibility: hidden;
+    border: solid;
     font-weight: bold;
+    position: absolute;
+    visibility: hidden;
 }
 
-.button-bar {
-    box-sizing: content-box;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    visibility: visible;
+p {
+    margin-bottom: 1em;
+    margin-top: 1em;
 }
 
-table, th, td {
-    border: 1px solid black;
+table, td, th {
     border-collapse: collapse;
+    border: 1px solid black;
+    table-layout: fixed;
+    text-align: left;
+    width: 100%;
 }
 
 textarea {
-	width: 100%;
 	right-padding: 10px;
+	width: 100%;
 }
 
-th, td {
-    text-align: left;
-    white-space: nowrap;
-}
-
-#settings-text, #help {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width 100%;
-    height 100%;
-    overflow: auto;
+#help, #settings-text {
+    background-color: #C0FFC0;
+    border-radius: 6px;
+    border: solid;
     font-family: courier new;
     font-size: 20px;
+    height 100%;
+    left: 0px;
+    overflow: auto;
     position: absolute;
-    background-color: #C0FFC0;
-    border: solid;
-    border-radius: 6px;
+    top: 0px;
     visibility: hidden;
+    width 100%;
 }
 
 #status {
+    background-color: #FFFF80;
+    border-radius: 6px;
     font-family: courier new;
     font-size: 200%;
     font-weight: bold;
-    position: absolute;
-    background-color: #FFFF80;
-    border-radius: 6px;
     opacity: 0.0;
+    position: absolute;
 }
 
 #timer {
+    border-radius: 6px;
     font-family: courier new;
     font-size: 200%;
     font-weight: bold;
-    position: absolute;
-    border-radius: 6px;
     opacity: 0.0;
+    position: absolute;
 }
