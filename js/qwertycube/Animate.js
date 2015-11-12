@@ -141,9 +141,9 @@ function animateResize() {
     }
     helpEl.style.top = helpTop + "px";
 
-    initAddUpdateButtons(infoDisplayed ? infoButtonList : mainButtonList);
+    initAddUpdateButtons(settingsDisplayed ? settingsButtonList : mainButtonList);
 
-    infoResize();
+    settingsResize();
 
     if (helpDisplayed) {
         showHelp(true);

@@ -1,9 +1,9 @@
 "use strict";
 
-var infoDisplayed = false;
-var infoExtraLen = " persist new-cube".length;
-var infoInitialText =
-    "This information dialog can be used to view and modify various " +
+var settingsDisplayed = false;
+var settingsExtraLen = " persist new-cube".length;
+var settingsInitialText =
+    "This settings dialog can be used to view and modify various " +
     "variables in QWERTYcube.  Edit variables below, if need be, and click " +
     "the ok button (or Ctrl-Enter) to apply the changes, or click the cancel " +
     "button (or Esc) to abandon the changes.  They're in alphabetical order. " +
@@ -13,7 +13,7 @@ var infoInitialText =
     "effect until a new cube (Alt-Shift-N) is created.";
 
 // Each entry is name, persist, new-cube, description
-var infoVarNameDescs = [
+var settingsVarNameDescs = [
     ["animation", true, false, "If true then show animation as the cube moves. \"A\" toggles."],
     ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
     ["cameraLocation", true, false, "Location of the camera."],
@@ -47,42 +47,42 @@ var infoVarNameDescs = [
     ["wireframeSphere", true, false, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
-// Buttons that appear at the bottom for the info dialog. Row is zero based.
-var infoButtonList = [ {
+// Buttons that appear at the bottom for the settings dialog. Row is zero based.
+var settingsButtonList = [ {
     label : "Cancel",
-    func : infoCancel
+    func : settingsCancel
 }, {
     label : "Ok",
-    func : infoOk
+    func : settingsOk
 } ];
 
 // Public methods
 
-function infoCancel() {
+function settingsCancel() {
     console.log("Cancel clicked")
-    infoHide();
+    settingsHide();
 }
 
-function infoHide() {
+function settingsHide() {
     orbitControls.enabled = !rotationLock;
 
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
-    infoTextEl.style.visibility = "hidden";
+    settingsTextEl.style.visibility = "hidden";
 
     initAddUpdateButtons(mainButtonList);
 
-    infoDisplayed = false;
+    settingsDisplayed = false;
 }
 
-function infoOk() {
+function settingsOk() {
     console.log("Ok clicked");
 
     // Reset the cube.
     animateNewCube();
 
     // Now apply the variables.
-    var lines = infoTextEl.value.split("\n");
+    var lines = settingsTextEl.value.split("\n");
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         // Strip off comments.
@@ -126,65 +126,65 @@ function infoOk() {
         moveHistoryNextLast = moveHistoryNext;
         moveHistoryNext = 0;
     }
-    infoHide();
+    settingsHide();
     animateCondReq(true);
 }
 
-function infoOnKeyDown(event) {
-    var infoEvent = false;
+function settingsOnKeyDown(event) {
+    var settingsEvent = false;
     if (event.keyCode === 27) {
         // Escape
-        infoCancel();
-        infoEvent = true;
+        settingsCancel();
+        settingsEvent = true;
     } else if (event.ctrlKey && (event.keyCode === 13)) {
         // Ctrl-Enter
-        infoOk();
-        infoEvent = true;
+        settingsOk();
+        settingsEvent = true;
     }
-    if (infoEvent) {
+    if (settingsEvent) {
         event.preventDefault();
     }
 }
 
-function infoOnLoad() {
+function settingsOnLoad() {
     console.log("onLoad()");
-    infoResize();
+    settingsResize();
     setCursorAfterInit();
 }
 
-function infoResize() {
-    console.log("infoResize()");
-    var infoHeight = primaryHeight;
+function settingsResize() {
+    console.log("settingsResize()");
+    var settingsHeight = primaryHeight;
 
-    infoTextEl.style.left = "0px";
-    infoTextEl.style.top = "0px";
-    infoTextEl.style.width = (canvasWidth - 6) + "px";
-    infoTextEl.style.height = infoHeight + "px";
+    settingsTextEl.style.left = "0px";
+    settingsTextEl.style.top = "0px";
+    settingsTextEl.style.width = (canvasWidth - 6) + "px";
+    settingsTextEl.style.height = settingsHeight + "px";
 }
 
-function infoShow() {
+function settingsShow() {
     // The orbit controls grab events that are needed.
     orbitControls.enabled = false;
 
-    initAddUpdateButtons(infoButtonList);
+    initAddUpdateButtons(settingsButtonList);
 
-    infoResize();
-    infoTextEl.style.visibility = "visible";
+    settingsResize();
+    settingsTextEl.style.visibility = "visible";
 
-    infoTextEl.value = wrapWithComments(infoInitialText) + "\n";
+    settingsTextEl.value = wrapWithComments(settingsInitialText) + "\n";
 
     // Update variables that may need updating.
     cameraLocation[0] = Math.round(camera.position.x);
     cameraLocation[1] = Math.round(camera.position.y);
     cameraLocation[2] = Math.round(camera.position.z);
 
-    for (var i = 0; i < infoVarNameDescs.length; i++) {
-        var varNameDesc = infoVarNameDescs[i];
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varNameDesc = settingsVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         var varNewCube = varNameDesc[2];
         var varDesc = varNameDesc[3];
-        infoTextEl.value += "\n" + wrapWithComments(varDesc  +
+        settingsTextEl.value += "\n" + wrapWithComments(varDesc  +
                 (varPersist ? " persist" : "") +
                 (varNewCube ? " new-cube" : "")) + "\n";
         var varValue = window[varName];
@@ -198,19 +198,19 @@ function infoShow() {
         else {
             line += varValue;
         }
-        infoTextEl.value += line + "\n";
+        settingsTextEl.value += line + "\n";
     }
 
     setCursorAfterInit();
-    infoDisplayed = true;
+    settingsDisplayed = true;
 }
 
 // Private methods
 
 function setCursorAfterInit() {
-    infoTextEl.spellcheck = false;
-    infoTextEl.focus();
-    var initLen = infoInitialText.length;
-    infoTextEl.setSelectionRange(initLen, initLen);
-    infoTextEl.scrollTop = 0;
+    settingsTextEl.spellcheck = false;
+    settingsTextEl.focus();
+    var initLen = settingsInitialText.length;
+    settingsTextEl.setSelectionRange(initLen, initLen);
+    settingsTextEl.scrollTop = 0;
 }

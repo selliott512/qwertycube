@@ -18,13 +18,14 @@ var rotateTwoLayer = false;
 function rotateBegin(move) {
     // If true then moves are being replayed (ok button clicked) and the we've
     // reached the point where the user is.
-    var endOfReplay = (moveHistoryNextLast != -1) && (moveHistoryNext >= moveHistoryNextLast);
-    
+    var endOfReplay = (moveHistoryNextLast != -1)
+            && (moveHistoryNext >= moveHistoryNextLast);
+
     if ((move == "|") || endOfReplay) {
         // Avoid actually doing the move in the following cases 1) It's a mark,
         // in which case there is no actual moving to do. 2) The user has
-        // clicked ok in the info dialog in which case we don't want to replay
-        // moves after and including moveHistoryNext.
+        // clicked ok in the settings dialog in which case we don't want to
+        // replay moves after and including moveHistoryNext.
         moveHistory.push(move);
         if (!endOfReplay) {
             // End reached.

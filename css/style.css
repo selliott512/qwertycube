@@ -43,7 +43,7 @@ th, td {
     white-space: nowrap;
 }
 
-#info-text, #help {
+#settings-text, #help {
     position: absolute;
     top: 0px;
     left: 0px;

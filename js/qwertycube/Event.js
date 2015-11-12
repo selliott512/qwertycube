@@ -14,7 +14,7 @@ var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
 var buttonFlashDelay = 300;
 
-// Buttons that appear at the bottom for the info dialog. Row is zero based.
+// Buttons that appear at the bottom for the settings dialog. Row is zero based.
 var helpButtonList = [ {
     label : "Close",
     func : helpClose
@@ -102,9 +102,9 @@ function onKeyDown(event) {
             .fromCharCode(event.keyCode);
     var alt = escLast || event.altKey;
     var shift = event.shiftKey;
-    if (infoDisplayed) {
-        // The info dialog has it's own event handler.
-        infoOnKeyDown(event);
+    if (settingsDisplayed) {
+        // The settings dialog has it's own event handler.
+        settingsOnKeyDown(event);
         return;
     }
     if (event.ctrlKey) {
@@ -230,7 +230,7 @@ function onKeyDown(event) {
             showHelp(!helpDisplayed);
             break;
         case "I": // (I)nformation
-            infoShow();
+            settingsShow();
             if (!buttonBar) {
                 event.preventDefault();
             }
@@ -292,7 +292,7 @@ function onKeyDown(event) {
 }
 
 function onMouseDown(event) {
-    if (infoDisplayed) {
+    if (settingsDisplayed) {
         return;
     }
 
@@ -324,7 +324,7 @@ function onMouseDown(event) {
 }
 
 function onMouseUp(event) {
-    if (infoDisplayed) {
+    if (settingsDisplayed) {
         return;
     }
 

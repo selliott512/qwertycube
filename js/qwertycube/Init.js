@@ -54,7 +54,7 @@ var mobile = false;
 var buttonBarEl;
 var containerEl;
 var helpEl;
-var infoTextEl;
+var settingsTextEl;
 var statusEl;
 var timerEl;
 
@@ -148,7 +148,7 @@ function initAddUpdateButtons(buttonList) {
 function initLoad() {
     getElements();
     initLoadStorage();
-    infoOnLoad();
+    settingsOnLoad();
     initVars();
     eventAdd();
     setup();
@@ -157,8 +157,8 @@ function initLoad() {
 }
 
 function initClearStorage() {
-    for (var i = 0; i < infoVarNameDescs.length; i++) {
-        var varNameDesc = infoVarNameDescs[i];
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varNameDesc = settingsVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         if (!varPersist) {
@@ -169,8 +169,8 @@ function initClearStorage() {
 }
 
 function initLoadStorage() {
-    for (var i = 0; i < infoVarNameDescs.length; i++) {
-        var varNameDesc = infoVarNameDescs[i];
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varNameDesc = settingsVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         if (!varPersist) {
@@ -208,8 +208,8 @@ function initSetButtonColor(buttonEl, button, clicked) {
 }
 
 function initSaveStorage() {
-    for (var i = 0; i < infoVarNameDescs.length; i++) {
-        var varNameDesc = infoVarNameDescs[i];
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varNameDesc = settingsVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         if (!varPersist) {
@@ -298,7 +298,7 @@ function getElements() {
     buttonBarEl = document.getElementById("button-bar");
     containerEl = document.getElementById("container");
     helpEl = document.getElementById("help");
-    infoTextEl = document.getElementById("info-text");
+    settingsTextEl = document.getElementById("settings-text");
     statusEl = document.getElementById("status");
     timerEl = document.getElementById("timer");
 }

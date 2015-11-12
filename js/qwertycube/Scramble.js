@@ -104,7 +104,7 @@ function scramble() {
             }
         }
     } else {
-        // TODO: Probably prevent this in info.js.
+        // TODO: Probably prevent this in Settings.js.
         console.log("Unknown scrambler type \"" + scrambleType + "\".");
     }
 
