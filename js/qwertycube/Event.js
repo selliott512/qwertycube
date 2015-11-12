@@ -284,14 +284,15 @@ function onKeyDown(event) {
                         + " cube with "
                         + (scrambleType == "jsss" ? "jsss"
                                 : (scrambleCount + " moves"))
-                        + ". \"I\" to see the scramble.";
+                        + ". Push Settings and see scrambleMoves for the "
+                        + "scramble.";
                 animateUpdateStatus(msg);
             }, 10);
             break;
         case "K": // Toggle rotation lock.
             rotationLock = !rotationLock;
             animateUpdateStatus("Rotation lock "
-                    + (rotationLock ? "enabled" : "disabled") + ".")
+                    + (rotationLock ? "enabled" : "disabled"))
             animateCondReq(true);
             break;
         case "N": // (N)new cube
@@ -306,21 +307,20 @@ function onKeyDown(event) {
             break;
         case "O": // (O)rientation display toggle.
             dispOrientationLabels = !dispOrientationLabels;
-            animateUpdateStatus((dispOrientationLabels ? "Displaying"
-                    : "Not displaying")
-                    + " orientation labels.");
+            animateUpdateStatus("Orientation labels "
+                    + (dispOrientationLabels ? "enabled" : "disabled"))
             animateCondReq(true);
             break;
-        case "P": // (P)ersistence storage clear
-            if ((buttonBar && confirm("Persistence storage clear?"))
+        case "P": // (P)ersistent storage clear
+            if ((buttonBar && confirm("Persistent storage clear?"))
                     || (alt && shift)) {
                 // This message probably won't be seen.
-                animateUpdateStatus("Persistence storage clear");
+                animateUpdateStatus("Persistent storage clear");
                 initClearStorage();
                 location.reload();
             } else {
                 if (!buttonBar) {
-                    animateUpdateStatus("Persistence storage clear?  Alt-Shift-P");
+                    animateUpdateStatus("Persistent storage clear?  Alt-Shift-P");
                 }
             }
             break;
