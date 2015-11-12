@@ -9,11 +9,11 @@ var mainButtonList = [ [ {
 }, {
     label : "Lock",
     key : "K",
-    toggle: "rotationLock"
+    toggle : "rotationLock"
 }, {
     label : "Timer",
     key : "T",
-    toggle: "timer"
+    toggle : "timer"
 }, {
     label : "Jumble",
     key : "J"
@@ -26,7 +26,7 @@ var mainButtonList = [ [ {
 }, {
     label : "Help",
     key : "H",
-    toggle: "dispHelp"
+    toggle : "dispHelp"
 }, {
     label : "Redo All",
     key : "ASG"
@@ -64,6 +64,67 @@ var presistentPrefix = "QC";
 var primaryHeight = 0;
 
 // Public methods
+
+function initAddUpdateButtons(buttonList) {
+    // Delete any existing buttons.
+    while (buttonBarEl.childNodes.length) {
+        buttonBarEl.removeChild(buttonBarEl.lastChild);
+    }
+
+    // Assume the array is rectangular.
+    var rows = buttonList.length;
+    var cols = buttonList[0].length;
+
+    // Calculate what the size of each mutton must be.
+    var buttonWidth = Math.floor(canvasWidth / cols);
+    var buttonHeight = Math.floor(buttonBarHeight / buttonRowsMax);
+    var buttonTopOffset = (buttonRowsMax - rows) * buttonHeight;
+    primaryHeight = canvasHeight + buttonTopOffset;
+
+    // Zero based rows and columns.
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var button = buttonList[row][col];
+            var buttonEl = document.createElement("button");
+
+            // Give it a name and make it visible.
+            buttonEl.id = "button-" + button.label.toLowerCase();
+
+            // Set the size and location.
+            buttonEl.style.left = (col * buttonWidth) + "px";
+            buttonEl.style.top = (row * buttonHeight + primaryHeight) + "px";
+            buttonEl.style.width = (buttonWidth) + "px";
+            buttonEl.style.height = buttonHeight + "px";
+
+            // Add a literal.
+            var literalEl = document.createTextNode(button.label);
+            buttonEl.appendChild(literalEl);
+
+            // Make the literal reasonably large.
+            buttonEl.style.fontSize = Math.floor(buttonHeight
+                    / (mobile ? 3 : 2))
+                    + "px";
+
+            // Make it handle the click event as if it was a key event.
+            buttonEl.onclick = (function(elem, butt) {
+                return function() {
+                    onButtonBarButton(elem, butt)
+                };
+            })(buttonEl, button);
+
+            // Don't respond to attempts to move the buttons.
+            if (mobile) {
+                buttonEl.addEventListener("touchmove", preventDefault);
+            }
+
+            // Make it visible.
+            buttonEl.style.visibility = "visible";
+
+            // Add it to the button bar.
+            buttonBarEl.appendChild(buttonEl);
+        }
+    }
+}
 
 function initLoad() {
     getElements();
@@ -177,68 +238,6 @@ function initSetBackgroundColor() {
 
 // Private methods
 
-// TODO: Actually should be public.
-function addUpdateButtons(buttonList) {
-    // Delete any existing buttons.
-    while (buttonBarEl.childNodes.length) {
-        buttonBarEl.removeChild(buttonBarEl.lastChild);
-    }
-
-    // Assume the array is rectangular.
-    var rows = buttonList.length;
-    var cols = buttonList[0].length;
-
-    // Calculate what the size of each mutton must be.
-    var buttonWidth = Math.floor(canvasWidth / cols);
-    var buttonHeight = Math.floor(buttonBarHeight / buttonRowsMax);
-    var buttonTopOffset = (buttonRowsMax - rows) * buttonHeight;
-    primaryHeight = canvasHeight + buttonTopOffset;
-
-    // Zero based rows and columns.
-    for (var row = 0; row < rows; row++) {
-        for (var col = 0; col < cols; col++) {
-            var button = buttonList[row][col];
-            var buttonEl = document.createElement("button");
-
-            // Give it a name and make it visible.
-            buttonEl.id = "button-" + button.label.toLowerCase();
-
-            // Set the size and location.
-            buttonEl.style.left = (col * buttonWidth) + "px";
-            buttonEl.style.top = (row * buttonHeight + primaryHeight) + "px";
-            buttonEl.style.width = (buttonWidth) + "px";
-            buttonEl.style.height = buttonHeight + "px";
-
-            // Add a literal.
-            var literalEl = document.createTextNode(button.label);
-            buttonEl.appendChild(literalEl);
-
-            // Make the literal reasonably large.
-            buttonEl.style.fontSize = Math.floor(buttonHeight
-                    / (mobile ? 3 : 2))
-                    + "px";
-
-            // Make it handle the click event as if it was a key event.
-            buttonEl.onclick = (function(elem, butt) {
-                return function() {
-                    onButtonBarButton(elem, butt)
-                };
-            })(buttonEl, button);
-
-            // Don't respond to attempts to move the buttons.
-            if (mobile) {
-                buttonEl.addEventListener("touchmove", preventDefault);
-            }
-
-            // Make it visible.
-            buttonEl.style.visibility = "visible";
-
-            // Add it to the button bar.
-            buttonBarEl.appendChild(buttonEl);
-        }
-    }
-}
-
 function fillScene() {
     scene = new THREE.Scene();
     cubies = new cubiesCreate();
@@ -302,5 +301,5 @@ function setup() {
     containerEl.appendChild(renderer.domElement);
 
     // Dynamically add buttons to the button bar.
-    addUpdateButtons(mainButtonList);
+    initAddUpdateButtons(mainButtonList);
 }

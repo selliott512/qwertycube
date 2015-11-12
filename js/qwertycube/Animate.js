@@ -141,11 +141,7 @@ function animateResize() {
     }
     helpEl.style.top = helpTop + "px";
 
-    if (infoDisplayed) {
-        addUpdateButtons(infoButtonList);
-    } else {
-        addUpdateButtons(mainButtonList);
-    }
+    initAddUpdateButtons(infoDisplayed ? infoButtonList : mainButtonList);
 
     infoResize();
 }

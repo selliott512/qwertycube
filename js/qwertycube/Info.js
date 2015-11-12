@@ -70,7 +70,7 @@ function infoHide() {
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
     infoTextEl.style.visibility = "hidden";
 
-    addUpdateButtons(mainButtonList);
+    initAddUpdateButtons(mainButtonList);
 
     infoDisplayed = false;
 }
@@ -165,7 +165,7 @@ function infoShow() {
     // The orbit controls grab events that are needed.
     orbitControls.enabled = false;
 
-    addUpdateButtons(infoButtonList);
+    initAddUpdateButtons(infoButtonList);
 
     infoResize();
     infoTextEl.style.visibility = "visible";
