@@ -137,6 +137,9 @@ function onKeyDown(event) {
                 moveQueue.push(move);
                 animateCondReq(true);
                 escLast = false;
+
+                // If the user made a move they probably don't care about the message.
+                animateClearStatus();
                 return;
             } else {
                 console.log("Unknown keyMap value \"" + keyMapValue + "\".");
@@ -163,8 +166,12 @@ function onKeyDown(event) {
         moveQueue.push(move);
         animateCondReq(true);
         escLast = false;
+
+        // If the user made a move they probably don't care about the message.
+        animateClearStatus();
     } else {
         // Special keys
+        var validEventChar = true;
         switch (eventChar) {
         // A lot of good letters were already taken.
         case "A": // (A)nimation toggle
@@ -308,7 +315,13 @@ function onKeyDown(event) {
             break;
         default:
             console.log("Ignoring unknown key \"" + eventChar + "\".");
+            validEventChar = false;
             break;
+        }
+        if (validEventChar) {
+            // If the user type a valid command character they probably don't
+            // care about the message.
+            animateClearStatus();
         }
     }
 }
@@ -434,6 +447,9 @@ function onMouseUp(event) {
 
                     // Queue the move up.
                     moveQueue.push(move);
+
+                    // If the user made a move they probably don't care about the message.
+                    animateClearStatus();
 
                     break;
                 }
