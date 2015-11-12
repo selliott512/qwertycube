@@ -175,9 +175,9 @@ function onKeyDown(event) {
         case "C": // (C)heckpoint
             if ((moveHistory[moveHistoryNext - 1] == "|")
                     || (moveHistory[moveHistoryNext] == "|")) {
-                animateUpdateStatus("Checkpoint already set");
+                animateUpdateStatus("Savepoint already set");
             } else {
-                animateUpdateStatus("Checkpoint set");
+                animateUpdateStatus("Savepoint set");
                 moveHistory.splice(moveHistoryNext++, 0, "|");
             }
             break
@@ -204,8 +204,8 @@ function onKeyDown(event) {
                     }
                 }
                 if (alt && (move == "|")) {
-                    // A checkpoint was reached with the alt key pressed, so
-                    // stop without processing the checkpoint.
+                    // A savepoint was reached with the alt key pressed, so
+                    // stop without processing the savepoint.
                     moveHistoryNext = moveHistoryNextOld;
                     break;
                 }
@@ -236,7 +236,7 @@ function onKeyDown(event) {
             }
             break;
         case "J": // (J)umble (S was taken)
-            var msg = "Jumbling the cube with "
+            var msg = "Scrambling the cube with "
                     + (scrambleType == "jsss" ? "jsss"
                             : (scrambleCount + " moves"))
                     + ". \"I\" to see the scramble.";

@@ -111,7 +111,7 @@ function scramble() {
     // Apply the scramble found.
     moveQueue.push.apply(moveQueue, scrambleMoves);
 
-    // Add a checkpoint after the scramble so that Alt-G rewinds to it.
+    // Add a savepoint after the scramble so that Alt-G rewinds to it.
     moveQueue.push("|");
 
     timerState = "scramble";
