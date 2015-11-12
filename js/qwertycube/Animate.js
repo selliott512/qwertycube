@@ -144,6 +144,10 @@ function animateResize() {
     initAddUpdateButtons(infoDisplayed ? infoButtonList : mainButtonList);
 
     infoResize();
+
+    if (helpDisplayed) {
+        showHelp(true);
+    }
 }
 
 function animateNewCube() {

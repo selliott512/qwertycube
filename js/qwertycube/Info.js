@@ -47,7 +47,7 @@ var infoVarNameDescs = [
     ["wireframeSphere", true, false, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
-//Buttons that appear at the bottom. Row is zero based.
+// Buttons that appear at the bottom for the info dialog. Row is zero based.
 var infoButtonList = [ {
     label : "Cancel",
     func : infoCancel

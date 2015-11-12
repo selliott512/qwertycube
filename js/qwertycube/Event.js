@@ -14,6 +14,12 @@ var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
 var buttonFlashDelay = 300;
 
+// Buttons that appear at the bottom for the info dialog. Row is zero based.
+var helpButtonList = [ {
+    label : "Close",
+    func : helpClose
+} ];
+
 // Public methods
 
 function eventAdd() {
@@ -40,6 +46,10 @@ function eventAdd() {
 }
 
 // Private methods
+
+function helpClose() {
+    showHelp(false);
+}
 
 function onButtonBarButton(event, buttonEl, button) {
     var func = button.func;
@@ -135,6 +145,10 @@ function onKeyDown(event) {
 
     var args = eventToRotation[eventChar];
     if (event.keyCode == 27) {
+        if (helpDisplayed) {
+            showHelp(false);
+            return;
+        }
         escLast = true;
     } else if (args) {
         // Regular movement
@@ -213,9 +227,7 @@ function onKeyDown(event) {
             }
             break;
         case "H": // (H)help
-            console.log("xxdebug help");
-            helpEl.style.visibility = helpDisplayed ? "hidden" : "visible";
-            helpDisplayed = !helpDisplayed;
+            showHelp(!helpDisplayed);
             break;
         case "I": // (I)nformation
             infoShow();
@@ -435,4 +447,18 @@ function onTouchMove(event) {
 
 function preventDefault(event) {
     event.preventDefault();
+}
+
+function showHelp(show) {
+    initAddUpdateButtons(show ? helpButtonList : mainButtonList);
+
+    if (show) {
+        helpEl.style.left = "0px";
+        helpEl.style.top = "0px";
+        helpEl.style.width = (canvasWidth - 6) + "px";
+        helpEl.style.height = primaryHeight + "px";
+    }
+    helpEl.style.visibility = show ? "visible" : "hidden";
+
+    helpDisplayed = show;
 }
