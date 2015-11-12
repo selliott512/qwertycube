@@ -16,54 +16,108 @@
     <div id="container"></div>
     <div id="help">
       <h2>QWERTYcube - Keyboard oriented Rubik's Cube</h2>
-      <p>by Steven Elliott based on rubik_scrambler by Siddhante Nangla</p>
-      <br/>
-      <h3>H - Toggle this help message.</h3>
-      <table id="help-toggle-keys">
+      by Steven Elliott based on rubik_scrambler by Siddhante Nangla
+      <p/>
+      <h3>Overview</h3>
+      <p>As the name suggests QWERTYcube was originally intended to be a keyboard
+      based cube.  However, it has evolved to have mouse support as well as 
+      touch support on mobile devices.  If you just want to see a reference
+      describing the buttons and keys scroll down.</p>
+      <p/>
+      <h3>Keyboard</h3>
+      <p>The keyboard can be used to either make moves in the expected
+      way (R, L, U, D, etc.) or for various commands (T, L, etc.).  Some
+      commands that destroy information, such as N and P, require that Alt and
+      Shift be pressed at the same time. For moves the Alt and Shift make the
+      move double layer and inverse respectively.  All three middle moves and
+      entire cube rotations (x, y and z) are supported.  The keys can be 
+      reconfigured (see "Settings").</p>
+      <p/>
+      <h3>Mouse And Touch</h3>
+      <p>Mouse and touch support should be intuitive, but there are some things 
+      about it that may not be obvious.  Clicking on the grey background
+	  rotates the entire cube.  Note that when the cube is rotated this way
+	  the R, L, U, D, etc. labels follow the cube (see "Orientation labels").
+	  If rotation lock (see "Rotation lock") is on the program does it's best
+      to interpret movement on the grey background as being a cube move.</p>
+	  <p>Clicking the mouse on the cube and moving results in a cube move.
+	  Although it should be obvious how this works in the case of moving a 
+	  single layer it's also possible to move multiple layers, such as a 
+	  double layer move (r, etc.) or even the entire cube (x, etc.).  To move
+      multiple layers the swipe should cross a layer boundary.  All touched
+      layers will rotate.</p>
+      <p/>
+      <h3>Settings</h3>
+      <p>Pressing the Settings button displays the settings dialog.  This is
+      where various obscure and advanced settings are stored.  Read the text
+      at the start of the settings dialog for an overview of how settings work.
+      Click Ok to store the settings to persistent storage.  Note that persistent
+      storage can be cleared via the P key.</p>
+      <p/>
+      <h3>Key Tables</h3>
+      <p/>
+      <table id="help-command-keys">
         <col width="25%" />
-        <col width="75%" />
+        <col width="25%" />
+        <col width="50%" />
         <tr>
           <th>Control Key</th>
+          <th>Button</th>
           <th>Description</th>
         </tr>
         <tr>
           <td>A</td>
+          <td></td>
           <td>Toggle animation</td>
         </tr>
         <tr>
           <td>C</td>
-          <td>Set a checkpoint.  Try with Alt-G</td>
+          <td>Savepoint</td>
+          <td>Set a savepoint.  Try with Alt-G</td>
         </tr>
         <tr>
           <td>G</td>
+          <td>Undo</td>
           <td>Undo last move. Shift to redo</td>
         </tr>
         <tr>
           <td>H</td>
-          <td>Toggle this help message</td>
+          <td>Help</td>
+          <td>Display this help message</td>
         </tr>
         <tr>
           <td>I</td>
-          <td>Settings.</td>
+          <td>Settings</td>
+          <td>Display the settings</td>
         </tr>
         <tr>
           <td>J</td>
-          <td>Jumble/scramble cube</td>
+          <td>Scramble</td>
+          <td>Scramble the cube.  By default jsss is used.</td>
+        </tr>
+        <tr>
+          <td>K</td>
+          <td>Lock</td>
+          <td>Rotation lock.  Prevent cube rotations.</td>
         </tr>
         <tr>
           <td>N</td>
+          <td>New</td>
           <td>New solved cube</td>
         </tr>
         <tr>
           <td>O</td>
+          <td></td>
           <td>Toggle display orientation</td>
         </tr>
         <tr>
           <td>P</td>
+          <td>Reset</td>
           <td>Persistent storage clear (factory reset)</td>
         </tr>
         <tr>
           <td>T</td>
+          <td>Timer</td>
           <td>Toggle the timer</td>
         </tr>
       </table>
@@ -169,7 +223,7 @@
     <p id="timer">
     </p>
     <div id="settings">
-      <textarea name="settings-text" id="settings-text"></textarea>
+      <textarea name="settings-text" id="settings-text" rows="0" cols="0"></textarea>
     </div>
     <div id="button-bar"></div>
     <script type="text/javascript" src="js/third-party/three.min.js"></script>
