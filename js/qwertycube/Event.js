@@ -319,6 +319,12 @@ function onKeyDown(event) {
             break;
         }
         if (validEventChar) {
+            // Flash the button if activated by a key.
+            var buttons = buttonKeyToElMap[eventChar];
+            if (buttons) {
+                initSetButtonColor(buttons[0], buttons[1], true);
+            }
+
             // If the user type a valid command character they probably don't
             // care about the message.
             animateClearStatus();

@@ -43,6 +43,7 @@ var mainButtonList = [ {
     key : "ASG"
 } ];
 
+var buttonKeyToElMap = {};
 var buttonRowsMax = 0;
 
 var flashHelp = true;
@@ -141,6 +142,9 @@ function initAddUpdateButtons(buttonList) {
         // Add it to the button bar.
         buttonBarEl.appendChild(buttonEl);
 
+        // Keep a reference the button variables.
+        buttonKeyToElMap[button.key] = [buttonEl, button];
+
         col++;
     }
 }
@@ -183,17 +187,17 @@ function initLoadStorage() {
     }
 }
 
-function initSetButtonColor(buttonEl, button, clicked) {
+function initSetButtonColor(buttonEl, button, flash) {
     var toggle = button.toggle;
     var fh = (button.label === "Help") && flashHelp && !helpFlashed;
     if (toggle) {
         var val = window[toggle];
         buttonEl.style.backgroundColor = (val ? buttonColorHighlight
                 : buttonColorOrig);
-    } else if (clicked || fh) {
+    } else if (flash || fh) {
         // The help button is a special case. Flash it when the page if first
         // loaded so the user knows to click it for instructions.
-        var flashCount = clicked ? 1 : 3;
+        var flashCount = flash ? 1 : 3;
         for (var i = 0; i < 2 * flashCount; i++) {
             // Double function wrapper used so that the index (i or j) is
             // evaluated now instead of later.
