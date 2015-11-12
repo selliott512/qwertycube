@@ -116,8 +116,8 @@ function initAddUpdateButtons(buttonList) {
 
         // Make it handle the click event as if it was a key event.
         buttonEl.onclick = (function(elem, butt) {
-            return function() {
-                onButtonBarButton(elem, butt)
+            return function(event) {
+                onButtonBarButton(event, elem, butt)
             };
         })(buttonEl, button);
 
@@ -297,8 +297,7 @@ function setup() {
     animateSetCamera();
 
     // orbitControls:
-    orbitControls = new THREE.OrbitControls(camera, renderer.domElement,
-            renderer.domElement);
+    orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
 
     // Limit manipulation that is not helpful.
     orbitControls.enabled = !rotationLock;

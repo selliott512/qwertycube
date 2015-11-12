@@ -17,19 +17,19 @@ var buttonColorHighlight = "rgb(255, 255, 128)";
 
 function eventAdd() {
     // Register event listeners that are needed by this program. Note that
-    // document is used as mouse events need to be processed here before
-    // OrbitControls does.
+    // bubbling ("true" argument) is used so that these events are processed
+    // here before OrbitControls.
     console.log("Adding event listeners.");
-    document.addEventListener("keydown", onKeyDown, false);
+    document.addEventListener("keydown", onKeyDown, true);
     containerEl.addEventListener(mobile ? "touchstart" : "mousedown",
-            onMouseDown, false);
+            onMouseDown, true);
     containerEl.addEventListener(mobile ? "touchend" : "mouseup", onMouseUp,
-            false);
+            true);
     if (mobile) {
         containerEl.addEventListener("touchmove", onTouchMove);
     }
 
-    window.addEventListener("resize", onResize, false);
+    window.addEventListener("resize", onResize, true);
 
     // Make sure the button bar does not do anything with events other than
     // click buttons.
@@ -40,11 +40,14 @@ function eventAdd() {
 
 // Private methods
 
-function onButtonBarButton(buttonEl, button) {
+function onButtonBarButton(event, buttonEl, button) {
     var func = button.func;
     var key = button.key;
     var label = button.label;
     var toggle = button.toggle;
+
+    // Don't confuse OrbitControls by allowing it to see this click.
+    orbitControls.enabled = false;
 
     if (key) {
         // Create a pseudo event and pretend it was a key press.
