@@ -42,6 +42,7 @@ var timerSolved;
 var timerStart = Date.now();
 var timerState = "solve";
 var wireframeSphere = false;
+var wireframeSphereMesh;
 
 // The following lookup tables should be kept in sync and in alphabetical order
 // by key.
@@ -87,10 +88,8 @@ function animateResetScene() {
         scene.add(cubies[i]);
     }
 
-    if (wireframeSphere) {
-        // Enclose the cube in a wireframe sphere.
-        animateWireframeSphere();
-    }
+    // Enclose the cube in a wireframe sphere.
+    animateWireframeSphere(wireframeSphere);
 }
 
 // Code that is common it init and resize events.
@@ -251,15 +250,21 @@ function animateUpdateTimer() {
     }
 }
 
-function animateWireframeSphere() {
-    // Add a sphere around the origin.
-    var matt = new THREE.MeshBasicMaterial({
-        color : "darkgreen",
-        wireframe : true
-    });
-    var geometry = new THREE.SphereGeometry(cubiesRadius, 64, 64);
-    var sphere = new THREE.Mesh(geometry, matt);
-    scene.add(sphere);
+function animateWireframeSphere(show) {
+    if (show && !wireframeSphereMesh) {
+        // Add a sphere around the origin.
+        var matt = new THREE.MeshBasicMaterial({
+            color : "darkgreen",
+            wireframe : true
+        });
+        var geometry = new THREE.SphereGeometry(cubiesRadius, 64, 64);
+        wireframeSphereMesh = new THREE.Mesh(geometry, matt);
+        scene.add(wireframeSphereMesh);
+    }
+    else if ((!show) && wireframeSphereMesh) {
+        scene.remove(wireframeSphereMesh);
+        wireframeSphereMesh = null;
+    }
 }
 
 // Private methods

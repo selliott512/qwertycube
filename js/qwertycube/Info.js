@@ -44,7 +44,7 @@ var infoVarNameDescs = [
     ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
     ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
     ["timerInspectionSecs", true, false, "The amount of inspection time before solving."],
-    ["wireframeSphere", true, true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
+    ["wireframeSphere", true, false, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
 //Buttons that appear at the bottom. Row is zero based.
@@ -116,6 +116,7 @@ function infoOk() {
     initVars();
     initSetBackgroundColor();
     animateSetCamera();
+    animateWireframeSphere(wireframeSphere);
 
     // Apply the new move history to the cube.
     // TODO: If the cube is partially rewound then those moves after
