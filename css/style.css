@@ -16,6 +16,7 @@ button {
     border: solid;
     border-radius: 6px;
     visibility: hidden;
+    font-weight: bold;
 }
 
 .button-bar {
