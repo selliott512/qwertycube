@@ -307,7 +307,7 @@ function getElements() {
     timerEl = document.getElementById("timer");
 }
 
-// Scene initialisation code:
+// Scene initialization code:
 function setup() {
     // Renderer:
     if (Detector.webgl) {

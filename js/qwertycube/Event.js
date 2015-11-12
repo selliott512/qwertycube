@@ -514,6 +514,13 @@ function showHelp(show) {
         helpEl.style.top = "0px";
         helpEl.style.width = (canvasWidth - 6) + "px";
         helpEl.style.height = primaryHeight + "px";
+
+        // It seems both the tabIndex and the delay is needed for the help to
+        // gain focus.
+        helpEl.tabIndex = "1";
+        setTimeout(function() {
+            helpEl.focus();
+        }, 10);
     }
     helpEl.style.visibility = show ? "visible" : "hidden";
     timerEl.style.visibility = show ? "hidden" : "visible";
