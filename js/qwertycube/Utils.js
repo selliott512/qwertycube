@@ -155,6 +155,10 @@ function setGlobal(varName, varValueStr) {
 
 // Wrap the next so that no line exceeds cols columns.
 function wrapWithComments(text, cols) {
+    if (!cols) {
+        // Use a large value so it does not wrap.
+        cols = 10000;
+    }
     var result = "";
     for (var idx = 0; idx < text.length; idx = end + 1) {
         if ((idx + cols - 2) < text.length) {

@@ -12,6 +12,7 @@ body {
 }
 
 button {
+    position: absolute;
     background-color: #C0FFC0;
     border: solid;
     border-radius: 6px;

@@ -50,10 +50,10 @@ var infoVarNameDescs = [
 //Buttons that appear at the bottom. Row is zero based.
 var infoButtonList = [ [ {
     label : "Cancel", // Start row 0
-    key : "InfoCancel"
+    func : infoCancel
 }, {
     label : "Ok",
-    key : "InfoOk"
+    func : infoOk
 } ] ];
 
 // Public methods
@@ -69,8 +69,9 @@ function infoHide() {
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
     infoTextEl.style.visibility = "hidden";
-    infoCancelEl.style.visibility = "hidden";
-    infoOkEl.style.visibility = "hidden";
+
+    addUpdateButtons(mainButtonList);
+
     infoDisplayed = false;
 }
 
@@ -152,13 +153,11 @@ function infoOnLoad() {
 
 function infoResize() {
     console.log("infoResize()");
-
-    var infoHeight = Math.floor((9 * window.innerHeight) / 10);
-    var buttonHeight = window.innerHeight- infoHeight;
+    var infoHeight = primaryHeight;
 
     infoTextEl.style.left = "0px";
     infoTextEl.style.top = "0px";
-    infoTextEl.style.width = canvasWidth + "px";
+    infoTextEl.style.width = (canvasWidth - 6) + "px";
     infoTextEl.style.height = infoHeight + "px";
 }
 
@@ -170,11 +169,8 @@ function infoShow() {
 
     infoResize();
     infoTextEl.style.visibility = "visible";
-    infoCancelEl.style.visibility = "visible";
-    infoOkEl.style.visibility = "visible";
 
-    infoTextEl.value = wrapWithComments(infoInitialText,
-            infoTextEl.cols - 1) + "\n";
+    infoTextEl.value = wrapWithComments(infoInitialText) + "\n";
 
     // Update variables that may need updating.
     cameraLocation[0] = Math.round(camera.position.x);
@@ -189,7 +185,7 @@ function infoShow() {
         var varDesc = varNameDesc[3];
         infoTextEl.value += "\n" + wrapWithComments(varDesc  +
                 (varPersist ? " persist" : "") +
-                (varNewCube ? " new-cube" : ""), infoTextEl.cols - 1) + "\n";
+                (varNewCube ? " new-cube" : "")) + "\n";
         var varValue = window[varName];
         var line = varName + "=";
         if (varValue.constructor === Array) {

@@ -38,28 +38,36 @@ function eventAdd() {
 
 // Private methods
 
-function onButtonBarButton(key) {
-    // Create a pseudo event and pretend it was a key press.
-    var event = {
-        buttonBar : true
-    };
-    while (key.length > 1) {
-        var modifier = key[0];
-        key = key.substr(1);
-        switch (modifier) {
-        case "A":
-            event.altKey = true;
-            break;
-        case "S":
-            event.shiftKey = true;
-            break;
-        default:
-            // This should not happen.
-            console.log("Unknown modifier " + modifier);
+function onButtonBarButton(key, func) {
+    if (key) {
+        // Create a pseudo event and pretend it was a key press.
+        var event = {
+                buttonBar : true
+        };
+        while (key.length > 1) {
+            var modifier = key[0];
+            key = key.substr(1);
+            switch (modifier) {
+            case "A":
+                event.altKey = true;
+                break;
+            case "S":
+                event.shiftKey = true;
+                break;
+            default:
+                // This should not happen.
+                console.log("Unknown modifier " + modifier);
+            }
         }
+        event.buttonBarChar = key;
+        onKeyDown(event);
+    } else if (func) {
+        // Just call the function for the button.
+        func();
+    } else {
+        // Thi should not happen.
+        console.log("Button must have either key or func.")
     }
-    event.buttonBarChar = key;
-    onKeyDown(event);
 }
 
 function onKeyDown(event) {

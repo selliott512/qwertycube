@@ -141,9 +141,13 @@ function animateResize() {
     }
     helpEl.style.top = helpTop + "px";
 
-    infoResize();
+    if (infoDisplayed) {
+        addUpdateButtons(infoButtonList);
+    } else {
+        addUpdateButtons(mainButtonList);
+    }
 
-    addUpdateButtons(mainButtonList);
+    infoResize();
 }
 
 function animateNewCube() {

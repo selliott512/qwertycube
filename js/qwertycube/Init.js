@@ -41,6 +41,9 @@ var mainButtonList = [ [ {
     key : "SG"
 } ] ];
 
+// It's assumed that mainButtonList has the most rows.
+var buttonRowsMax = mainButtonList.length;
+
 var mobile = false;
 
 // Elements that are never recreated, so they're stored globally.
@@ -48,13 +51,14 @@ var buttonBarEl;
 var containerEl;
 var helpEl;
 var infoTextEl;
-var infoCancelEl;
-var infoOkEl;
 var statusEl;
 var timerEl;
 
 // Prefix to apply to entries in localStorage.
 var presistentPrefix = "QC";
+
+// Height of the main object currently being displayed.
+var primaryHeight = 0;
 
 // Public methods
 
@@ -182,7 +186,9 @@ function addUpdateButtons(buttonList) {
 
     // Calculate what the size of each mutton must be.
     var buttonWidth = Math.floor(canvasWidth / cols);
-    var buttonHeight = Math.floor(buttonBarHeight / rows);
+    var buttonHeight = Math.floor(buttonBarHeight / buttonRowsMax);
+    var buttonTopOffset = (buttonRowsMax - rows) * buttonHeight;
+    primaryHeight = canvasHeight + buttonTopOffset;
 
     // Zero based rows and columns.
     for (var row = 0; row < rows; row++) {
@@ -195,8 +201,8 @@ function addUpdateButtons(buttonList) {
 
             // Set the size and location.
             buttonEl.style.left = (col * buttonWidth) + "px";
-            buttonEl.style.top = (row * buttonHeight) + "px";
-            buttonEl.style.width = buttonWidth + "px";
+            buttonEl.style.top = (row * buttonHeight + primaryHeight) + "px";
+            buttonEl.style.width = (buttonWidth) + "px";
             buttonEl.style.height = buttonHeight + "px";
 
             // Add a literal.
@@ -209,11 +215,11 @@ function addUpdateButtons(buttonList) {
                     + "px";
 
             // Make it handle the click event as if it was a key event.
-            buttonEl.onclick = (function(key) {
+            buttonEl.onclick = (function(key, func) {
                 return function() {
-                    onButtonBarButton(key)
+                    onButtonBarButton(key, func)
                 };
-            })(button.key);
+            })(button.key, button.func);
 
             // Don't respond to attempts to move the buttons.
             if (mobile) {
@@ -253,8 +259,6 @@ function getElements() {
     containerEl = document.getElementById("container");
     helpEl = document.getElementById("help");
     infoTextEl = document.getElementById("info-text");
-    infoCancelEl = document.getElementById("info-cancel");
-    infoOkEl = document.getElementById("info-ok");
     statusEl = document.getElementById("status");
     timerEl = document.getElementById("timer");
 }
