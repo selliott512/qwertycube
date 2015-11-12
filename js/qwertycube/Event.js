@@ -12,6 +12,7 @@ var moveStart = null;
 var rotationLock = false;
 var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
+var buttonFlashDelay = 300;
 
 // Public methods
 
@@ -44,7 +45,6 @@ function onButtonBarButton(event, buttonEl, button) {
     var func = button.func;
     var key = button.key;
     var label = button.label;
-    var toggle = button.toggle;
 
     // Don't confuse OrbitControls by allowing it to see this click.
     orbitControls.enabled = false;
@@ -79,19 +79,7 @@ function onButtonBarButton(event, buttonEl, button) {
         console.log("Button must have either key or func.")
     }
 
-    if (!buttonColorOrig) {
-        buttonColorOrig = window.getComputedStyle(buttonEl).backgroundColor;
-    }
-    if (toggle) {
-        var val = window[toggle];
-        buttonEl.style.backgroundColor = (val ? buttonColorHighlight
-                : buttonColorOrig);
-    } else {
-        buttonEl.style.backgroundColor = buttonColorHighlight;
-        setTimeout(function() {
-            buttonEl.style.backgroundColor = buttonColorOrig;
-        }, 300);
-    }
+    initSetButtonColor(buttonEl, button, true);
 }
 
 function onKeyDown(event) {
@@ -224,15 +212,8 @@ function onKeyDown(event) {
                 }
             }
             break;
-        case "H": // (H)help toggle
-            dispHelp = !dispHelp;
-            console.log("Help is " + dispHelp);
-            helpEl.style.visibility = dispHelp ? "visible" : "hidden";
-            if (!helpMsgDisplayed) {
-                animateUpdateStatus("Press H to see the help again.");
-                helpMsgDisplayed = true;
-            }
-            animateCondReq(true);
+        case "H": // (H)help
+            animateUpdateStatus("Help not implemented yet.");
             break;
         case "I": // (I)nformation
             infoShow();

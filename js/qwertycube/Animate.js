@@ -16,7 +16,7 @@ var canvasHeight = 0;
 var canvasMin = 0;
 var canvasWidth = 0;
 var cubies = [];
-var dispHelp = true;
+var dispHelp = false;
 var dispOrientationLabels = false;
 var fov = 0.0;
 var moveCurrent = "";
@@ -32,7 +32,8 @@ var rendered = false;
 var renderer;
 var scene;
 var statusDisplayed = false;
-var statusSecs = 5.0;
+var statusSecs = 3.0;
+var statusSecsPerChar = 0.05;
 var statusTimeMSec = 0;
 var text = [];
 var timer = false;
@@ -101,8 +102,7 @@ function animateResize() {
     // won't use this on their phones in landscape mode much since there's no
     // reason to. For non-mobile mice the screen is bigger and mice are more
     // precise pointers, so less space.
-    buttonBarHeight = Math
-            .floor((mobile ? 0.2 : 0.03333) * window.innerHeight);
+    buttonBarHeight = Math.floor((mobile ? 0.2 : 0.03333) * window.innerHeight);
     buttonBarEl.style.height = buttonBarHeight + "px";
     containerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
     canvasHeight = containerEl.clientHeight;
@@ -194,8 +194,10 @@ function animateUpdateStatus(message) {
         animateCondReq(true);
     } else if (statusDisplayed) {
         // Fade the existing message.
-        var opacity = 1.0 - (Date.now() - statusTimeMSec)
-                / (400.0 * statusSecs);
+        var opacity = 1.0
+                - (Date.now() - statusTimeMSec)
+                / (1000.0 * (statusSecs + statusEl.innerHTML.length
+                        * statusSecsPerChar));
         if (opacity < 0.0) {
             opacity = 0.0;
             statusDisplayed = false;

@@ -6,7 +6,6 @@
 var mainButtonList = [ {
     label : "Help",
     key : "H",
-    toggle : "dispHelp"
 }, {
     label : "Timer",
     key : "T",
@@ -46,6 +45,9 @@ var mainButtonList = [ {
 
 var buttonRowsMax = 0;
 
+var flashHelp = true;
+var helpFlashed = false;
+
 var mobile = false;
 
 // Elements that are never recreated, so they're stored globally.
@@ -73,8 +75,8 @@ function initAddUpdateButtons(buttonList) {
     // Allow more rows on mobile.
     buttonRowsMax = mobile ? 3 : 1;
 
-    var rows = Math.min(Math.floor(buttonList.length / 4 + 0.99),
-            buttonRowsMax);
+    var rows = Math
+            .min(Math.floor(buttonList.length / 4 + 0.99), buttonRowsMax);
     var cols = Math.floor(buttonList.length / rows + 0.99);
 
     // Calculate what the size of each mutton must be.
@@ -111,7 +113,8 @@ function initAddUpdateButtons(buttonList) {
         buttonEl.appendChild(literalEl);
 
         // Make the literal reasonably large.
-        buttonEl.style.fontSize = Math.floor(buttonHeight / (mobile ? 2.2 : 1.5))
+        buttonEl.style.fontSize = Math.floor(buttonHeight
+                / (mobile ? 2.2 : 1.5))
                 + "px";
 
         // Make it handle the click event as if it was a key event.
@@ -125,6 +128,12 @@ function initAddUpdateButtons(buttonList) {
         if (mobile) {
             buttonEl.addEventListener("touchmove", preventDefault);
         }
+
+        if (!buttonColorOrig) {
+            buttonColorOrig = window.getComputedStyle(buttonEl).backgroundColor;
+        }
+
+        initSetButtonColor(buttonEl, button, false);
 
         // Make it visible.
         buttonEl.style.visibility = "visible";
@@ -174,6 +183,30 @@ function initLoadStorage() {
     }
 }
 
+function initSetButtonColor(buttonEl, button, clicked) {
+    var toggle = button.toggle;
+    var fh = (button.label === "Help") && flashHelp && !helpFlashed;
+    if (toggle) {
+        var val = window[toggle];
+        buttonEl.style.backgroundColor = (val ? buttonColorHighlight
+                : buttonColorOrig);
+    } else if (clicked || fh) {
+        // The help button is a special case. Flash it when the page if first
+        // loaded so the user knows to click it for instructions.
+        var flashCount = clicked ? 1 : 3;
+        for (var i = 0; i < 2 * flashCount; i++) {
+            // Double function wrapper used so that the index (i or j) is
+            // evaluated now instead of later.
+            setTimeout(function(j) {
+                return function() {
+                    buttonEl.style.backgroundColor = (j % 2) ? buttonColorOrig
+                            : buttonColorHighlight;
+                }
+            }(i), i * buttonFlashDelay);
+        }
+    }
+}
+
 function initSaveStorage() {
     for (var i = 0; i < infoVarNameDescs.length; i++) {
         var varNameDesc = infoVarNameDescs[i];
@@ -207,12 +240,6 @@ function initVars() {
     // non-mobile.
     mobile = isMobile();
     console.log("Mobile: " + mobile);
-    if (mobile) {
-        dispHelp = false;
-    }
-
-    // Set the visibility of the help dialog.
-    helpEl.style.visibility = dispHelp ? "visible" : "hidden";
 
     // Used to find the position of each cubie.
     cubiesOff = cubiesSize + cubiesGap;
@@ -311,4 +338,8 @@ function setup() {
 
     // Dynamically add buttons to the button bar.
     initAddUpdateButtons(mainButtonList);
+    if (flashHelp) {
+        animateUpdateStatus("To get started press the Help button.");
+        helpFlashed = true;
+    }
 }
