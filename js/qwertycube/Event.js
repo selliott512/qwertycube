@@ -3,7 +3,7 @@
 // Globals
 
 var escLast = false;
-var helpMsgDisplayed = false;
+var helpDisplayed = false;
 var keyMap = {};
 var keyMapSize = 0;
 var lastTouchX;
@@ -213,7 +213,9 @@ function onKeyDown(event) {
             }
             break;
         case "H": // (H)help
-            animateUpdateStatus("Help not implemented yet.");
+            console.log("xxdebug help");
+            helpEl.style.visibility = helpDisplayed ? "hidden" : "visible";
+            helpDisplayed = !helpDisplayed;
             break;
         case "I": // (I)nformation
             infoShow();
