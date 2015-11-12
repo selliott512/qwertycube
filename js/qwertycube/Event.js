@@ -518,6 +518,7 @@ function showHelp(show) {
         // It seems both the tabIndex and the delay is needed for the help to
         // gain focus.
         helpEl.tabIndex = "1";
+        helpEl.scrollTop = 0;
         setTimeout(function() {
             helpEl.focus();
         }, 10);
