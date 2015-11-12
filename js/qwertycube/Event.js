@@ -10,6 +10,8 @@ var lastTouchX;
 var lastTouchY;
 var moveStart = null;
 var rotationLock = false;
+var buttonColorOrig;
+var buttonColorHighlight = "rgb(255, 255, 128)";
 
 // Public methods
 
@@ -38,11 +40,16 @@ function eventAdd() {
 
 // Private methods
 
-function onButtonBarButton(key, func) {
+function onButtonBarButton(buttonEl, button) {
+    var func = button.func;
+    var key = button.key;
+    var label = button.label;
+    var toggle = button.toggle;
+
     if (key) {
         // Create a pseudo event and pretend it was a key press.
         var event = {
-                buttonBar : true
+            buttonBar : true
         };
         while (key.length > 1) {
             var modifier = key[0];
@@ -65,8 +72,22 @@ function onButtonBarButton(key, func) {
         // Just call the function for the button.
         func();
     } else {
-        // Thi should not happen.
+        // This should not happen.
         console.log("Button must have either key or func.")
+    }
+
+    if (!buttonColorOrig) {
+        buttonColorOrig = window.getComputedStyle(buttonEl).backgroundColor;
+    }
+    if (toggle) {
+        var val = window[toggle];
+        buttonEl.style.backgroundColor = (val ? buttonColorHighlight
+                : buttonColorOrig);
+    } else {
+        buttonEl.style.backgroundColor = buttonColorHighlight;
+        setTimeout(function() {
+            buttonEl.style.backgroundColor = buttonColorOrig;
+        }, 300);
     }
 }
 

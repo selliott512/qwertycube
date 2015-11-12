@@ -8,10 +8,12 @@ var mainButtonList = [ [ {
     key : "N"
 }, {
     label : "Lock",
-    key : "K"
+    key : "K",
+    toggle: "rotationLock"
 }, {
     label : "Timer",
-    key : "T"
+    key : "T",
+    toggle: "timer"
 }, {
     label : "Jumble",
     key : "J"
@@ -23,7 +25,8 @@ var mainButtonList = [ [ {
     key : "C"
 }, {
     label : "Help",
-    key : "H"
+    key : "H",
+    toggle: "dispHelp"
 }, {
     label : "Redo All",
     key : "ASG"
@@ -174,6 +177,7 @@ function initSetBackgroundColor() {
 
 // Private methods
 
+// TODO: Actually should be public.
 function addUpdateButtons(buttonList) {
     // Delete any existing buttons.
     while (buttonBarEl.childNodes.length) {
@@ -215,11 +219,11 @@ function addUpdateButtons(buttonList) {
                     + "px";
 
             // Make it handle the click event as if it was a key event.
-            buttonEl.onclick = (function(key, func) {
+            buttonEl.onclick = (function(elem, butt) {
                 return function() {
-                    onButtonBarButton(key, func)
+                    onButtonBarButton(elem, butt)
                 };
-            })(button.key, button.func);
+            })(buttonEl, button);
 
             // Don't respond to attempts to move the buttons.
             if (mobile) {
