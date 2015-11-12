@@ -12,6 +12,7 @@ var cubiesHalfSide;
 var cubiesOff;
 var cubiesRadius;
 var cubiesSep;
+var cubiesSmallValue = 0.001;
 var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
 var cubiesColorOverrides = {};
@@ -177,9 +178,11 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
             return move;
         }
 
-        if ((Math.abs(clicked.x) <= cubiesHalfSide)
-                && (Math.abs(clicked.y) <= cubiesHalfSide)
-                && (Math.abs(clicked.z) <= cubiesHalfSide)) {
+        // Since the calculation attempts to find a point on the surface of
+        // cube cubiesSmallValue is added to allow for rounding errors.
+        if ((Math.abs(clicked.x) <= (cubiesHalfSide + cubiesSmallValue))
+                && (Math.abs(clicked.y) <= (cubiesHalfSide + cubiesSmallValue))
+                && (Math.abs(clicked.z) <= (cubiesHalfSide + cubiesSmallValue))) {
             // The location found was on the cube, so no need to search
             // further.
             return move;
