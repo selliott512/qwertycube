@@ -101,7 +101,8 @@ function animateResize() {
     // won't use this on their phones in landscape mode much since there's no
     // reason to. For non-mobile mice the screen is bigger and mice are more
     // precise pointers, so less space.
-    buttonBarHeight = (mobile ? 0.25 : 0.1) * window.innerHeight;
+    buttonBarHeight = Math
+            .floor((mobile ? 0.2 : 0.03333) * window.innerHeight);
     buttonBarEl.style.height = buttonBarHeight + "px";
     containerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
     canvasHeight = containerEl.clientHeight;
@@ -260,8 +261,7 @@ function animateWireframeSphere(show) {
         var geometry = new THREE.SphereGeometry(cubiesRadius, 64, 64);
         wireframeSphereMesh = new THREE.Mesh(geometry, matt);
         scene.add(wireframeSphereMesh);
-    }
-    else if ((!show) && wireframeSphereMesh) {
+    } else if ((!show) && wireframeSphereMesh) {
         scene.remove(wireframeSphereMesh);
         wireframeSphereMesh = null;
     }

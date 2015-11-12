@@ -48,13 +48,13 @@ var infoVarNameDescs = [
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
 //Buttons that appear at the bottom. Row is zero based.
-var infoButtonList = [ [ {
-    label : "Cancel", // Start row 0
+var infoButtonList = [ {
+    label : "Cancel",
     func : infoCancel
 }, {
     label : "Ok",
     func : infoOk
-} ] ];
+} ];
 
 // Public methods
 
