@@ -13,6 +13,7 @@ var rotationLock = false;
 var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
 var buttonFlashDelay = 300;
+var scramblerInitialized = false;
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
 var helpButtonList = [ {
@@ -247,12 +248,22 @@ function onKeyDown(event) {
             }
             break;
         case "J": // (J)umble (S was taken)
-            var msg = "Scrambling the cube with "
-                    + (scrambleType == "jsss" ? "jsss"
-                            : (scrambleCount + " moves"))
-                    + ". \"I\" to see the scramble.";
-            animateUpdateStatus(msg);
-            scramble();
+            // Scrambling is structured this way, with two messages, because
+            // scrambling may be slow the first time. The first message is
+            // not displayed until this function returns, so the setTimeout
+            // was needed.
+            if (!scramblerInitialized) {
+                animateUpdateStatus("Initializing scrambler");
+                scramblerInitialized = true;
+            }
+            setTimeout(function() {
+                scramble();
+                var msg = "Scrambling the cube with "
+                        + (scrambleType == "jsss" ? "jsss"
+                                : (scrambleCount + " moves"))
+                        + ". \"I\" to see the scramble.";
+                animateUpdateStatus(msg);
+            }, 0);
             break;
         case "K": // Toggle rotation lock.
             rotationLock = !rotationLock;
