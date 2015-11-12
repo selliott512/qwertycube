@@ -246,9 +246,9 @@ function animateUpdateTimer() {
         timerEl.innerHTML = elapsedMsecToStr(elapsedMsec)
 
         // Position the timer dialog.
-        var timerLeft = (canvasWidth - timerEl.clientWidth) / 2.0;
-        if (timerLeft < 0.0) {
-            timerLeft = 0.0;
+        var timerLeft = canvasWidth - timerEl.clientWidth;
+        if (timerLeft < 0) {
+            timerLeft = 0;
         }
         timerEl.style.left = timerLeft + "px";
         timerEl.style.top = (canvasHeight - timerEl.offsetHeight) + "px";
