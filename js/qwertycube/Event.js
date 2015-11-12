@@ -138,7 +138,8 @@ function onKeyDown(event) {
                 animateCondReq(true);
                 escLast = false;
 
-                // If the user made a move they probably don't care about the message.
+                // If the user made a move they probably don't care about the
+                // message.
                 animateClearStatus();
                 return;
             } else {
@@ -256,10 +257,21 @@ function onKeyDown(event) {
             }
             break;
         case "J": // (J)umble (S was taken)
+            // If alt and shift then reset the cube to it's standard new
+            // orientation and clear the move list before doing the scramble.
+            // This is good if the user wants the resulting cube to match the
+            // scramble, but it destroys information. If alt and shift are
+            // not pressed the scramble sequence is simply applied to the
+            // existing cube.
+            var newCube = alt && shift;
+            if (newCube) {
+                animateNewCube();
+            }
+
             // Scrambling is structured this way, with two messages, because
             // scrambling may be slow the first time. The first message is
             // not displayed until this function returns, so the setTimeout
-            // was needed.  10 msec is used so that the first status has
+            // was needed. 10 msec is used so that the first status has
             // a chance to be displayed before the blocking scrambler.
             if (!scramblerInitialized) {
                 animateUpdateStatus("Initializing scrambler");
@@ -267,7 +279,9 @@ function onKeyDown(event) {
             }
             setTimeout(function() {
                 scramble();
-                var msg = "Scrambling the cube with "
+                var msg = "Scrambling "
+                        + (newCube ? "a new" : "the existing")
+                        + " cube with "
                         + (scrambleType == "jsss" ? "jsss"
                                 : (scrambleCount + " moves"))
                         + ". \"I\" to see the scramble.";
@@ -452,7 +466,8 @@ function onMouseUp(event) {
                     // Queue the move up.
                     moveQueue.push(move);
 
-                    // If the user made a move they probably don't care about the message.
+                    // If the user made a move they probably don't care about
+                    // the message.
                     animateClearStatus();
 
                     break;
