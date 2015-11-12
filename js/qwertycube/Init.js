@@ -4,12 +4,9 @@
 
 // Buttons that appear at the bottom. Row is zero based.
 var mainButtonList = [ {
-    label : "New",
-    key : "N"
-}, {
-    label : "Lock",
-    key : "K",
-    toggle : "rotationLock"
+    label : "Help",
+    key : "H",
+    toggle : "dispHelp"
 }, {
     label : "Timer",
     key : "T",
@@ -18,30 +15,33 @@ var mainButtonList = [ {
     label : "Jumble",
     key : "J"
 }, {
-    label : "Undo All",
-    key : "AG"
-}, {
-    label : "Checkpoint",
-    key : "C"
-}, {
-    label : "Help",
-    key : "H",
-    toggle : "dispHelp"
-}, {
-    label : "Redo All",
-    key : "ASG"
-}, {
-    label : "Undo",
-    key : "G"
+    label : "New",
+    key : "N"
 }, {
     label : "Info",
     key : "I"
 }, {
+    label : "Lock",
+    key : "K",
+    toggle : "rotationLock"
+}, {
+    label : "Checkpoint",
+    key : "C"
+}, {
     label : "Reset",
     key : "P"
 }, {
+    label : "Undo All",
+    key : "AG"
+}, {
+    label : "Undo",
+    key : "G"
+}, {
     label : "Redo",
     key : "SG"
+}, {
+    label : "Redo All",
+    key : "ASG"
 } ];
 
 var buttonRowsMax = 0;
