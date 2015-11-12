@@ -324,7 +324,8 @@ function setup() {
     animateSetCamera();
 
     // orbitControls:
-    orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+    orbitControls = new THREE.OrbitControls(camera, renderer.domElement,
+            renderer.domElement);
 
     // Limit manipulation that is not helpful.
     orbitControls.enabled = !rotationLock;
