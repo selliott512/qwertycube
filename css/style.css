@@ -78,6 +78,7 @@ th, td {
 #status {
     font-family: courier new;
     font-size: 200%;
+    font-weight: bold;
     position: absolute;
     background-color: #FFFF80;
     border-radius: 6px;
@@ -87,6 +88,7 @@ th, td {
 #timer {
     font-family: courier new;
     font-size: 200%;
+    font-weight: bold;
     position: absolute;
     border-radius: 6px;
     opacity: 0.0;
