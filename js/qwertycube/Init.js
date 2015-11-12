@@ -11,20 +11,20 @@ var mainButtonList = [ {
     key : "T",
     toggle : "timer"
 }, {
-    label : "Jumble",
+    label : "Scramble",
     key : "J"
 }, {
     label : "New",
     key : "N"
 }, {
-    label : "Info",
+    label : "Settings",
     key : "I"
 }, {
     label : "Lock",
     key : "K",
     toggle : "rotationLock"
 }, {
-    label : "Checkpoint",
+    label : "Savepoint",
     key : "C"
 }, {
     label : "Reset",
