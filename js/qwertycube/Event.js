@@ -186,6 +186,7 @@ function onKeyDown(event) {
                 console.log("Ignoring undo/redo due to pending moves.");
                 return;
             }
+            var firstMove = true;
             while (true) {
                 var move = null;
                 var moveG = null;
@@ -203,7 +204,12 @@ function onKeyDown(event) {
                         moveG = getInverseMove(move);
                     }
                 }
-                if (alt && (move == "|")) {
+                // If at a savepoint to start step past it.
+                if (firstMove && (move === "|")) {
+                    firstMove = false;
+                    continue;
+                }
+                if (alt && (move === "|")) {
                     // A savepoint was reached with the alt key pressed, so
                     // stop without processing the savepoint.
                     moveHistoryNext = moveHistoryNextOld;
@@ -224,6 +230,11 @@ function onKeyDown(event) {
                     // undo/redo should be done.
                     break;
                 }
+                firstMove = false;
+            }
+            if ((moveHistory[moveHistoryNext - 1] == "|")
+                    || (moveHistory[moveHistoryNext] == "|")) {
+                animateUpdateStatus("Savepoint reached");
             }
             break;
         case "H": // (H)help
