@@ -347,6 +347,9 @@ function onMouseDown(event) {
         return;
     }
 
+    // Assume that the user no longer wants to see the status message.
+    animateClearStatus();
+
     // Prevent the browser from scrolling or otherwise attempting to respond
     // to the event.
     event.preventDefault();

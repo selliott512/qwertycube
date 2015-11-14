@@ -65,9 +65,11 @@ var eventToRotation = {
 // Public methods
 
 function animateClearStatus() {
-    statusEl.innerHTML = "";
-    statusEl.style.opacity = 0.0;
-    statusDisplayed = false;
+    if (statusDisplayed) {
+        statusEl.innerHTML = "";
+        statusEl.style.opacity = 0.0;
+        statusDisplayed = false;
+    }
 }
 
 function animateCondReq(needed) {
