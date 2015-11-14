@@ -334,9 +334,10 @@ function onKeyDown(event) {
             validEventChar = false;
             break;
         }
-        if (validEventChar) {
+        if (validEventChar && !buttonBar) {
             // Flash the button if activated by a key.
-            var buttons = buttonKeyToElMap[eventChar];
+            var prefix = (alt ? "A" : "") + (shift ? "S" : "");
+            var buttons = buttonKeyToElMap[prefix + eventChar];
             if (buttons) {
                 initSetButtonColor(buttons[0], buttons[1], true);
             }

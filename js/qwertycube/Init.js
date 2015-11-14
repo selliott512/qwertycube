@@ -101,7 +101,7 @@ function initAddUpdateButtons(buttonList) {
         var row = Math.floor(i / cols);
 
         // Give it a name and make it visible.
-        buttonEl.id = "button-" + button.label.toLowerCase();
+        buttonEl.id = "button-" + button.label.toLowerCase().replace(" ", "-");
 
         // Set the size and location.
         buttonEl.style.left = (col * buttonWidth) + "px";
@@ -201,12 +201,12 @@ function initSetButtonColor(buttonEl, button, flash) {
         for (var i = 0; i < 2 * flashCount; i++) {
             // Double function wrapper used so that the index (i or j) is
             // evaluated now instead of later.
-            setTimeout(function(j) {
+            setTimeout(function(elem, j) {
                 return function() {
-                    buttonEl.style.backgroundColor = (j % 2) ? buttonColorOrig
+                    elem.style.backgroundColor = (j % 2) ? buttonColorOrig
                             : buttonColorHighlight;
                 }
-            }(i), i * buttonFlashDelay);
+            }(buttonEl, i), i * buttonFlashDelay);
         }
     }
 }
