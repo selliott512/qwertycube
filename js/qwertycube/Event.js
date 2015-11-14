@@ -283,7 +283,8 @@ function onKeyDown(event) {
             }
             setTimeout(function() {
                 scramble();
-                animateUpdateStatus("Scrambled cube");
+                animateUpdateStatus("Scrambled " + (newCube ? "new" :
+                    "existing") + " cube");
             }, 10);
             break;
         case "K": // Toggle rotation lock.

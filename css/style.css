@@ -48,6 +48,7 @@ textarea {
 }
 
 #help, #settings-text {
+	-webkit-overflow-scrolling: touch;
     background-color: #C0FFC0;
     border-radius: 6px;
     border: solid;
@@ -56,6 +57,7 @@ textarea {
     height: 100%;
     left: 0px;
     overflow: auto;
+    overflow-y: scroll;
     position: absolute;
     top: 0px;
     visibility: hidden;
