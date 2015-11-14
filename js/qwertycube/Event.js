@@ -279,14 +279,7 @@ function onKeyDown(event) {
             }
             setTimeout(function() {
                 scramble();
-                var msg = "Scrambling "
-                        + (newCube ? "a new" : "the existing")
-                        + " cube with "
-                        + (scrambleType == "jsss" ? "jsss"
-                                : (scrambleCount + " moves"))
-                        + ". Push Settings and see scrambleMoves for the "
-                        + "scramble.";
-                animateUpdateStatus(msg);
+                animateUpdateStatus("Scrambled cube");
             }, 10);
             break;
         case "K": // Toggle rotation lock.
