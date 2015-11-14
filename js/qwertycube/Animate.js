@@ -209,6 +209,7 @@ function animateUpdateStatus(message) {
                         * statusSecsPerChar));
         if (opacity < 0.0) {
             opacity = 0.0;
+            statusEl.innerHTML = "";
             statusDisplayed = false;
         }
         statusEl.style.opacity = opacity;
