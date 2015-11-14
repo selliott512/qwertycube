@@ -22,8 +22,8 @@
       <p>As the name suggests QWERTYcube was originally intended to be a keyboard
       based cube.  However, it has evolved to have mouse support as well as
       touch support on mobile devices.  If you just want to see a reference
-      describing the buttons and keys <a href="#key-tables" id="scroll-down">
-      scroll down</a>.</p>
+      describing the buttons and keys <a href="#key-tables">scroll down</a>.
+      </p>
       <p/>
       <h3>Keyboard</h3>
       <p>The keyboard can be used to either make moves in the expected
@@ -49,27 +49,56 @@
       layers will rotate.</p>
       <p/>
       <h3>Savepoints</h3>
-      <p>If the cube is in a state that you want to get back to then click
+      <p>If the cube is in a state that you want to get back to later then click
       Savepoint or the C key.  You might do this if you've reached the OLL or
       PLL stage and you're not sure if you can do the algorithm correctly, so
-      you want to be able to go back if you make a mistake.  Normally Undo or
-      G key undoes a single move, but that behavior is modified in the
-      following manner:</p>
-      <ul>
-      	<li>G - Undo a single move.  Like the Undo button.</li>
-      	<li>Alt-G - Undo all moves until a savepoint or beginning is reached.
-      	Like the Undo All button.</li>
-      	<li>Shift-G - Redo a single move.  Like the Redo button.</li>
-      	<li>Alt-Shift-G - Redo all moves until a savepoint or end is reached.
-      	Like the Redo All button.</li>
-      </ul>
+      you want to be able to go back and try again if you make a mistake.
+      Normally Undo or G key undoes a single move, but that behavior can be
+      modified by the Alt (instead of a single move go until the next
+      savepoint) or Shift (redo instead of undo).  See the
+      <a href="#help-modifier-keys">modifier key table</a>.</p>
+      <p/>
+      <h3>Scrambling</h3>
+      <p>By default when Scramble or J is pressed a random-state scrambler
+      named "jsss" is used to scramble the cube.  It works by randomly
+      selecting a cube from all possible cubes, and then inverting the solution.
+      It should be as good as scrambling the cube with an infinite number of
+      random moves.  Alternatively the "simple" scrambler can be used which is
+      faster, but not as good.  Push Settings or I and see scrambleType to set
+      the scrambler type.  A savepoint is created after each scramble, which
+      means pressing Undo All or Alt-G will undo the scramble and Redo All or
+      Alt-Shift-G will then redo the scramble.  By default the scramble moves
+      are applied to the existing cube.  If instead you wish to start with a new
+      cube, and then apply the scramble moves to that new cube, press
+      Alt-Shift-J instead of J.  For non-keyboard users press New and then
+      Scramble.</p>
+      <p/>
+      <h3>Timer</h3>
+      <p>A timer an be toggled by pressing Timer or T.  Scrambling the cube
+      starts a 15 second count down at which time the timer is red. This is the
+      inspection period.  During the inspection period you may rotate the entire
+      cube via clicking on the grey background, mouse gestures or axis keys.
+      If you make an actual move during the inspection period the inspection
+      period will end and the timer will turn green and start counting up.
+      Once the cube is solved the timer will stop and will turn yellow to show
+      the solve time.  The timer also turns green and starts counting up upon
+      New or N just in case you want to time something that way.  The timer is
+      off by default due to potentially high CPU usage.</p>
       <p/>
       <h3>Settings</h3>
-      <p>Pressing the Settings button displays the settings dialog.  This is
-      where various obscure and advanced settings are stored.  Read the text
+      <p>Pressing the Settings or I displays the settings dialog.  This is
+      where various obscure and advanced settings are stored.  Things like the
+      background color, cube color, cube size, animation, initial cube
+      facelets, etc. can be configured in the settings dialog.  Read the text
       at the start of the settings dialog for an overview of how settings work.
-      Click Ok to store the settings to persistent storage.  Note that persistent
-      storage can be cleared via the P key.</p>
+      Click Ok to store the settings to persistent storage.  Note that the
+      settings dialog can be used in this way to save settings that were not
+      set in the settings dialog.  For example, let's say you've engaged
+      rotation lock by pressing Lock or K and you've rotated the cube slightly
+      change the perspective and you want it this way the next time QWERTYcube
+      is loaded.  To save that and all other settings to persistent storage
+      click Settings or I and then click Ok.  Note that persistent storage can
+      be cleared by pressing Reset or P.</p>
       <p/>
       <a name="key-tables"></a>
       <h3>Key Tables</h3>
@@ -91,7 +120,7 @@
         <tr>
           <td>C</td>
           <td>Savepoint</td>
-          <td>Set a savepoint.  Try with Alt-G</td>
+          <td>Set a savepoint.  Try with Alt-G.</td>
         </tr>
         <tr>
           <td>G</td>
@@ -126,7 +155,7 @@
         <tr>
           <td>O</td>
           <td></td>
-          <td>Toggle display orientation</td>
+          <td>Toggle orientation labels</td>
         </tr>
         <tr>
           <td>P</td>
@@ -215,6 +244,7 @@
         </tr>
       </table>
       <br />
+      <a name="help-modifier-keys"></a>
       <table id="help-modifier-keys">
         <col width="25%" />
         <col width="75%" />
@@ -224,15 +254,19 @@
         </tr>
         <tr>
           <td>Shift</td>
-          <td>Anti-clockwise instead of clockwise</td>
+          <td>For moves anti-clockwise instead of clockwise.  For G do redo
+          instead of undo.  May be combined with Alt.</td>
         </tr>
         <tr>
           <td>Alt</td>
-          <td>Two layers instead of one</td>
+          <td>For moves two layers instead of one.  For G go to the next or
+          previous savepoint instead of making a single move.</td>
         </tr>
         <tr>
           <td>Esc</td>
-          <td>Alternative to Alt</td>
+          <td>Alternative to Alt.  Use this when a key combination, such as
+          Alt-F, is interpreted by the browser.  Try Alt then F for that
+          example.</td>
         </tr>
       </table>
     </div>

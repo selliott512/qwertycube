@@ -5,12 +5,12 @@ var settingsExtraLen = " persist new-cube".length;
 var settingsInitialText =
     "This settings dialog can be used to view and modify various " +
     "variables in QWERTYcube.  Edit variables below, if need be, and click " +
-    "the ok button (or Ctrl-Enter) to apply the changes, or click the cancel " +
+    "the Ok button (or Ctrl-Enter) to apply the changes, or click the Cancel " +
     "button (or Esc) to abandon the changes.  They're in alphabetical order. " +
     "You may have to scroll to see some. Variables marked with \"persist\" are " +
     "stored in local storage so that they'll have that value the next time " +
     "QWERTYcube is loaded. Variables marked with \"new-cube\" will not take " +
-    "effect until a new cube (Alt-Shift-N) is created.";
+    "effect until a new cube (press New or N) is created.";
 
 // Each entry is name, persist, new-cube, description
 var settingsVarNameDescs = [
