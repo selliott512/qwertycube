@@ -65,6 +65,7 @@ var eventToRotation = {
 // Public methods
 
 function animateClearStatus() {
+    statusEl.innerHTML = "";
     statusEl.style.opacity = 0.0;
     statusDisplayed = false;
 }
@@ -146,7 +147,8 @@ function animateResize() {
     }
     helpEl.style.top = helpTop + "px";
 
-    initAddUpdateButtons(settingsDisplayed ? settingsButtonList : mainButtonList);
+    initAddUpdateButtons(settingsDisplayed ? settingsButtonList
+            : mainButtonList);
 
     settingsResize();
 
@@ -208,11 +210,10 @@ function animateUpdateStatus(message) {
                 / (1000.0 * (statusSecs + statusEl.innerHTML.length
                         * statusSecsPerChar));
         if (opacity < 0.0) {
-            opacity = 0.0;
-            statusEl.innerHTML = "";
-            statusDisplayed = false;
+            animateClearStatus();
+        } else {
+            statusEl.style.opacity = opacity;
         }
-        statusEl.style.opacity = opacity;
     }
 }
 

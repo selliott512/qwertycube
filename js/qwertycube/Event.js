@@ -44,6 +44,10 @@ function eventAdd() {
     if (mobile) {
         containerEl.addEventListener("touchmove", preventDefault);
     }
+
+    // Get rid of the status message if the user clicks on it.
+    statusEl.addEventListener(mobile ? "touchstart" : "mousedown",
+            animateClearStatus);
 }
 
 // Private methods
