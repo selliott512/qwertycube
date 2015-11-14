@@ -283,8 +283,8 @@ function onKeyDown(event) {
             }
             setTimeout(function() {
                 scramble();
-                animateUpdateStatus("Scrambled " + (newCube ? "new" :
-                    "existing") + " cube");
+                animateUpdateStatus("Scrambled " + (newCube ? "new " :
+                    " ") + "cube");
             }, 10);
             break;
         case "K": // Toggle rotation lock.
@@ -310,15 +310,15 @@ function onKeyDown(event) {
             animateCondReq(true);
             break;
         case "P": // (P)ersistent storage clear
-            if ((buttonBar && confirm("Persistent storage clear?"))
+            if ((buttonBar && confirm("Reset all settings?"))
                     || (alt && shift)) {
                 // This message probably won't be seen.
-                animateUpdateStatus("Persistent storage clear");
+                animateUpdateStatus("Reset all settings");
                 initClearStorage();
                 location.reload();
             } else {
                 if (!buttonBar) {
-                    animateUpdateStatus("Persistent storage clear?  Alt-Shift-P");
+                    animateUpdateStatus("Reset all settings?  Alt-Shift-P");
                 }
             }
             break;
@@ -336,6 +336,9 @@ function onKeyDown(event) {
             // Flash the button if activated by a key.
             var prefix = (alt ? "A" : "") + (shift ? "S" : "");
             var buttons = buttonKeyToElMap[prefix + eventChar];
+            if (!buttons) {
+                buttons = buttonKeyToElMap[eventChar];
+            }
             if (buttons) {
                 initSetButtonColor(buttons[0], buttons[1], true);
             }
