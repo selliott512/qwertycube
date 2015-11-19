@@ -8,8 +8,16 @@ var pivot = new THREE.Object3D();
 var rotateMoveSign = 0;
 var rotateTwoLayer = false;
 
-// The following lookup tables should be kept in sync and in alphabetical order
-// by key.
+// The following lookup table should be kept in sync and in alphabetical order
+// by key.  The five values for each face have the following meanings:
+//   axisSign   - Which direction, in the vector sense, the face rotates
+//                about the axis.
+//   axisOfRot  - The axis about which the face rotates.
+//   limLo      - An inclusive lower bound indicating which of the three
+//                layers perpendicular to the axis will rotate.  This can
+//                be -1, 0 or 1.
+//   limHi      - Same as limLo, but for the upper bound.
+//   amount     - The amount or rotation to do measured in 90 degree turns.
 var faceToRotation = {
     B : [1, "z", -1, -1, 1],
     D : [1, "y", -1, -1, 1],
@@ -26,7 +34,7 @@ var faceToRotation = {
 };
 
 // Like the above, but for all moves. This is populated dynamically on
-// startup.
+// startup.  The columns have the same meaning as the above.
 var moveToRotation = {};
 
 // Public methods
@@ -91,7 +99,7 @@ function rotateEnd() {
 
 // Private methods
 
-function inRangeRotate(axisSign, axisOfRot, limLo, limHi) {
+function inRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
     activeCount += 1;
     if (activeCount >= 2)
         return;

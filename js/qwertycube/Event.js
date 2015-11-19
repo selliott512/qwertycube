@@ -156,14 +156,14 @@ function onKeyDown(event) {
     // means the user is no longer reading the message.
     animateClearStatus();
 
-    var args = faceToRotation[eventChar];
+    var rotation = faceToRotation[eventChar];
     if (event.keyCode == 27) {
         if (helpDisplayed) {
             showHelp(false);
             return;
         }
         escLast = true;
-    } else if (args) {
+    } else if (rotation) {
         // Regular movement
         var move = eventChar;
         if (shift) {
@@ -454,14 +454,14 @@ function onMouseUp(event) {
 
             // Look for the move in faceToRotation.
             for ( var move in faceToRotation) {
-                var args = faceToRotation[move];
-                if ((args[1] == axis) && (args[2] == layerMin)
-                        && (args[3] == layerMax)) {
+                var rotation = faceToRotation[move];
+                if ((rotation[1] == axis) && (rotation[2] == layerMin)
+                        && (rotation[3] == layerMax)) {
                     // Found a match. Create the move.
                     if (doubleLayer) {
                         move = move.toLowerCase();
                     }
-                    if (args[0] !== sign) {
+                    if (rotation[0] !== sign) {
                         // Either the direction of the unmodified move in the
                         // table, or the direction the user specified about the
                         // axis, is negative. Go the other way.
