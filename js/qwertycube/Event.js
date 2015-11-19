@@ -420,7 +420,7 @@ function onMouseUp(event) {
             // (counter clockwise positive) and not the cube sense (clockwise
             // positive).
             var axis = largestAbsoluteAxis(torque);
-            var sign = torque[axis] >= 0 ? "+" : "-";
+            var sign = torque[axis] >= 0 ? 1 : -1;
 
             // Convert from the coordinate along the rotating axis to one of
             // three layers -1, 0 and 1. cubiesSep is right in the middle of the
