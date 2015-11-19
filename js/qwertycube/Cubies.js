@@ -94,10 +94,10 @@ function cubiesCreate() {
                 continue;
             }
 
-            var args = eventToRotation[face];
+            var args = faceToRotation[face];
             // The meaning of sign is the opposite here - it's positive if
             // the face is on the positive side of the axis.
-            var sign = args[0] == "-" ? 1 : -1;
+            var sign = -args[0];
             var axis = args[1];
             sideMaterial
                     .push(vec[axis] == sign * cubiesOff ? colorMatts[faceVectorToFacelet(

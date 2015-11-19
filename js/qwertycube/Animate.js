@@ -30,6 +30,7 @@ var moveStartMsec = 0;
 var orbitControls;
 var rendered = false;
 var renderer;
+var rotationCurrent = null;
 var scene;
 var statusDisplayed = false;
 var statusSecs = 3.0;
@@ -44,23 +45,6 @@ var timerStart = Date.now();
 var timerState = "solve";
 var wireframeSphere = false;
 var wireframeSphereMesh;
-
-// The following lookup tables should be kept in sync and in alphabetical order
-// by key.
-var eventToRotation = {
-    B : [ "+", "z", -1, -1 ],
-    D : [ "+", "y", -1, -1 ],
-    E : [ "+", "y", 0, 0 ],
-    F : [ "-", "z", 1, 1 ],
-    L : [ "+", "x", -1, -1 ],
-    M : [ "+", "x", 0, 0 ],
-    R : [ "-", "x", 1, 1 ],
-    S : [ "-", "z", 0, 0 ],
-    U : [ "-", "y", 1, 1 ],
-    X : [ "-", "x", -1, 1 ],
-    Y : [ "-", "y", -1, 1 ],
-    Z : [ "-", "z", -1, 1 ]
-};
 
 // Public methods
 
@@ -306,23 +290,30 @@ function doAnimate() {
             moveCurrent = moveQueue.shift();
             if (moveCurrent) {
                 // A new move. Prepare the cubies to be rotated.
-                rotateBegin(moveCurrent);
-                if (animation) {
-                    moveStartMsec = Date.now();
-                }
-                // Start the timer if it was inspection.
-                if ((timerState == "inspect") && !rotateFullCube) {
-                    timerState = "solve";
-                    timerStart = Date.now();
+                rotationCurrent = rotateBegin(moveCurrent);
+                if (rotationCurrent) {
+                    if (animation) {
+                        moveStartMsec = Date.now();
+                    }
+                    // Start the timer if it was inspection and the user did
+                    // something other than rotate the entire cube.
+                    if ((timerState == "inspect")
+                            && !((rotationCurrent[2] === -1) && (rotationCurrent[3] === 1))) {
+                        timerState = "solve";
+                        timerStart = Date.now();
+                    }
+                } else {
+                    // It's something like a savepoint that can't be animated.
+                    moveCurrent = null;
                 }
             }
         }
 
-        if (moveCurrent) {
+        if (rotationCurrent) {
             // Apply the next animation step to the prepared cubies.
             // angleMax and angleGoal are always positive - the absolute value
             // of the actual angle.
-            var angleMax = rotateDouble ? Math.PI : Math.PI / 2.0;
+            var angleMax = (rotationCurrent[4] === 2) ? Math.PI : Math.PI / 2.0;
             if (animation && (moveQueue.length <= animationLimit)) {
                 var elapsedMsec = Date.now() - moveStartMsec;
                 var angleGoal = elapsedMsec * moveRadMsec;
@@ -334,7 +325,7 @@ function doAnimate() {
                 var angleGoal = angleMax;
                 endMove = true;
             }
-            pivot.rotation[rotateAxis] = rotateSign * angleGoal;
+            pivot.rotation[rotationCurrent[1]] = rotationCurrent[0] * angleGoal;
         }
 
         renderer.render(scene, camera);
@@ -342,6 +333,7 @@ function doAnimate() {
 
         if (endMove) {
             moveCurrent = null;
+            rotationCurrent = null;
             rotateEnd();
             if (!moveQueue.length) {
                 if (timerState == "scramble") {

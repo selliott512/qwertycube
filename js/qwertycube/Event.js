@@ -156,7 +156,7 @@ function onKeyDown(event) {
     // means the user is no longer reading the message.
     animateClearStatus();
 
-    var args = eventToRotation[eventChar];
+    var args = faceToRotation[eventChar];
     if (event.keyCode == 27) {
         if (helpDisplayed) {
             showHelp(false);
@@ -431,7 +431,7 @@ function onMouseUp(event) {
                     : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
 
             if (Math.abs(layerStart - layerEnd) == 1) {
-                // Since double layer moves are not in the eventToRotation
+                // Since double layer moves are not in the faceToRotation
                 // table convert to single layer, but make a note that it's
                 // really a double layer.
                 var doubleLayer = true;
@@ -452,9 +452,9 @@ function onMouseUp(event) {
                 var layerMax = layerStart;
             }
 
-            // Look for the move in eventToRotation.
-            for ( var move in eventToRotation) {
-                var args = eventToRotation[move];
+            // Look for the move in faceToRotation.
+            for ( var move in faceToRotation) {
+                var args = faceToRotation[move];
                 if ((args[1] == axis) && (args[2] == layerMin)
                         && (args[3] == layerMax)) {
                     // Found a match. Create the move.

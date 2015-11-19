@@ -59,6 +59,9 @@ var settingsTextEl;
 var statusEl;
 var timerEl;
 
+// Strings that moves can be suffixed with.
+var moveSuffixes = [ "", "'", "2" ];
+
 // Prefix to apply to entries in localStorage.
 var presistentPrefix = "QC";
 
@@ -143,7 +146,7 @@ function initAddUpdateButtons(buttonList) {
         buttonBarEl.appendChild(buttonEl);
 
         // Keep a reference the button variables.
-        buttonKeyToElMap[button.key] = [buttonEl, button];
+        buttonKeyToElMap[button.key] = [ buttonEl, button ];
 
         col++;
     }
@@ -154,6 +157,7 @@ function initLoad() {
     initLoadStorage();
     settingsOnLoad();
     initVars();
+    fillMoveToRotation();
     eventAdd();
     setup();
     fillScene();
@@ -278,6 +282,52 @@ function initSetBackgroundColor() {
 }
 
 // Private methods
+
+function fillMoveToRotation() {
+    var count = 0;
+    for ( var face in faceToRotation) {
+        var faceRot = faceToRotation[face];
+        for ( var s in moveSuffixes) {
+            var suffix = moveSuffixes[s];
+            var move = face + suffix;
+            var moveRot = faceRot.slice();
+            if (suffix === "'") {
+                moveRot[0] = -moveRot[0];
+            } else if (suffix === "2") {
+                moveRot[4] = 2;
+            }
+            for (var t = 1; t <= 2; t++) {
+                var twoLayer = t == 2;
+                if (twoLayer) {
+                    if ("XYZMSE".indexOf(face) !== -1) {
+                        // Two layer of these moves does not make sense.
+                        continue;
+                    }
+                    move = move.toLowerCase();
+                    moveRot = moveRot.slice();
+                    if (moveRot[2] !== moveRot[3]) {
+                        // This should not happen.
+                        console.log("Unexpected multilayer range ["
+                                + moveRot[2] + ", " + moveRot[3] + "]  for "
+                                + face);
+                    }
+                    if (moveRot[2] === -1) {
+                        moveRot[3] = 0;
+                    } else if (moveRot[3] === 1) {
+                        moveRot[2] = 0;
+                    } else {
+                        // This should not happen.
+                        console.log("Unexpected range [" + moveRot[2] + ", "
+                                + moveRot[3] + "] for " + face);
+                    }
+                }
+                count++;
+                moveToRotation[move] = moveRot;
+            }
+        }
+    }
+    console.log("fillMoveToRotation: Added " + count + " moves.");
+}
 
 function fillScene() {
     scene = new THREE.Scene();
