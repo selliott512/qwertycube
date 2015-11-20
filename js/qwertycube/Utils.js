@@ -1,10 +1,15 @@
 "use strict";
 
 // Globals
-var mobileUserAgentREs = [ /Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
-        /iPod/i, /webOS/i, /Windows, Phone/i ];
+var mobileUserAgentREs = [/Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
+        /iPod/i, /webOS/i, /Windows, Phone/i];
 
 // Public methods
+
+function clearMoveQueue() {
+    moveQueue.length = 0;
+    rotationQueue.length = 0;
+}
 
 // Copy a map. Note that this is not a deep/recursive copy.
 function copyMap(oldMap) {
@@ -13,22 +18,6 @@ function copyMap(oldMap) {
         newMap[item] = oldMap[item];
     }
     return newMap;
-}
-
-// For a given move return the inverse move that will undo it.
-function getInverseMove(move) {
-    if (move.indexOf("2") !== -1) {
-        // Doubles are their own inverse.
-        return move;
-    }
-
-    if (move.indexOf("'") !== -1) {
-        // It was prime, return non-prime.
-        return move.replace("'", "");
-    } else {
-        // It as non-prime, return prime.
-        return move + "'";
-    }
 }
 
 // Convert an elapsed amount of time to mm:ss.x format.
@@ -57,9 +46,47 @@ function elapsedMsecToStr(elapsedMsec) {
     return elapsedStr;
 }
 
+// Queues up a move along with it's corresponding rotation. Note that index to
+// index moveQueue and rotationQueue must be kept in sync.
+function enqueueMove(move)
+{
+    moveQueue.push(move);
+    rotationQueue.push(getRotationFromMove(move));
+}
+
+// Queues up a move along with it's corresponding rotation. Note that index to
+// index moveQueue and rotationQueue must be kept in sync.
+function enqueueMoves(moves)
+{
+    for (var i in moves) {
+        enqueueMove(moves[i]);
+    }
+}
+
+// For a given move return the inverse move that will undo it.
+function getInverseMove(move) {
+    if (move.indexOf("2") !== -1) {
+        // Doubles are their own inverse.
+        return move;
+    }
+
+    if (move.indexOf("'") !== -1) {
+        // It was prime, return non-prime.
+        return move.replace("'", "");
+    } else {
+        // It as non-prime, return prime.
+        return move + "'";
+    }
+}
+
+// Converts a move to rotation. Returns undefined for savepoints.
+function getRotationFromMove(move) {
+    return moveToRotation[move.replace("G", "")];
+}
+
 // Return the name of the coordinate that has the largest absolute value.
 function largestAbsoluteAxis(vector) {
-    var axes = [ "x", "y", "z" ];
+    var axes = ["x", "y", "z"];
     var axisMax = -1;
     var axisName;
     for (var i = 0; i <= axes.length; i++) {

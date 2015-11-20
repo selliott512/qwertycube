@@ -138,7 +138,7 @@ function onKeyDown(event) {
             } else if (keyMapValue[0] == "m") {
                 // Map directly to a move and return.
                 var move = keyMapValue.substring(1);
-                moveQueue.push(move);
+                enqueueMove(move);
                 animateCondReq(true);
                 escLast = false;
 
@@ -172,7 +172,7 @@ function onKeyDown(event) {
         if (alt) {
             move = move.toLowerCase();
         }
-        moveQueue.push(move);
+        enqueueMove(move);
         animateCondReq(true);
         escLast = false;
     } else if (!helpDisplayed) {
@@ -235,7 +235,7 @@ function onKeyDown(event) {
                                 + (shift ? "redo" : "undo")));
                 if (moveG) {
                     // "G" indicates it's an undo.
-                    moveQueue.push(moveG + "G");
+                    enqueueMove(moveG + "G");
                     animateCondReq(true);
                 }
                 if (!moveG || !alt) {
@@ -469,7 +469,7 @@ function onMouseUp(event) {
                     }
 
                     // Queue the move up.
-                    moveQueue.push(move);
+                    enqueueMove(move);
 
                     // If the user made a move they probably don't care about
                     // the message.

@@ -119,7 +119,8 @@ function settingsOk() {
     // Apply the new move history to the cube.
     // TODO: If the cube is partially rewound then those moves after
     // moveHistoryNext are lost upon restore.
-    moveQueue = moveHistory.slice();
+    clearMoveQueue();
+    enqueueMoves(moveHistory);
     if (moveHistory.length) {
         moveHistory.length = 0; // The moveQueue will be appended.
         moveHistoryNextLast = moveHistoryNext;

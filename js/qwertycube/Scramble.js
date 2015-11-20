@@ -109,10 +109,10 @@ function scramble() {
     }
 
     // Apply the scramble found.
-    moveQueue.push.apply(moveQueue, scrambleMoves);
+    enqueueMoves(scrambleMoves);
 
     // Add a savepoint after the scramble so that Alt-G rewinds to it.
-    moveQueue.push("|");
+    enqueueMove("|");
 
     timerState = "scramble";
     animateCondReq();

@@ -31,6 +31,7 @@ var orbitControls;
 var rendered = false;
 var renderer;
 var rotationCurrent = null;
+var rotationQueue = [];
 var scene;
 var statusDisplayed = false;
 var statusSecs = 3.0;
@@ -145,7 +146,7 @@ function animateResize() {
 
 function animateNewCube() {
     moveCurrent = null;
-    moveQueue.length = 0;
+    clearMoveQueue();
     moveHistory.length = 0;
     moveHistoryNext = 0;
     rotateEnd();
@@ -287,10 +288,13 @@ function doAnimate() {
         textSetVisible(dispOrientationLabels);
 
         if (!moveCurrent) {
+            // Keeping moveCurrent and rotationCurrent in sync depends on a
+            // false value never being enqueued.
             moveCurrent = moveQueue.shift();
             if (moveCurrent) {
                 // A new move. Prepare the cubies to be rotated.
-                rotationCurrent = rotateBegin(moveCurrent);
+                rotationCurrent = rotationQueue.shift();
+                rotateBegin(moveCurrent, rotationCurrent);
                 if (rotationCurrent) {
                     if (animation) {
                         moveStartMsec = Date.now();

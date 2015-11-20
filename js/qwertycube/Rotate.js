@@ -39,16 +39,11 @@ var moveToRotation = {};
 
 // Public methods
 
-function rotateBegin(move) {
+function rotateBegin(move, rotation) {
     // If true then moves are being replayed (ok button clicked) and the we've
     // reached the point where the user is.
     var endOfReplay = (moveHistoryNextLast != -1)
             && (moveHistoryNext >= moveHistoryNextLast);
-
-    // Get the rotation and then slice it since it's modified. Note that
-    // the undo suffix ("G") is not in the table, so it needs to be removed.
-    var moveRot = moveToRotation[move.replace("G", "")];
-    var rotation = moveRot ? moveRot.slice() : null;
 
     if ((!rotation) || endOfReplay) {
         // Avoid actually doing the move in the following cases 1) It's a mark,
@@ -60,8 +55,11 @@ function rotateBegin(move) {
             // End reached.
             moveHistoryNext++;
         }
-        return rotation;
+        return;
     }
+
+    // Copy rotation so we can safely modify it.
+    rotation = rotation.slice();
 
     // Convert the -1, 0, 1 placement along the axes to limits
     // given the cubieOff between them. The limits are inclusive.
@@ -81,7 +79,6 @@ function rotateBegin(move) {
         moveHistory.push(move);
         moveHistoryNext++;
     }
-    return rotation;
 }
 
 function rotateEnd() {
