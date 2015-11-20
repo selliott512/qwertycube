@@ -10,7 +10,7 @@ var aspectRatio = 0.0;
 var buttonBarHeight = 0;
 var camera;
 var cameraAdjusting = false;
-var cameraLocation = [ 470, 470, 470 ];
+var cameraLocation = [470, 470, 470];
 var cameraRadius;
 var canvasHeight = 0;
 var canvasMin = 0;

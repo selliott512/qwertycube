@@ -66,7 +66,7 @@ function rotateBegin(move) {
     // Convert the -1, 0, 1 placement along the axes to limits
     // given the cubieOff between them. The limits are inclusive.
     rotation[2] = cubiesOff * rotation[2] - 1; // Lower limit, so 1 before.
-    rotation[3] = cubiesOff * rotation[3] + 1; // Lower limit, so 1 after.
+    rotation[3] = cubiesOff * rotation[3] + 1; // Upper limit, so 1 after.
     inRangeRotate.apply(this, rotation);
 
     // True if this move is an undo - don't add it to the move history.
