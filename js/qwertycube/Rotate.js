@@ -3,8 +3,7 @@
 // Globals
 
 var active = [];
-var activeCount = 0;
-var pivot = new THREE.Object3D();
+var pivot = new THREE.Object3D(); // The origin by default.
 var rotateMoveSign = 0;
 var rotateTwoLayer = false;
 
@@ -90,7 +89,6 @@ function rotateEnd() {
     }
 
     active.length = 0;
-    activeCount = 0;
 
     pivot.rotation.x = 0;
     pivot.rotation.y = 0;
@@ -100,9 +98,6 @@ function rotateEnd() {
 // Private methods
 
 function inRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
-    activeCount += 1;
-    if (activeCount >= 2)
-        return;
     for (var i = 0; i < cubies.length; i++) {
         var position = cubiesToVector3(cubies[i]);
         // The position coordinate being considered.

@@ -20,6 +20,7 @@ var dispHelp = false;
 var dispOrientationLabels = false;
 var fov = 0.0;
 var moveCurrent = "";
+var moveDiscarded = "";
 var moveHistory = [];
 var moveHistoryNext = 0;
 var moveHistoryNextLast = -1; // Not set
@@ -28,9 +29,11 @@ var moveRadMsec = 0.0;
 var moveSec = 10.0;
 var moveStartMsec = 0;
 var orbitControls;
+var pivotOffset = 0.0;
 var rendered = false;
 var renderer;
 var rotationCurrent = null;
+var rotationDiscarded = null;
 var rotationQueue = [];
 var scene;
 var statusDisplayed = false;
@@ -277,7 +280,7 @@ function consolidateMoves() {
     if (!rotationNext) {
         // Common case as usually the animation if faster than the human, so
         // there's no backlog in the queue.
-        return;
+        return false;
     }
 
     // For the moves to be compatible the axisSign, axisOfRot and amount must be
@@ -285,7 +288,7 @@ function consolidateMoves() {
     if ((rotationCurrent[0] !== rotationNext[0])
             || (rotationCurrent[1] !== rotationNext[1])
             || (rotationCurrent[4] !== rotationNext[4])) {
-        return;
+        return false;
     }
 
     // The layers described by the rotations can not overlap, and one must begin
@@ -298,17 +301,18 @@ function consolidateMoves() {
         rotation[3] = Math.max(rotation[3], rotationNext[3]);
 
         // Discard the next move as it will be combined with the current move.
-        var moveNext = moveQueue.shift();
-        rotationQueue.shift();
+        moveDiscarded = moveQueue.shift();
+        rotationDiscarded = rotationQueue.shift();
 
         var moveNew = getMoveFromRotation(rotation);
-        console.log("Consolidated moves " + moveCurrent + " and " + moveNext
-                + " to form " + moveNew);
+        console.log("Consolidated moves " + moveCurrent + " and "
+                + moveDiscarded + " to form " + moveNew);
 
         // Update globals with the new consolidated move.
         moveCurrent = moveNew;
         rotationCurrent = rotation;
     }
+    return consolidate;
 }
 
 function doAnimate() {
@@ -337,7 +341,13 @@ function doAnimate() {
                 rotationCurrent = rotationQueue.shift();
                 if (rotationCurrent) {
                     // Consolidate moves before beginning a new move.
-                    consolidateMoves();
+                    if (consolidateMoves()) {
+                        // This is the unlikely case given how the event
+                        // handling works.
+                        console.log("Consolidated before rotateBegin for "
+                                + "move " + moveCurrent);
+                    }
+
                 }
                 // A new move. Prepare the cubies to be rotated.
                 rotateBegin(moveCurrent, rotationCurrent);
@@ -352,24 +362,33 @@ function doAnimate() {
                         timerState = "solve";
                         timerStart = Date.now();
                     }
-                } else {
-                    // It's something like a savepoint that can't be animated.
-                    moveCurrent = null;
                 }
             }
         }
 
         if (rotationCurrent) {
             // Consolidate now just in case a new move is waiting.
-            consolidateMoves();
+            if (consolidateMoves()) {
+                // We only need to mark the new cubies to the list of items
+                // rotated.
+                pivotOffset += pivot.rotation[rotationCurrent[1]];
+                rotateEnd();
+                rotateBegin(moveDiscarded, rotationDiscarded);
+                pivot.rotation[rotationCurrent[1]] = pivotOffset;
+                renderer.render(scene, camera);
+                rotateEnd();
+                rotateBegin(moveCurrent, rotationCurrent);
+            }
 
             // Apply the next animation step to the prepared cubies.
             // angleMax and angleGoal are always positive - the absolute value
             // of the actual angle.
-            var angleMax = (rotationCurrent[4] === 2) ? Math.PI : Math.PI / 2.0;
+            var pivotOffsetAbs = Math.abs(pivotOffset);
+            var angleMax = (rotationCurrent[4] === 2) ? Math.PI : Math.PI / 2.0
+                    - pivotOffsetAbs;
             if (animation && (moveQueue.length <= animationLimit)) {
                 var elapsedMsec = Date.now() - moveStartMsec;
-                var angleGoal = elapsedMsec * moveRadMsec;
+                var angleGoal = elapsedMsec * moveRadMsec - pivotOffsetAbs;
                 if (angleGoal >= angleMax) {
                     angleGoal = angleMax;
                     endMove = true;
@@ -385,6 +404,7 @@ function doAnimate() {
         rendered = true; // True if rendering has been done at least once.
 
         if (endMove) {
+            pivotOffset = 0.0;
             moveCurrent = null;
             rotationCurrent = null;
             rotateEnd();
