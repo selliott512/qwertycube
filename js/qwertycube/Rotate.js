@@ -33,7 +33,7 @@ var faceToRotation = {
 };
 
 // Like the above, but for all moves. This is populated dynamically on
-// startup.  The columns have the same meaning as the above.
+// startup. The columns have the same meaning as the above.
 var moveToRotation = {};
 
 // Inverse of the above.
@@ -41,7 +41,30 @@ var rotationToMove = {};
 
 // Public methods
 
-function rotateBegin(move, rotation) {
+function rotateBegin(move, rotation, consolidated) {
+    // Just remove the consolidated moves from the start of the move history.
+    if (consolidated) {
+        if (moveHistory.length < consolidated) {
+            // This should not happen.
+            console.log("WARNING: moveHistory length is " + moveHistory.length
+                    + " which is less than consolidated at " + consolidated);
+        }
+
+        // Remove them.
+        moveHistory.splice(moveHistory.length - consolidated, consolidated);
+
+        // Adjust pointers into moveHistory.
+        moveHistoryNext -= consolidated;
+        if (moveHistoryNext < 0) {
+            moveHistoryNext = 0;
+        }
+        if (moveHistoryNextLast != -1) {
+            moveHistoryNextLast -= consolidated;
+            if (moveHistoryNextLast < 0) {
+                moveHistoryNextLast = 0;
+            }
+        }
+    }
     // If true then moves are being replayed (ok button clicked) and the we've
     // reached the point where the user is.
     var endOfReplay = (moveHistoryNextLast != -1)
@@ -75,7 +98,7 @@ function rotateBegin(move, rotation) {
         if (moveHistoryNext < moveHistory.length) {
             // Some moves have been undone. Discard the part of the move history
             // that is after this move - begin a new timeline.
-            console.log("Discaring future move history.");
+            console.log("Discarding future move history.");
             moveHistory = moveHistory.slice(0, moveHistoryNext);
         }
         moveHistory.push(move);

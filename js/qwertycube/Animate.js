@@ -280,7 +280,7 @@ function consolidateMoves() {
     if (!rotationNext) {
         // Common case as usually the animation if faster than the human, so
         // there's no backlog in the queue.
-        return false;
+        return 0;
     }
 
     // For the moves to be compatible the axisSign, axisOfRot and amount must be
@@ -288,7 +288,7 @@ function consolidateMoves() {
     if ((rotationCurrent[0] !== rotationNext[0])
             || (rotationCurrent[1] !== rotationNext[1])
             || (rotationCurrent[4] !== rotationNext[4])) {
-        return false;
+        return 0;
     }
 
     // The layers described by the rotations can not overlap, and one must begin
@@ -312,7 +312,7 @@ function consolidateMoves() {
         moveCurrent = moveNew;
         rotationCurrent = rotation;
     }
-    return consolidate;
+    return consolidate ? 2 : 0;
 }
 
 function doAnimate() {
@@ -347,10 +347,9 @@ function doAnimate() {
                         console.log("Consolidated before rotateBegin for "
                                 + "move " + moveCurrent);
                     }
-
                 }
                 // A new move. Prepare the cubies to be rotated.
-                rotateBegin(moveCurrent, rotationCurrent);
+                rotateBegin(moveCurrent, rotationCurrent, 0);
                 if (rotationCurrent) {
                     if (animation) {
                         moveStartMsec = Date.now();
@@ -368,16 +367,25 @@ function doAnimate() {
 
         if (rotationCurrent) {
             // Consolidate now just in case a new move is waiting.
-            if (consolidateMoves()) {
-                // We only need to mark the new cubies to the list of items
-                // rotated.
+            var consolidateCount = consolidateMoves();
+            if (consolidateCount) {
+                // Make a note of how far the old move has twisted and then
+                // end it.
                 pivotOffset += pivot.rotation[rotationCurrent[1]];
                 rotateEnd();
-                rotateBegin(moveDiscarded, rotationDiscarded);
+
+                // Given the discarded move, but jump forward to the
+                // pivotOffset saved so it lines up with the old move.
+                rotateBegin(moveDiscarded, rotationDiscarded, 0);
                 pivot.rotation[rotationCurrent[1]] = pivotOffset;
+
+                // The rotation does not actually happen until it's rendered.
                 renderer.render(scene, camera);
+
+                // End the current rotation and then begin a new one with the
+                // new consolidated move.
                 rotateEnd();
-                rotateBegin(moveCurrent, rotationCurrent);
+                rotateBegin(moveCurrent, rotationCurrent, consolidateCount);
             }
 
             // Apply the next animation step to the prepared cubies.
