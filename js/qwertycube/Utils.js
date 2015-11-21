@@ -79,6 +79,11 @@ function getInverseMove(move) {
     }
 }
 
+//Converts a rotation to a move.
+function getMoveFromRotation(rotation) {
+    return rotationToMove[rotation];
+}
+
 // Converts a move to rotation. Returns undefined for savepoints.
 function getRotationFromMove(move) {
     return moveToRotation[move.replace("G", "")];

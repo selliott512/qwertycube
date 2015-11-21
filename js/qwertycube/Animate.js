@@ -269,6 +269,48 @@ function animateWireframeSphere(show) {
 
 // Private methods
 
+// Determine if the current move and next move can be consolidated. For
+// example, L and then M could instead be l. This may happen when both moves
+// are about the same axis.
+function consolidateMoves() {
+    var rotationNext = rotationQueue[0];
+    if (!rotationNext) {
+        // Common case as usually the animation if faster than the human, so
+        // there's no backlog in the queue.
+        return;
+    }
+
+    // For the moves to be compatible the axisSign, axisOfRot and amount must be
+    // the same.
+    if ((rotationCurrent[0] !== rotationNext[0])
+            || (rotationCurrent[1] !== rotationNext[1])
+            || (rotationCurrent[4] !== rotationNext[4])) {
+        return;
+    }
+
+    // The layers described by the rotations can not overlap, and one must begin
+    // after the other ends to form a continuous move.
+    var consolidate = (((rotationCurrent[3] + 1) === rotationNext[2]) || ((rotationNext[3] + 1) === rotationCurrent[2]));
+    if (consolidate) {
+        // Create a new rotation with a range that includes both moves.
+        var rotation = rotationCurrent.slice();
+        rotation[2] = Math.min(rotation[2], rotationNext[2]);
+        rotation[3] = Math.max(rotation[3], rotationNext[3]);
+
+        // Discard the next move as it will be combined with the current move.
+        var moveNext = moveQueue.shift();
+        rotationQueue.shift();
+
+        var moveNew = getMoveFromRotation(rotation);
+        console.log("Consolidated moves " + moveCurrent + " and " + moveNext
+                + " to form " + moveNew);
+
+        // Update globals with the new consolidated move.
+        moveCurrent = moveNew;
+        rotationCurrent = rotation;
+    }
+}
+
 function doAnimate() {
     // Animation not requested since starting this animation frame.
     animationRequested = false;
@@ -292,8 +334,12 @@ function doAnimate() {
             // false value never being enqueued.
             moveCurrent = moveQueue.shift();
             if (moveCurrent) {
-                // A new move. Prepare the cubies to be rotated.
                 rotationCurrent = rotationQueue.shift();
+                if (rotationCurrent) {
+                    // Consolidate moves before beginning a new move.
+                    consolidateMoves();
+                }
+                // A new move. Prepare the cubies to be rotated.
                 rotateBegin(moveCurrent, rotationCurrent);
                 if (rotationCurrent) {
                     if (animation) {
@@ -314,6 +360,9 @@ function doAnimate() {
         }
 
         if (rotationCurrent) {
+            // Consolidate now just in case a new move is waiting.
+            consolidateMoves();
+
             // Apply the next animation step to the prepared cubies.
             // angleMax and angleGoal are always positive - the absolute value
             // of the actual angle.

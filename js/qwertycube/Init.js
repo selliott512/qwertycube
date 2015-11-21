@@ -283,6 +283,7 @@ function initSetBackgroundColor() {
 
 // Private methods
 
+// Fill moveToRotation as well as it's conjugate rotationToMove.
 function fillMoveToRotation() {
     var count = 0;
     for ( var face in faceToRotation) {
@@ -323,6 +324,7 @@ function fillMoveToRotation() {
                 }
                 count++;
                 moveToRotation[move] = moveRot;
+                rotationToMove[moveRot] = move;
             }
         }
     }

@@ -37,6 +37,9 @@ var faceToRotation = {
 // startup.  The columns have the same meaning as the above.
 var moveToRotation = {};
 
+// Inverse of the above.
+var rotationToMove = {};
+
 // Public methods
 
 function rotateBegin(move, rotation) {
