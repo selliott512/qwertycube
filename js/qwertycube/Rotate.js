@@ -41,30 +41,27 @@ var rotationToMove = {};
 
 // Public methods
 
-function rotateBegin(move, rotation, consolidated) {
-    // Just remove the consolidated moves from the start of the move history.
-    if (consolidated) {
-        if (moveHistory.length < consolidated) {
+function rotateBegin(move, rotation, discardPrevious) {
+    // Discard the last move in the move history since it was consolidated.
+    if (discardPrevious) {
+        if (moveHistory.length < 1) {
             // This should not happen.
             console.log("WARNING: moveHistory length is " + moveHistory.length
-                    + " which is less than consolidated at " + consolidated);
+                    + " so the previous move can't be discarded.");
         }
 
         // Remove them.
-        moveHistory.splice(moveHistory.length - consolidated, consolidated);
+        moveHistory.splice(moveHistory.length - 1, 1);
 
-        // Adjust pointers into moveHistory.
-        moveHistoryNext -= consolidated;
-        if (moveHistoryNext < 0) {
-            moveHistoryNext = 0;
+        // Adjust pointers into moveHistory, if need be.
+        if (moveHistoryNext >= moveHistory.length) {
+            moveHistoryNext--;
         }
-        if (moveHistoryNextLast != -1) {
-            moveHistoryNextLast -= consolidated;
-            if (moveHistoryNextLast < 0) {
-                moveHistoryNextLast = 0;
-            }
+        if (moveHistoryNextLast >= moveHistoryNextLast.length) {
+            moveHistoryNextLast--;
         }
     }
+
     // If true then moves are being replayed (ok button clicked) and the we've
     // reached the point where the user is.
     var endOfReplay = (moveHistoryNextLast != -1)

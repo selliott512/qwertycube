@@ -20,7 +20,6 @@ var dispHelp = false;
 var dispOrientationLabels = false;
 var fov = 0.0;
 var moveCurrent = "";
-var moveDiscarded = "";
 var moveHistory = [];
 var moveHistoryNext = 0;
 var moveHistoryNextLast = -1; // Not set
@@ -29,11 +28,9 @@ var moveRadMsec = 0.0;
 var moveSec = 10.0;
 var moveStartMsec = 0;
 var orbitControls;
-var pivotOffset = 0.0;
 var rendered = false;
 var renderer;
 var rotationCurrent = null;
-var rotationDiscarded = null;
 var rotationQueue = [];
 var scene;
 var statusDisplayed = false;
@@ -276,43 +273,118 @@ function animateWireframeSphere(show) {
 // example, L and then M could instead be l. This may happen when both moves
 // are about the same axis.
 function consolidateMoves() {
-    var rotationNext = rotationQueue[0];
-    if (!rotationNext) {
+    if (!rotationQueue.length) {
         // Common case as usually the animation if faster than the human, so
         // there's no backlog in the queue.
         return 0;
     }
 
+    // True for each layer that is rotating.
+    var layerActive = [false, false, false];
+    for (var i = rotationCurrent[2]; i <= rotationCurrent[3]; i++) {
+        layerActive[i + 1] = true;
+    }
+
+    // Moves found that are compatible with the current move.
+    var compatible = 0;
+
     // For the moves to be compatible the axisSign, axisOfRot and amount must be
     // the same.
-    if ((rotationCurrent[0] !== rotationNext[0])
-            || (rotationCurrent[1] !== rotationNext[1])
-            || (rotationCurrent[4] !== rotationNext[4])) {
+    outerLoop: for (var i = 0; i < rotationQueue.length; i++) {
+        var rotationOther = rotationQueue[i];
+        if ((rotationCurrent[0] !== rotationOther[0])
+                || (rotationCurrent[1] !== rotationOther[1])
+                || (rotationCurrent[4] !== rotationOther[4])) {
+            break;
+        }
+
+        // First check that layers in question are clear and if so set them.
+        for (var j = rotationOther[2]; j <= rotationOther[3]; j++) {
+            if (layerActive[j + 1]) {
+                break outerLoop;
+            }
+        }
+        for (var j = rotationOther[2]; j <= rotationOther[3]; j++) {
+            layerActive[j + 1] = true;
+        }
+
+        // This other move will possibly be consolidated.
+        compatible++;
+    }
+
+    if (!compatible) {
+        // No compatible moves were found.
         return 0;
     }
 
-    // The layers described by the rotations can not overlap, and one must begin
-    // after the other ends to form a continuous move.
-    var consolidate = (((rotationCurrent[3] + 1) === rotationNext[2]) || ((rotationNext[3] + 1) === rotationCurrent[2]));
-    if (consolidate) {
-        // Create a new rotation with a range that includes both moves.
+    // Examine layerActive to see if contains a contiguous block of trues.
+    var lo = null;
+    var hi = null;
+    var last = false;
+    // TODO: It might be helpful if lo and hi were zero based. It would make it
+    // easier to generalize this for higher dimension cubes.
+    for (var i = -1; i <= 1; i++) {
+        var layer = layerActive[i + 1];
+        if (layer && !last) {
+            if (lo !== null) {
+                // More than one start of a block of trues - can't consolidate.
+                return 0;
+            }
+            lo = i;
+        } else if ((!layer) && last) {
+            if (hi !== null) {
+                // More than one end of a block of trues - can't consolidate.
+                return 0;
+            }
+            hi = i - 1;
+        }
+        last = layer;
+    }
+    if ((lo !== null) && (hi === null)) {
+        // The block of trues went ot the end.
+        hi = 1;
+    }
+
+    if ((lo !== null) && (hi !== null)) {
+        // Layers moved contiguously. It's a candidate.
         var rotation = rotationCurrent.slice();
-        rotation[2] = Math.min(rotation[2], rotationNext[2]);
-        rotation[3] = Math.max(rotation[3], rotationNext[3]);
+        rotation[2] = lo;
+        rotation[3] = hi;
 
-        // Discard the next move as it will be combined with the current move.
-        moveDiscarded = moveQueue.shift();
-        rotationDiscarded = rotationQueue.shift();
-
+        // TODO: For higher dimension cubes come up with a way of consolidating
+        // contiguous layers that don't have move names.
         var moveNew = getMoveFromRotation(rotation);
-        console.log("Consolidated moves " + moveCurrent + " and "
-                + moveDiscarded + " to form " + moveNew);
+        if (!moveNew) {
+            // This should not happen for 3x3 cubes.
+            console.log("Unable to find consolidated move for rotation "
+                    + rotation);
+            return 0;
+        }
+
+        var first = true;
+        var movesBuf = "";
+        for (var i = 0; i < compatible; i++) {
+            movesBuf += (first ? "" : ", ") + moveQueue[i];
+            first = false;
+        }
+
+        console.log("Consolidated moves " + moveCurrent + ", " + movesBuf
+                + " to form " + moveNew);
+
+        // Discard the moves that will be combined with the current move.
+        moveQueue.splice(0, compatible);
+        rotationQueue.splice(0, compatible);
 
         // Update globals with the new consolidated move.
         moveCurrent = moveNew;
         rotationCurrent = rotation;
+
+        // +1 to include the total number of moves involved in the
+        // consolidation.
+        return compatible + 1;
+    } else {
+        return 0;
     }
-    return consolidate ? 2 : 0;
 }
 
 function doAnimate() {
@@ -349,7 +421,7 @@ function doAnimate() {
                     }
                 }
                 // A new move. Prepare the cubies to be rotated.
-                rotateBegin(moveCurrent, rotationCurrent, 0);
+                rotateBegin(moveCurrent, rotationCurrent, false);
                 if (rotationCurrent) {
                     if (animation) {
                         moveStartMsec = Date.now();
@@ -369,34 +441,23 @@ function doAnimate() {
             // Consolidate now just in case a new move is waiting.
             var consolidateCount = consolidateMoves();
             if (consolidateCount) {
-                // Make a note of how far the old move has twisted and then
-                // end it.
-                pivotOffset += pivot.rotation[rotationCurrent[1]];
-                rotateEnd();
-
-                // Given the discarded move, but jump forward to the
-                // pivotOffset saved so it lines up with the old move.
-                rotateBegin(moveDiscarded, rotationDiscarded, 0);
-                pivot.rotation[rotationCurrent[1]] = pivotOffset;
-
-                // The rotation does not actually happen until it's rendered.
+                // Rotate the current move back to where it started.
+                pivot.rotation[rotationCurrent[1]] = 0.0;
                 renderer.render(scene, camera);
 
                 // End the current rotation and then begin a new one with the
                 // new consolidated move.
                 rotateEnd();
-                rotateBegin(moveCurrent, rotationCurrent, consolidateCount);
+                rotateBegin(moveCurrent, rotationCurrent, true);
             }
 
             // Apply the next animation step to the prepared cubies.
             // angleMax and angleGoal are always positive - the absolute value
             // of the actual angle.
-            var pivotOffsetAbs = Math.abs(pivotOffset);
-            var angleMax = (rotationCurrent[4] === 2) ? Math.PI : Math.PI / 2.0
-                    - pivotOffsetAbs;
+            var angleMax = (rotationCurrent[4] === 2) ? Math.PI : Math.PI / 2.0;
             if (animation && (moveQueue.length <= animationLimit)) {
                 var elapsedMsec = Date.now() - moveStartMsec;
-                var angleGoal = elapsedMsec * moveRadMsec - pivotOffsetAbs;
+                var angleGoal = elapsedMsec * moveRadMsec;
                 if (angleGoal >= angleMax) {
                     angleGoal = angleMax;
                     endMove = true;
@@ -412,7 +473,6 @@ function doAnimate() {
         rendered = true; // True if rendering has been done at least once.
 
         if (endMove) {
-            pivotOffset = 0.0;
             moveCurrent = null;
             rotationCurrent = null;
             rotateEnd();
