@@ -161,7 +161,11 @@ function setGlobal(varName, varValueStr) {
     } else if (varType === Boolean) {
         varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
     } else if (varType === Number) {
-        varValue = parseInt(varValueStr);
+        if (varValueStr.indexOf(".") !== -1) {
+            varValue = parseFloat(varValueStr);
+        } else {
+            varValue = parseInt(varValueStr);
+        }
     } else if (varType === Object) {
         varValue = varValueStr.split(" ");
         var varValueMap = {};
