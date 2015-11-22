@@ -48,17 +48,15 @@ function elapsedMsecToStr(elapsedMsec) {
 
 // Queues up a move along with it's corresponding rotation. Note that index to
 // index moveQueue and rotationQueue must be kept in sync.
-function enqueueMove(move)
-{
+function enqueueMove(move) {
     moveQueue.push(move);
     rotationQueue.push(getRotationFromMove(move));
 }
 
 // Queues up a move along with it's corresponding rotation. Note that index to
 // index moveQueue and rotationQueue must be kept in sync.
-function enqueueMoves(moves)
-{
-    for (var i in moves) {
+function enqueueMoves(moves) {
+    for ( var i in moves) {
         enqueueMove(moves[i]);
     }
 }
@@ -79,7 +77,7 @@ function getInverseMove(move) {
     }
 }
 
-//Converts a rotation to a move.
+// Converts a rotation to a move.
 function getMoveFromRotation(rotation) {
     return rotationToMove[rotation];
 }
@@ -148,15 +146,20 @@ function setGlobal(varName, varValueStr) {
         return;
     }
     if (varType === Array) {
-        varValue = varValueStr.split(" ");
-        if ((window[varName].length > 0)
-                && (window[varName][0].constructor === Number)) {
-            // If the array contained integers then convert to that.
-            var varValueNum = [];
-            for (var i = 0; i < varValue.length; i++) {
-                varValueNum.push(parseInt(varValue[i]));
+        if (varValueStr !== "") {
+            varValue = varValueStr.split(" ");
+            if ((window[varName].length > 0)
+                    && (window[varName][0].constructor === Number)) {
+                // If the array contained integers then convert to that.
+                var varValueNum = [];
+                for (var i = 0; i < varValue.length; i++) {
+                    varValueNum.push(parseInt(varValue[i]));
+                }
+                varValue = varValueNum;
             }
-            varValue = varValueNum;
+        } else {
+            // If it's empty we don't need to know the type of the elements.
+            varValue = [];
         }
     } else if (varType === Boolean) {
         varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
