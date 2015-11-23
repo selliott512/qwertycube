@@ -292,7 +292,7 @@ function consolidateMoves() {
     // the same.
     outerLoop: for (var i = 0; i < rotationQueue.length; i++) {
         var rotationOther = rotationQueue[i];
-        if ((rotationCurrent[0] !== rotationOther[0])
+        if ((!rotationOther) || (rotationCurrent[0] !== rotationOther[0])
                 || (rotationCurrent[1] !== rotationOther[1])
                 || (rotationCurrent[4] !== rotationOther[4])) {
             break;
@@ -467,6 +467,8 @@ function doAnimate() {
                 endMove = true;
             }
             pivot.rotation[rotationCurrent[1]] = rotationCurrent[0] * angleGoal;
+        } else {
+            moveCurrent = null;
         }
 
         renderer.render(scene, camera);
