@@ -469,6 +469,7 @@ function doAnimate() {
             pivot.rotation[rotationCurrent[1]] = rotationCurrent[0] * angleGoal;
         } else {
             moveCurrent = null;
+            endMove = true;
         }
 
         renderer.render(scene, camera);
