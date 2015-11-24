@@ -429,7 +429,7 @@ function doAnimate() {
                     // Start the timer if it was inspection and the user did
                     // something other than rotate the entire cube.
                     if ((timerState == "inspect")
-                            && !((rotationCurrent[2] === -1) && (rotationCurrent[3] === 1))) {
+                            && !isFullCubeRotation(rotationCurrent)) {
                         timerState = "solve";
                         timerStart = Date.now();
                     }
@@ -476,16 +476,15 @@ function doAnimate() {
         rendered = true; // True if rendering has been done at least once.
 
         if (endMove) {
-            moveCurrent = null;
-            rotationCurrent = null;
             rotateEnd();
             if (!moveQueue.length) {
-                if (timerState == "scramble") {
+                if (timerState === "scramble") {
                     // If the last move of the scramble was made then begin the
                     // inspection phase.
                     timerState = "inspect";
                     timerStart = Date.now();
-                } else if (timerState == "solve") {
+                } else if (timerState === "solve" && moveHistory.length
+                        && !isFullCubeRotation(rotationCurrent)) {
                     if (cubiesSolved()) {
                         timerState = "solved";
                         timerSolved = Date.now();
@@ -494,6 +493,8 @@ function doAnimate() {
                 // We're done replaying moves.
                 moveHistoryNextLast = -1;
             }
+            moveCurrent = null;
+            rotationCurrent = null;
         }
         animateUpdateStatus(null);
         animateUpdateTimer();
@@ -513,4 +514,11 @@ function doAnimate() {
     }
 
     animateCondReq(false);
+}
+
+function isFullCubeRotation(rotation) {
+    if (!rotation) {
+        return false;
+    }
+    return (rotation[2] === -1) && (rotation[3] === 1);
 }
