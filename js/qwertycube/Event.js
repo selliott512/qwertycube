@@ -2,16 +2,12 @@
 
 // Globals
 
-var downX = 0;
-var downY = 0;
 var escLast = false;
 var helpDisplayed = false;
 var keyMap = {};
 var keyMapSize = 0;
-var lastTouchX;
-var lastTouchY;
-var moveStart = null;
-var moveThreshold = 20; // TODO: Add to settings.
+var moveBegins = [];
+var moveThreshold = 30; // TODO: Add to settings.
 var rotationLock = false;
 var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
@@ -54,6 +50,19 @@ function eventAdd() {
 }
 
 // Private methods
+
+function getCoords(event) {
+    var coords = [];
+    if (mobile) {
+        for (var i = 0; i < event.changedTouches.length; i++) {
+            coords.push([event.changedTouches[0].pageX,
+                    event.changedTouches[0].pageY]);
+        }
+    } else {
+        coords.push([event.clientX, event.clientY]);
+    }
+    return coords;
+}
 
 function helpClose() {
     showHelp(false);
@@ -362,27 +371,19 @@ function onMouseDown(event) {
 
     // Primary button - true for the left mouse button or any touch event.
     var primaryButton = mobile || (event.button === 0);
-    if (primaryButton && ((!mobile) || event.touches.length)) {
-        if (mobile) {
-            var x = event.touches[0].pageX;
-            var y = event.touches[0].pageY;
-        } else {
-            var x = event.clientX;
-            var y = event.clientY;
+    if (primaryButton && ((!mobile) || event.changedTouches.length)) {
+        var beginCoords = getCoords(event);
+        for (var i = 0; i < beginCoords.length; i++) {
+            var beginCoord = beginCoords[i];
+            // Left mouse button was clicked.
+            var moveBegin = cubiesEventToCubeCoord(beginCoord[0],
+                    beginCoord[1], null);
+            if (moveBegin) {
+                moveBegins.push([beginCoord, moveBegin]);
+            }
         }
-        downX = x;
-        downY = y;
-        if (mobile) {
-            // Make mobile work even if a touchmove event was not generated.
-            lastTouchX = x;
-            lastTouchY = y;
-        }
-
-        // Left mouse button was clicked.
-        moveStart = cubiesEventToCubeCoord(x, y, null);
-
         // Don't rotate the cube if the user clicked on it.
-        orbitControls.enabled = moveStart ? false : !rotationLock;
+        orbitControls.enabled = moveBegins.length ? false : !rotationLock;
     }
 
     // The user may be adjusting the camera if a mouse button is done. When
@@ -407,118 +408,137 @@ function onMouseUp(event) {
         return;
     }
 
-    if (primaryButton && moveStart) {
-        if (mobile) {
-            var x = lastTouchX;
-            var y = lastTouchY;
-        } else {
-            var x = event.clientX;
-            var y = event.clientY;
-        }
+    if (primaryButton && moveBegins.length) {
+        var endCoords = getCoords(event);
+        for (var i = 0; i < endCoords.length; i++) {
+            var endCoord = endCoords[i];
+            // For the current endCoord find the closest matching begin
+            // coordinate.
+            var bestDist = 1000000;
+            for (var j = 0; j < moveBegins.length; j++) {
+                var entry = moveBegins[j];
+                var beginCoord = entry[0];
+                var moveBegin = entry[1];
+                var dist = Math.abs(beginCoord[0] - endCoord[0])
+                        + Math.abs(beginCoord[1] - endCoord[1]);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    var bestMoveBegin = moveBegin;
+                }
+            }
+            dist = bestDist;
+            moveBegin = bestMoveBegin;
 
-        var mouseMoved = (Math.abs(x - downX) + Math.abs(y - downY)) > moveThreshold;
-        if (mouseMoved) {
-            // The mouse was moved significantly since mouseDown.
-            var moveEnd = cubiesEventToCubeCoord(x, y, moveStart.axis);
-        } else {
-            // A single click without movement.
-            var moveEnd = {};
-            moveEnd.axis = moveStart.axis;
-            moveEnd.pos = moveStart.pos.clone();
-
-            // The moveFaceDirection is from the center of the face clicked
-            // to moveStart.  The rotation torque will be calculated as if the
-            // mouse movement was this direction.
-            var moveFaceDirection = moveEnd.pos.clone();
-            moveFaceDirection[moveEnd.axis] = 0;
-            moveEnd.pos.add(moveFaceDirection);
-        }
-        if (moveEnd) {
-            // Assuming cube was touched at moveStart and moveStart to moveEnd
-            // is the direction force was applied calculate the torque given the
-            // center of the cube as a pivot.
-            var force = moveEnd.pos.clone();
-            force.sub(moveStart.pos);
-            var torque = new THREE.Vector3();
-            torque.crossVectors(moveStart.pos, force);
-
-            // The axis that had the most torque is assumed the one that the
-            // move is to be around. The sign is in the vector rotation sense
-            // (counter clockwise positive) and not the cube sense (clockwise
-            // positive).
-            var axis = largestAbsoluteAxis(torque);
-            var sign = torque[axis] >= 0 ? 1 : -1;
-
-            // Convert from the coordinate along the rotating axis to one of
-            // three layers -1, 0 and 1. cubiesSep is right in the middle of the
-            // gap between layers.
-            var layerStart = (moveStart.pos[axis] < -cubiesSep) ? -1
-                    : ((moveStart.pos[axis] > cubiesSep) ? 1 : 0);
+            var mouseMoved = dist >= moveThreshold;
             if (mouseMoved) {
-                var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
-                        : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
+                // The mouse was moved significantly since mouseDown.
+                var moveEnd = cubiesEventToCubeCoord(endCoord[0], endCoord[1],
+                        moveBegin.axis);
             } else {
-                if ((Math.abs(moveFaceDirection.x) < cubiesSep)
-                        && (Math.abs(moveFaceDirection.y) < cubiesSep)
-                        && (Math.abs(moveFaceDirection.z) < cubiesSep)) {
-                    // A middle was clicked - whole cube rotation.
-                    layerStart = -1;
-                    var layerEnd = 1;
+                // A single click without movement.
+                var moveEnd = {};
+                moveEnd.axis = moveBegin.axis;
+                moveEnd.pos = moveBegin.pos.clone();
+
+                // The moveFaceDirection is from the center of the face clicked
+                // to moveBegin. The rotation torque will be calculated as if
+                // the mouse movement was this direction.
+                var moveFaceDirection = moveEnd.pos.clone();
+                moveFaceDirection[moveEnd.axis] = 0;
+                moveEnd.pos.add(moveFaceDirection);
+            }
+            if (moveEnd) {
+                // Assuming cube was touched at moveBegin and moveBegin to
+                // moveEnd is the direction force was applied calculate the
+                // torque given the center of the cube as a pivot.
+                var force = moveEnd.pos.clone();
+                force.sub(moveBegin.pos);
+                var torque = new THREE.Vector3();
+                torque.crossVectors(moveBegin.pos, force);
+
+                // The axis that had the most torque is assumed the one that the
+                // move is to be around. The sign is in the vector rotation
+                // sense (counter clockwise positive) and not the cube sense
+                // (clockwise positive).
+                var axis = largestAbsoluteAxis(torque);
+                var sign = torque[axis] >= 0 ? 1 : -1;
+
+                // Convert from the coordinate along the rotating axis to one of
+                // three layers -1, 0 and 1. cubiesSep is right in the middle of
+                // the
+                // gap between layers.
+                var layerStart = (moveBegin.pos[axis] < -cubiesSep) ? -1
+                        : ((moveBegin.pos[axis] > cubiesSep) ? 1 : 0);
+                if (mouseMoved) {
+                    var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
+                            : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
                 } else {
-                    var layerEnd = layerStart;
+                    if ((Math.abs(moveFaceDirection.x) < cubiesSep)
+                            && (Math.abs(moveFaceDirection.y) < cubiesSep)
+                            && (Math.abs(moveFaceDirection.z) < cubiesSep)) {
+                        // A middle was clicked - whole cube rotation.
+                        layerStart = -1;
+                        var layerEnd = 1;
+                    } else {
+                        var layerEnd = layerStart;
+                    }
                 }
-            }
 
-            if (Math.abs(layerStart - layerEnd) == 1) {
-                // Since double layer moves are not in the faceToRotation
-                // table convert to single layer, but make a note that it's
-                // really a double layer.
-                var doubleLayer = true;
-                if (!layerStart) {
-                    layerStart = layerEnd;
+                if (Math.abs(layerStart - layerEnd) == 1) {
+                    // Since double layer moves are not in the faceToRotation
+                    // table convert to single layer, but make a note that it's
+                    // really a double layer.
+                    var doubleLayer = true;
+                    if (!layerStart) {
+                        layerStart = layerEnd;
+                    } else {
+                        layerEnd = layerStart;
+                    }
                 } else {
-                    layerEnd = layerStart;
+                    var doubleLayer = false;
                 }
-            } else {
-                var doubleLayer = false;
-            }
 
-            if (layerStart < layerEnd) {
-                var layerMin = layerStart;
-                var layerMax = layerEnd;
-            } else {
-                var layerMin = layerEnd;
-                var layerMax = layerStart;
-            }
+                if (layerStart < layerEnd) {
+                    var layerMin = layerStart;
+                    var layerMax = layerEnd;
+                } else {
+                    var layerMin = layerEnd;
+                    var layerMax = layerStart;
+                }
 
-            // Look for the move in faceToRotation.
-            for ( var move in faceToRotation) {
-                var rotation = faceToRotation[move];
-                if ((rotation[1] == axis) && (rotation[2] == layerMin)
-                        && (rotation[3] == layerMax)) {
-                    // Found a match. Create the move.
-                    if (doubleLayer) {
-                        move = move.toLowerCase();
+                // Look for the move in faceToRotation.
+                for ( var move in faceToRotation) {
+                    var rotation = faceToRotation[move];
+                    if ((rotation[1] == axis) && (rotation[2] == layerMin)
+                            && (rotation[3] == layerMax)) {
+                        // Found a match. Create the move.
+                        if (doubleLayer) {
+                            move = move.toLowerCase();
+                        }
+                        if (rotation[0] !== sign) {
+                            // Either the direction of the unmodified move in
+                            // the table, or the direction the user specified
+                            // about the axis, is negative. Go the other way.
+                            move += "'";
+                        }
+
+                        // Queue the move up.
+                        enqueueMove(move);
+
+                        // If the user made a move they probably don't care
+                        // about the message.
+                        animateClearStatus();
+
+                        break;
                     }
-                    if (rotation[0] !== sign) {
-                        // Either the direction of the unmodified move in the
-                        // table, or the direction the user specified about the
-                        // axis, is negative. Go the other way.
-                        move += "'";
-                    }
-
-                    // Queue the move up.
-                    enqueueMove(move);
-
-                    // If the user made a move they probably don't care about
-                    // the message.
-                    animateClearStatus();
-
-                    break;
                 }
             }
         }
-        moveStart = null;
+        if (!mobile || (mobile && !event.touches.length)) {
+            // If this was the last touch then the above must have processed
+            // all of the moveBegins.
+            moveBegins.length = 0;
+        }
         animateCondReq(true);
     }
 
@@ -535,15 +555,6 @@ function onTouchMove(event) {
     // Prevent the browser from scrolling or otherwise attempting to respond
     // to the event.
     event.preventDefault();
-
-    if (event.touches.length) {
-        // Support multiple touches. Average?
-        lastTouchX = event.touches[0].pageX;
-        lastTouchY = event.touches[0].pageY;
-    } else {
-        lastTouchX = null;
-        lastTouchY = null;
-    }
 }
 
 function preventDefault(event) {
