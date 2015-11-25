@@ -2,6 +2,8 @@
 
 // Globals
 
+var downX = 0;
+var downY = 0;
 var escLast = false;
 var helpDisplayed = false;
 var keyMap = {};
@@ -9,6 +11,7 @@ var keyMapSize = 0;
 var lastTouchX;
 var lastTouchY;
 var moveStart = null;
+var moveThreshold = 20; // TODO: Add to settings.
 var rotationLock = false;
 var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
@@ -16,10 +19,10 @@ var buttonFlashDelay = 300;
 var scramblerInitialized = false;
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
-var helpButtonList = [ {
+var helpButtonList = [{
     label : "Close",
     func : helpClose
-} ];
+}];
 
 // Public methods
 
@@ -283,8 +286,8 @@ function onKeyDown(event) {
             }
             setTimeout(function() {
                 scramble();
-                animateUpdateStatus("Scrambled " + (newCube ? "new " :
-                    " ") + "cube");
+                animateUpdateStatus("Scrambled " + (newCube ? "new " : " ")
+                        + "cube");
             }, 10);
             break;
         case "K": // Toggle rotation lock.
@@ -310,8 +313,7 @@ function onKeyDown(event) {
             animateCondReq(true);
             break;
         case "P": // (P)ersistent storage clear
-            if ((buttonBar && confirm("Reset all settings?"))
-                    || (alt && shift)) {
+            if ((buttonBar && confirm("Reset all settings?")) || (alt && shift)) {
                 // This message probably won't be seen.
                 animateUpdateStatus("Reset all settings");
                 initClearStorage();
@@ -368,6 +370,14 @@ function onMouseDown(event) {
             var x = event.clientX;
             var y = event.clientY;
         }
+        downX = x;
+        downY = y;
+        if (mobile) {
+            // Make mobile work even if a touchmove event was not generated.
+            lastTouchX = x;
+            lastTouchY = y;
+        }
+
         // Left mouse button was clicked.
         moveStart = cubiesEventToCubeCoord(x, y, null);
 
@@ -405,7 +415,24 @@ function onMouseUp(event) {
             var x = event.clientX;
             var y = event.clientY;
         }
-        var moveEnd = cubiesEventToCubeCoord(x, y, moveStart.axis);
+
+        var mouseMoved = (Math.abs(x - downX) + Math.abs(y - downY)) > moveThreshold;
+        if (mouseMoved) {
+            // The mouse was moved significantly since mouseDown.
+            var moveEnd = cubiesEventToCubeCoord(x, y, moveStart.axis);
+        } else {
+            // A single click without movement.
+            var moveEnd = {};
+            moveEnd.axis = moveStart.axis;
+            moveEnd.pos = moveStart.pos.clone();
+
+            // The moveFaceDirection is from the center of the face clicked
+            // to moveStart.  The rotation torque will be calculated as if the
+            // mouse movement was this direction.
+            var moveFaceDirection = moveEnd.pos.clone();
+            moveFaceDirection[moveEnd.axis] = 0;
+            moveEnd.pos.add(moveFaceDirection);
+        }
         if (moveEnd) {
             // Assuming cube was touched at moveStart and moveStart to moveEnd
             // is the direction force was applied calculate the torque given the
@@ -427,8 +454,20 @@ function onMouseUp(event) {
             // gap between layers.
             var layerStart = (moveStart.pos[axis] < -cubiesSep) ? -1
                     : ((moveStart.pos[axis] > cubiesSep) ? 1 : 0);
-            var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
-                    : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
+            if (mouseMoved) {
+                var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
+                        : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
+            } else {
+                if ((Math.abs(moveFaceDirection.x) < cubiesSep)
+                        && (Math.abs(moveFaceDirection.y) < cubiesSep)
+                        && (Math.abs(moveFaceDirection.z) < cubiesSep)) {
+                    // A middle was clicked - whole cube rotation.
+                    layerStart = -1;
+                    var layerEnd = 1;
+                } else {
+                    var layerEnd = layerStart;
+                }
+            }
 
             if (Math.abs(layerStart - layerEnd) == 1) {
                 // Since double layer moves are not in the faceToRotation
