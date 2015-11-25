@@ -6,6 +6,18 @@ var escLast = false;
 var helpDisplayed = false;
 var keyMap = {};
 var keyMapSize = 0;
+var keyNumericMap = {
+    "0" : "A",
+    "1" : "G",
+    "2" : "H",
+    "3" : "I",
+    "4" : "J",
+    "5" : "K",
+    "6" : "N",
+    "7" : "O",
+    "8" : "P",
+    "9" : "T"
+};
 var moveBegins = [];
 var moveThreshold = 30;
 var rotationLock = false;
@@ -161,6 +173,17 @@ function onKeyDown(event) {
             } else {
                 console.log("Unknown keyMap value \"" + keyMapValue + "\".");
             }
+        }
+    }
+
+    if ((eventChar >= "0") && (eventChar <= "9")) {
+        // Convert the alternate numeric key to a command key.
+        var eventCharOld = eventChar;
+        eventChar = keyNumericMap[eventChar];
+        if (!eventChar) {
+            // Should not happen.
+            console.log("Could not find numeric key \"" + eventChar + "\".");
+            eventChar = eventCharOld;
         }
     }
 
@@ -388,8 +411,10 @@ function onMouseDown(event) {
 
     // The user may be adjusting the camera if a mouse button is done. When
     // in doubt animate.
-    cameraAdjusting = true;
-    animateCondReq(true);
+    if (orbitControls.enabled) {
+        cameraAdjusting = true;
+        animateCondReq(true);
+    }
 }
 
 function onMouseUp(event) {
