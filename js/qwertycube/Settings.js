@@ -36,6 +36,8 @@ var settingsVarNameDescs = [
     ["moveHistory", false, false, "All moves made since loading the page."],
     ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
     ["moveSec", true, false, "Number of moves per second when replaying."],
+    ["moveThreshold", true, false, "Mouse movements must be at least this many pixels.  Less is interpreted" +
+             "as a single click."],
     ["rotationLock", true, false, "If true then the cube is not rotated by clicking and moving on the grey " +
             "background.  Instead, those clicks are interpreted as cube moves.  This both prevents accidental" +
             "rotations and it makes it possible to have less precise mouse/touch movements for cube moves."],

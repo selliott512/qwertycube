@@ -7,7 +7,7 @@ var helpDisplayed = false;
 var keyMap = {};
 var keyMapSize = 0;
 var moveBegins = [];
-var moveThreshold = 30; // TODO: Add to settings.
+var moveThreshold = 30;
 var rotationLock = false;
 var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
