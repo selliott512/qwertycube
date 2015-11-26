@@ -14,7 +14,7 @@ var settingsInitialText =
 
 // Each entry is name, persist, new-cube, description
 var settingsVarNameDescs = [
-    ["animation", true, false, "If true then show animation as the cube moves. \"A\" toggles."],
+    ["animationInst", true, false, "If true then moves happen instantaneously. \"A\" toggles."],
     ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
     ["cameraLocation", true, false, "Location of the camera."],
     ["cubiesColorBackground", true, false, "Background color to use.  Some color names work as well as 0xRRGGBB."],

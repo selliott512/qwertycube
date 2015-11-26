@@ -30,8 +30,7 @@ var mainButtonList = [ {
 }, {
     label : "Inst",
     key : "A",
-    toggle: "animation",
-    inverse: true
+    toggle: "animationInst",
 }, {
     label : "Savepoint",
     key : "C"
@@ -46,7 +45,7 @@ var mainButtonList = [ {
     key : "G"
 }, {
     label : "Color",
-    key : "G"
+    key : "Q"
 }, {
     label : "Redo",
     key : "SG"

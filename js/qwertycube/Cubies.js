@@ -60,6 +60,8 @@ var colorTable = {
     "std-white" : stdWhiteColors
 };
 
+var colorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
+
 // The above, but in to material instead of number.
 var colorMatts = {};
 

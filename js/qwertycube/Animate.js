@@ -2,7 +2,7 @@
 
 // Globals
 
-var animation = true;
+var animationInst = false;
 var animationLimit = 2;
 var animateNeeded = false;
 var animationRequested = false;
@@ -423,7 +423,7 @@ function doAnimate() {
                 // A new move. Prepare the cubies to be rotated.
                 rotateBegin(moveCurrent, rotationCurrent, false);
                 if (rotationCurrent) {
-                    if (animation) {
+                    if (!animationInst) {
                         moveStartMsec = Date.now();
                     }
                     // Start the timer if it was inspection and the user did
@@ -455,7 +455,7 @@ function doAnimate() {
             // angleMax and angleGoal are always positive - the absolute value
             // of the actual angle.
             var angleMax = (rotationCurrent[4] === 2) ? Math.PI : Math.PI / 2.0;
-            if (animation && (moveQueue.length <= animationLimit)) {
+            if ((!animationInst) && (moveQueue.length <= animationLimit)) {
                 var elapsedMsec = Date.now() - moveStartMsec;
                 var angleGoal = elapsedMsec * moveRadMsec;
                 if (angleGoal >= angleMax) {

@@ -198,7 +198,8 @@ function onKeyDown(event) {
                 animateClearStatus();
                 return;
             } else {
-                console.log("Unknown keyMapTotal value \"" + keyMapValue + "\".");
+                console.log("Unknown keyMapTotal value \"" + keyMapValue
+                        + "\".");
             }
         }
     }
@@ -243,9 +244,10 @@ function onKeyDown(event) {
         switch (eventChar) {
         // A lot of good letters were already taken.
         case "A": // (A)nimation toggle
-            animation = !animation;
+            animationInst = !animationInst;
             var msg = "Animation is "
-                    + (animation ? ("on at " + moveSec + " TPS") : "off");
+                    + (animationInst ? "instantaneous"
+                            : ("on at " + moveSec + " TPS"));
             animateUpdateStatus(msg);
             break;
         case "C": // (C)heckpoint
@@ -384,7 +386,18 @@ function onKeyDown(event) {
             }
             break;
         case "Q": // Color (Q)uality cycle.
-            cubiesColorScheme = "std-white";
+            // Find the current color scheme.
+            var i = colorTableKeys.indexOf(cubiesColorScheme);
+            if (i !== -1) {
+                i = (++i) % colorTableKeys.length;
+                cubiesColorScheme = colorTableKeys[i];
+                animateUpdateStatus("Color scheme " + cubiesColorScheme
+                        + " for next cube");
+            } else {
+                // This ssould not happen
+                console.log("Unknown color scheme \"" + cubiesColorScheme
+                        + "\".");
+            }
             break;
         case "T": // (T)imer
             timer = !timer;
