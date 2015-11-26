@@ -29,6 +29,7 @@ var settingsVarNameDescs = [
     ["cubiesSize", true, true, "The size of each cubie."],
     ["dispOrientationLabels", true, false, "Display labels that to show the orientation \"O\" toggles)."],
     ["flashHelp", true, false, "If true then flash the Help button on load and inform the user to click it."],
+    ["heise", true, false, "If true use Heise key mapping instead of the standard RLUDFB."],
     ["keyMap", true, false, "Key map.  Space separated list of key mapping items where each item has the form " +
             "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
             "before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +

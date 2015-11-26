@@ -4,8 +4,35 @@
 
 var escLast = false;
 var helpDisplayed = false;
+var heise = false;
+var heiseMap = {
+    A : "mY'",
+    B : "mX'",
+    D : "mL",
+    E : "mL'",
+    F : "mU'",
+    G : "mF'",
+    H : "mF",
+    I : "mR",
+    J : "mU",
+    K : "mR'",
+    L : "mD'",
+    M : "mr'",
+    N : "mX'",
+    O : "mB'",
+    P : "mZ",
+    Q : "mZ'",
+    R : "ml'",
+    S : "mD",
+    T : "mX",
+    U : "mr",
+    V : "ml",
+    W : "mB",
+    Y : "mX"
+};
 var keyMap = {};
 var keyMapSize = 0;
+var keyMapTotal = {};
 var keyNumericMap = {
     "0" : "A",
     "1" : "G",
@@ -144,14 +171,14 @@ function onKeyDown(event) {
 
     // Apply a keymap, if any. If it came from the button bar interpret as is
     // without mapping.
-    if (keyMapSize && !buttonBar) {
+    if ((heise || keyMapSize) && !buttonBar) {
         // Look for the keystroke in the keymap.
         // Order matters here.
         var prefix = (alt ? "A" : "") + (shift ? "S" : "");
-        var keyMapValue = keyMap[prefix + eventChar];
+        var keyMapValue = keyMapTotal[prefix + eventChar];
         if (!keyMapValue) {
             // If the character could not be found try the key code.
-            keyMapValue = keyMap[prefix + event.keyCode];
+            keyMapValue = keyMapTotal[prefix + event.keyCode];
         }
         if (keyMapValue) {
             if (keyMapValue[0] == "k") {
@@ -171,7 +198,7 @@ function onKeyDown(event) {
                 animateClearStatus();
                 return;
             } else {
-                console.log("Unknown keyMap value \"" + keyMapValue + "\".");
+                console.log("Unknown keyMapTotal value \"" + keyMapValue + "\".");
             }
         }
     }
@@ -356,10 +383,23 @@ function onKeyDown(event) {
                 }
             }
             break;
+        case "Q": // Color (Q)uality cycle.
+            cubiesColorScheme = "std-white";
+            break;
         case "T": // (T)imer
             timer = !timer;
             console.log("timer: " + timer);
             animateCondReq(true);
+            break;
+        case "V": // Heise
+            heise = !heise;
+            keyMapTotal = copyMap(heise ? heiseMap : keyMap);
+            if (!heise) {
+                for ( var item in keyMap) {
+                    keyMapTotal[item] = keyMap[item];
+                }
+            }
+            animateUpdateStatus((heise ? "Heise" : "RLUDFB") + " key mapping");
             break;
         default:
             console.log("Ignoring unknown key \"" + eventChar + "\".");

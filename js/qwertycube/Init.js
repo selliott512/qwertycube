@@ -11,6 +11,10 @@ var mainButtonList = [ {
     key : "T",
     toggle : "timer"
 }, {
+    label : "Heise",
+    key : "V",
+    toggle: "heise"
+}, {
     label : "Scramble",
     key : "J"
 }, {
@@ -24,6 +28,11 @@ var mainButtonList = [ {
     key : "K",
     toggle : "rotationLock"
 }, {
+    label : "Inst",
+    key : "A",
+    toggle: "animation",
+    inverse: true
+}, {
     label : "Savepoint",
     key : "C"
 }, {
@@ -34,6 +43,9 @@ var mainButtonList = [ {
     key : "AG"
 }, {
     label : "Undo",
+    key : "G"
+}, {
+    label : "Color",
     key : "G"
 }, {
     label : "Redo",
