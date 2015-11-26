@@ -245,9 +245,9 @@ function onKeyDown(event) {
         // A lot of good letters were already taken.
         case "A": // (A)nimation toggle
             animationInst = !animationInst;
-            var msg = "Animation is "
-                    + (animationInst ? "instantaneous"
-                            : ("on at " + moveSec + " TPS"));
+            var msg = "Animation "
+                    + (animationInst ? "is instantaneous"
+                            : ("at " + moveSec + " TPS"));
             animateUpdateStatus(msg);
             break;
         case "C": // (C)heckpoint

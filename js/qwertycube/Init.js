@@ -129,7 +129,7 @@ function initAddUpdateButtons(buttonList) {
 
         // Make the literal reasonably large.
         buttonEl.style.fontSize = Math.floor(buttonHeight
-                / (mobile ? 2.2 : 1.5))
+                / (mobile ? 2.4 : 1.6))
                 + "px";
 
         // Make it handle the click event as if it was a key event.
