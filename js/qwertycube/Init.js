@@ -100,6 +100,11 @@ function initAddUpdateButtons(buttonList) {
     var buttonTopOffset = (buttonRowsMax - rows) * buttonHeight;
     primaryHeight = canvasHeight + buttonTopOffset;
 
+    if (!buttonHeight) {
+        // No need to add buttons that have no height.
+        return;
+    }
+
     // Zero based rows and columns.
     var row = 0;
     var col = 0;
