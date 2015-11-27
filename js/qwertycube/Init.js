@@ -378,9 +378,12 @@ function setup() {
             antialias : true
         });
     } else {
-        alert("WebGL is not supported for your browser.  Using Canvas "
-                + "Renderer, which may be slow.");
-        renderer = new THREE.CanvasRenderer();
+        // TODO: Consider adding CanvasRenderer as a fallback, but maybe it's
+        // better for people to upgrade their browsers.
+        animateUpdateStatus("WebGL is not supported.");
+        renderer = null;
+        // So it's not overritten by the help message.
+        helpFlashed = true;
     }
 
     initSetBackgroundColor();
