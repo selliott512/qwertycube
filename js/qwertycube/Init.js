@@ -3,7 +3,7 @@
 // Globals
 
 // Buttons that appear at the bottom. Row is zero based.
-var mainButtonList = [ {
+var mainButtonList = [{
     label : "Help",
     key : "H",
 }, {
@@ -13,7 +13,7 @@ var mainButtonList = [ {
 }, {
     label : "Heise",
     key : "V",
-    toggle: "heise"
+    toggle : "heise"
 }, {
     label : "Scramble",
     key : "J"
@@ -30,7 +30,7 @@ var mainButtonList = [ {
 }, {
     label : "Inst",
     key : "A",
-    toggle: "animationInst",
+    toggle : "animationInst",
 }, {
     label : "Savepoint",
     key : "C"
@@ -52,7 +52,7 @@ var mainButtonList = [ {
 }, {
     label : "Redo All",
     key : "ASG"
-} ];
+}];
 
 var buttonKeyToElMap = {};
 var buttonRowsMax = 0;
@@ -71,7 +71,7 @@ var statusEl;
 var timerEl;
 
 // Strings that moves can be suffixed with.
-var moveSuffixes = [ "", "'", "2" ];
+var moveSuffixes = ["", "'", "2"];
 
 // Prefix to apply to entries in localStorage.
 var presistentPrefix = "QC";
@@ -87,8 +87,14 @@ function initAddUpdateButtons(buttonList) {
         buttonBarEl.removeChild(buttonBarEl.lastChild);
     }
 
-    // Allow more rows on mobile.
-    buttonRowsMax = mobile ? 3 : 1;
+    // Allow more rows on mobile by default.
+    if (buttonStyle === "portrait") {
+        buttonRowsMax = 3;
+    } else if (buttonStyle === "landscape") {
+        buttonRowsMax = 1;
+    } else if (buttonStyle === "auto") {
+        buttonRowsMax = mobile ? 3 : 1;
+    }
 
     var rows = Math
             .min(Math.floor(buttonList.length / 4 + 0.99), buttonRowsMax);
@@ -162,7 +168,7 @@ function initAddUpdateButtons(buttonList) {
         buttonBarEl.appendChild(buttonEl);
 
         // Keep a reference the button variables.
-        buttonKeyToElMap[button.key] = [ buttonEl, button ];
+        buttonKeyToElMap[button.key] = [buttonEl, button];
 
         col++;
     }

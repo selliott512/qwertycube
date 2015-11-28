@@ -9,6 +9,7 @@ var animationRequested = false;
 var aspectRatio = 0.0;
 var buttonBarHeight = 0;
 var buttonHeightScale = 1.0;
+var buttonStyle = "auto";
 var camera;
 var cameraAdjusting = false;
 var cameraLocation = [470, 470, 470];
@@ -96,8 +97,15 @@ function animateResize() {
     // won't use this on their phones in landscape mode much since there's no
     // reason to. For non-mobile mice the screen is bigger and mice are more
     // precise pointers, so less space.
+    if (buttonStyle === "portrait") {
+        var buttonBarHeightFraction = 0.2;
+    } else if (buttonStyle === "landscape") {
+        var buttonBarHeightFraction = 0.03333;
+    } else if (buttonStyle === "auto") {
+        var buttonBarHeightFraction = mobile ? 0.2 : 0.03333;
+    }
     buttonBarHeight = buttonHeightScale
-            * Math.floor((mobile ? 0.2 : 0.03333) * window.innerHeight);
+            * Math.floor(buttonBarHeightFraction * window.innerHeight);
     buttonBarEl.style.height = buttonBarHeight + "px";
     containerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
     canvasHeight = containerEl.clientHeight;

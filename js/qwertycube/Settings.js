@@ -17,6 +17,9 @@ var settingsVarNameDescs = [
     ["animationInst", true, false, "If true then moves happen instantaneously. \"A\" toggles."],
     ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
     ["buttonHeightScale", true, false, "Scale the height of the buttons.  0 for no buttons."],
+    ["buttonStyle", true, false, "How the buttons are aranged at the button of the screen.  Choices are " +
+             "\"portrait\" (3 rows), \"landscape\" (1 row) or \"auto\" (3 rows for mobile and 1 row for " +
+              "non-mobile)."],
     ["cameraLocation", true, false, "Location of the camera."],
     ["cubiesColorBackground", true, false, "Background color to use.  Some color names work as well as 0xRRGGBB."],
     ["cubiesColorOverrides", true, true, "Color overrides.  Space separated list of color override items " +
