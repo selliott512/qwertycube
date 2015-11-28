@@ -161,8 +161,10 @@ function animateNewCube() {
     moveHistoryNext = 0;
     rotateEnd();
     animateResetScene();
-    timerState = "solve";
-    timerStart = Date.now();
+    if (!settingsDisplayed) {
+        timerState = "solve";
+        timerStart = Date.now();
+    }
     animateCondReq(true);
 }
 
