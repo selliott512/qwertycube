@@ -355,7 +355,7 @@ function fillMoveToRotation() {
 
 function fillScene() {
     scene = new THREE.Scene();
-    cubies = new cubiesCreate();
+    cubiesCreate(null);
     text = new textCreate();
 
     pivot = new THREE.Object3D();

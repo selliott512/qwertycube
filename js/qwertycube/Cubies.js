@@ -70,12 +70,12 @@ var colorValues;
 
 // How axis relate to the offset in standard facelets order.
 var faceletAxisMults = {
-    U : [ 1, 0, 3 ],
-    R : [ 0, -3, -1 ],
-    F : [ 1, -3, 0 ],
-    D : [ 1, 0, -3 ],
-    L : [ 0, -3, 1 ],
-    B : [ -1, -3, 0 ]
+    U : [1, 0, 3],
+    R : [0, -3, -1],
+    F : [1, -3, 0],
+    D : [1, 0, -3],
+    L : [0, -3, 1],
+    B : [-1, -3, 0]
 }
 
 // Used to index into cubiesInitFacelets
@@ -83,7 +83,8 @@ var faceletOrder = "URFDLB";
 
 // Public methods
 
-function cubiesCreate() {
+function cubiesCreate(oldCubies) {
+    var cbs = [];
     initMaterials();
 
     var cubieGeometry = new THREE.BoxGeometry(cubiesSize, cubiesSize,
@@ -108,11 +109,10 @@ function cubiesCreate() {
         }
         var cubieMesh = new THREE.Mesh(cubieGeometry,
                 new THREE.MeshFaceMaterial(sideMaterial));
-        cubies.push(cubieMesh);
+        cbs.push(cubieMesh);
     }
-    positionCubies();
-
-    return cubies;
+    cubies = cbs;
+    positionCubies(oldCubies);
 }
 
 // Convert cubie number to a vector that describes the initial solved location
@@ -140,7 +140,7 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     var bestMove = null;
     var bestMoveScore = 1000000;
 
-    var axes = onAxis ? [ onAxis ] : [ "x", "y", "z" ];
+    var axes = onAxis ? [onAxis] : ["x", "y", "z"];
     for (var i = 0; i <= axes.length; i++) {
         var axis = axes[i];
         // Of the two sides for each axis we only need to consider the one
@@ -289,7 +289,7 @@ function faceVectorToFacelet(face, vec) {
 // simple rotation letter type of move it is elsewhere.
 function getMoveScore(move) {
     var score = 0;
-    var axes = [ "x", "y", "z" ];
+    var axes = ["x", "y", "z"];
     for (var i = 0; i <= axes.length; i++) {
         var axis = axes[i];
         if (axis !== move.axis) {
@@ -322,8 +322,16 @@ function initMaterials() {
 }
 
 // Set the location of the cubies.
-function positionCubies() {
-    for (var num = 0; num < 27; num++) {
-        cubies[num].position.copy(cubiesNumberToInitVector3(num));
+function positionCubies(oldCubies) {
+    if (oldCubies) {
+        // Set the position and angle based on the old cubies.
+        for (var i = 0; i < cubies.length; i++) {
+            cubies[i].position.copy(oldCubies[i].position);
+            cubies[i].rotation.copy(oldCubies[i].rotation);
+        }
+    } else {
+        for (var num = 0; num < 27; num++) {
+            cubies[num].position.copy(cubiesNumberToInitVector3(num));
+        }
     }
 }

@@ -391,13 +391,13 @@ function onKeyDown(event) {
             if (i !== -1) {
                 i = (++i) % colorTableKeys.length;
                 cubiesColorScheme = colorTableKeys[i];
-                animateUpdateStatus("Color scheme " + cubiesColorScheme
-                        + " for next cube");
+                animateUpdateStatus("Color scheme " + cubiesColorScheme);
             } else {
                 // This ssould not happen
                 console.log("Unknown color scheme \"" + cubiesColorScheme
                         + "\".");
             }
+            animateResetScene(cubies);
             break;
         case "T": // (T)imer
             timer = !timer;

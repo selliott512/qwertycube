@@ -71,15 +71,14 @@ function animateCondReq(needed) {
     }
 }
 
-function animateResetScene() {
+function animateResetScene(oldCubies) {
     // Remove the existing cubies.
     for (var i = 0; i < cubies.length; i++) {
         scene.remove(cubies[i]);
     }
 
     // Create a new list of cubies.
-    cubies.length = 0;
-    cubies = new cubiesCreate();
+    cubiesCreate(oldCubies);
     for (var i = 0; i < cubies.length; i++) {
         scene.add(cubies[i]);
     }
@@ -160,7 +159,7 @@ function animateNewCube() {
     moveHistory.length = 0;
     moveHistoryNext = 0;
     rotateEnd();
-    animateResetScene();
+    animateResetScene(null);
     if (!settingsDisplayed) {
         timerState = "solve";
         timerStart = Date.now();
