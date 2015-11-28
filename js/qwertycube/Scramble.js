@@ -4,6 +4,7 @@
 
 var scrambleMoves = [];
 var scrambleCount = 30;
+var scrambleJSSMax = 21; // Observed maximum for JSS.
 var scrambleType = "jsss";
 
 // Discard moves that produce the same cube a second time, which seems to be

@@ -411,102 +411,110 @@ function doAnimate() {
     if (!timerOnly) {
         // Something other than the timer needs to be updated.
         orbitControls.update();
-        var endMove = false;
 
         // Display or hide the orientation labels.
         textSetVisible(dispOrientationLabels);
 
-        if (!moveCurrent) {
-            // Keeping moveCurrent and rotationCurrent in sync depends on a
-            // false value never being enqueued.
-            moveCurrent = moveQueue.shift();
-            if (moveCurrent) {
-                rotationCurrent = rotationQueue.shift();
-                if (rotationCurrent) {
-                    // Consolidate moves before beginning a new move.
-                    if (consolidateMoves()) {
-                        // This is the unlikely case given how the event
-                        // handling works.
-                        console.log("Consolidated before rotateBegin for "
-                                + "move " + moveCurrent);
+        // If moveQueue is longer than a typical scramble (scrambleJSSMax) then
+        // replay all of the moves prior to a typical scramble as quickly as
+        // possible without updating the screen.
+        do {
+            var endMove = false;
+            if (!moveCurrent) {
+                // Keeping moveCurrent and rotationCurrent in sync depends on a
+                // false value never being enqueued.
+                moveCurrent = moveQueue.shift();
+                if (moveCurrent) {
+                    rotationCurrent = rotationQueue.shift();
+                    if (rotationCurrent) {
+                        // Consolidate moves before beginning a new move.
+                        if (consolidateMoves()) {
+                            // This is the unlikely case given how the event
+                            // handling works.
+                            console.log("Consolidated before rotateBegin for "
+                                    + "move " + moveCurrent);
+                        }
                     }
-                }
-                // A new move. Prepare the cubies to be rotated.
-                rotateBegin(moveCurrent, rotationCurrent, false);
-                if (rotationCurrent) {
-                    if (!animationInst) {
-                        moveStartMsec = Date.now();
-                    }
-                    // Start the timer if it was inspection and the user did
-                    // something other than rotate the entire cube.
-                    if ((timerState == "inspect")
-                            && !isFullCubeRotation(rotationCurrent)) {
-                        timerState = "solve";
-                        timerStart = Date.now();
+                    // A new move. Prepare the cubies to be rotated.
+                    rotateBegin(moveCurrent, rotationCurrent, false);
+                    if (rotationCurrent) {
+                        if (!animationInst) {
+                            moveStartMsec = Date.now();
+                        }
+                        // Start the timer if it was inspection and the user did
+                        // something other than rotate the entire cube.
+                        if ((timerState == "inspect")
+                                && !isFullCubeRotation(rotationCurrent)) {
+                            timerState = "solve";
+                            timerStart = Date.now();
+                        }
                     }
                 }
             }
-        }
 
-        if (rotationCurrent) {
-            // Consolidate now just in case a new move is waiting.
-            var consolidateCount = consolidateMoves();
-            if (consolidateCount) {
-                // Rotate the current move back to where it started.
-                pivot.rotation[rotationCurrent[1]] = 0.0;
-                renderer.render(scene, camera);
+            if (rotationCurrent) {
+                // Consolidate now just in case a new move is waiting.
+                var consolidateCount = consolidateMoves();
+                if (consolidateCount) {
+                    // Rotate the current move back to where it started.
+                    pivot.rotation[rotationCurrent[1]] = 0.0;
+                    renderer.render(scene, camera);
 
-                // End the current rotation and then begin a new one with the
-                // new consolidated move.
-                rotateEnd();
-                rotateBegin(moveCurrent, rotationCurrent, true);
-            }
+                    // End the current rotation and then begin a new one with
+                    // the new consolidated move.
+                    rotateEnd();
+                    rotateBegin(moveCurrent, rotationCurrent, true);
+                }
 
-            // Apply the next animation step to the prepared cubies.
-            // angleMax and angleGoal are always positive - the absolute value
-            // of the actual angle.
-            var angleMax = (rotationCurrent[4] === 2) ? Math.PI : Math.PI / 2.0;
-            if ((!animationInst) && (moveQueue.length <= animationLimit)) {
-                var elapsedMsec = Date.now() - moveStartMsec;
-                var angleGoal = elapsedMsec * moveRadMsec;
-                if (angleGoal >= angleMax) {
-                    angleGoal = angleMax;
+                // Apply the next animation step to the prepared cubies.
+                // angleMax and angleGoal are always positive - the absolute
+                // value of the actual angle.
+                var angleMax = (rotationCurrent[4] === 2) ? Math.PI
+                        : Math.PI / 2.0;
+                if ((!animationInst) && (moveQueue.length <= animationLimit)) {
+                    var elapsedMsec = Date.now() - moveStartMsec;
+                    var angleGoal = elapsedMsec * moveRadMsec;
+                    if (angleGoal >= angleMax) {
+                        angleGoal = angleMax;
+                        endMove = true;
+                    }
+                } else {
+                    var angleGoal = angleMax;
                     endMove = true;
                 }
+                pivot.rotation[rotationCurrent[1]] = rotationCurrent[0]
+                        * angleGoal;
             } else {
-                var angleGoal = angleMax;
+                moveCurrent = null;
                 endMove = true;
             }
-            pivot.rotation[rotationCurrent[1]] = rotationCurrent[0] * angleGoal;
-        } else {
-            moveCurrent = null;
-            endMove = true;
-        }
 
-        renderer.render(scene, camera);
-        rendered = true; // True if rendering has been done at least once.
+            renderer.render(scene, camera);
+            rendered = true; // True if rendered at least once.
 
-        if (endMove) {
-            rotateEnd();
-            if (!moveQueue.length) {
-                if (timerState === "scramble") {
-                    // If the last move of the scramble was made then begin the
-                    // inspection phase.
-                    timerState = "inspect";
-                    timerStart = Date.now();
-                } else if (timerState === "solve" && moveHistory.length
-                        && !isFullCubeRotation(rotationCurrent)) {
-                    if (cubiesSolved()) {
-                        timerState = "solved";
-                        timerSolved = Date.now();
+            if (endMove) {
+                rotateEnd();
+                if (!moveQueue.length) {
+                    if (timerState === "scramble") {
+                        // If the last move of the scramble was made then begin
+                        // the
+                        // inspection phase.
+                        timerState = "inspect";
+                        timerStart = Date.now();
+                    } else if (timerState === "solve" && moveHistory.length
+                            && !isFullCubeRotation(rotationCurrent)) {
+                        if (cubiesSolved()) {
+                            timerState = "solved";
+                            timerSolved = Date.now();
+                        }
                     }
+                    // We're done replaying moves.
+                    moveHistoryNextLast = -1;
                 }
-                // We're done replaying moves.
-                moveHistoryNextLast = -1;
+                moveCurrent = null;
+                rotationCurrent = null;
             }
-            moveCurrent = null;
-            rotationCurrent = null;
-        }
+        } while (moveQueue.length > scrambleJSSMax);
         animateUpdateStatus(null);
         animateUpdateTimer();
     } else {
