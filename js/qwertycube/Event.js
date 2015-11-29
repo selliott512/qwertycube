@@ -220,28 +220,6 @@ function onKeyDown(event) {
             eventChar = eventCharOld;
         }
     }
-    // Make sure we don't process key combinations this program does not
-    // understand - only the browser should.
-    if (alt || shift) {
-        var valid = false;
-        var alloweds = keyAllowedModifiersMap[eventChar];
-        if (alloweds) {
-            for (i = 0; i < alloweds.length; i++) {
-                var allowed = alloweds[i];
-                if (((allowed === "A") && alt && !shift)
-                        || ((allowed === "S") && !alt && shift)
-                        || ((allowed === "AS") && alt && shift)) {
-                    valid = true;
-                }
-            }
-        }
-        if (!valid) {
-            console.log("Ignoring  key " + eventChar + " with "
-                    + "invalid alt or shift modifiers.  Allowed: "
-                    + (alloweds ? alloweds : "none"));
-            return;
-        }
-    }
 
     // Dismiss any existing status message upon a key event as it probably
     // means the user is no longer reading the message.
@@ -268,6 +246,30 @@ function onKeyDown(event) {
         escLast = false;
     } else if (!helpDisplayed) {
         // Special keys
+
+        // Make sure we don't process key combinations this program does not
+        // understand - only the browser should.
+        if (alt || shift) {
+            var valid = false;
+            var alloweds = keyAllowedModifiersMap[eventChar];
+            if (alloweds) {
+                for (i = 0; i < alloweds.length; i++) {
+                    var allowed = alloweds[i];
+                    if (((allowed === "A") && alt && !shift)
+                            || ((allowed === "S") && !alt && shift)
+                            || ((allowed === "AS") && alt && shift)) {
+                        valid = true;
+                    }
+                }
+            }
+            if (!valid) {
+                console.log("Ignoring  key " + eventChar + " with "
+                        + "invalid alt or shift modifiers.  Allowed: "
+                        + (alloweds ? alloweds : "none"));
+                return;
+            }
+        }
+
         var validEventChar = true;
         switch (eventChar) {
         // A lot of good letters were already taken.
