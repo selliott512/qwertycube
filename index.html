@@ -32,7 +32,9 @@
       Shift be pressed at the same time. For moves Alt and Shift make the
       move double layer and inverse respectively.  All three middle moves and
       entire cube rotations (x, y and z) are supported.  The keys can be
-      reconfigured (see "Settings").  </p>
+      reconfigured (see "Settings").  Note that some of the command keys have
+      numeric alternatives.  This is helpful when the Heise key mapping is
+      active.</p>
       <p/>
       <h3>Mouse And Touch</h3>
       <p>Mouse and touch support should be intuitive, but there are some things
@@ -47,6 +49,11 @@
 	  double layer move (r, etc.) or even the entire cube (x, etc.).  To move
       multiple layers the swipe should cross a layer boundary.  All touched
       layers will rotate.</p>
+      <p>Clicking the mouse on the cube and not moving (a single click) will 
+      also produce a cube movement.  In all cases the move direction is toward
+      the side closest to the click.  For edge stickers a single move is
+      possible.  For corners, two moves are possible.  For middle stickers any
+      of the four directions are possible for an entire cube rotation.</p>
       <p/>
       <h3>Savepoints</h3>
       <p>If the cube is in a state that you want to get back to later then click
@@ -114,9 +121,9 @@
           <th>Description</th>
         </tr>
         <tr>
-          <td>A</td>
-          <td></td>
-          <td>Toggle animation</td>
+          <td>A or 0</td>
+          <td>Inst</td>
+          <td>Toggle instantaneous animation</td>
         </tr>
         <tr>
           <td>C</td>
@@ -124,49 +131,59 @@
           <td>Set a savepoint.  Try with Alt-G.</td>
         </tr>
         <tr>
-          <td>G</td>
+          <td>G or 1</td>
           <td>Undo</td>
           <td>Undo last move. Shift to redo</td>
         </tr>
         <tr>
-          <td>H</td>
+          <td>H or 2</td>
           <td>Help</td>
           <td>Display this help message</td>
         </tr>
         <tr>
-          <td>I</td>
+          <td>I or 3</td>
           <td>Settings</td>
           <td>Display the settings</td>
         </tr>
         <tr>
-          <td>J</td>
+          <td>J or 4</td>
           <td>Scramble</td>
           <td>Scramble the cube.  By default jsss is used.</td>
         </tr>
         <tr>
-          <td>K</td>
+          <td>K or 5</td>
           <td>Lock</td>
           <td>Rotation lock.  Prevent cube rotations.</td>
         </tr>
         <tr>
-          <td>N</td>
+          <td>N or 6</td>
           <td>New</td>
           <td>New solved cube</td>
         </tr>
         <tr>
-          <td>O</td>
+          <td>O or 7</td>
           <td></td>
           <td>Toggle orientation labels</td>
         </tr>
         <tr>
-          <td>P</td>
+          <td>P or 8</td>
           <td>Reset</td>
           <td>Persistent storage clear (factory reset)</td>
         </tr>
         <tr>
-          <td>T</td>
+          <td>Q</td>
+          <td>Color</td>
+          <td>Switch to the next color scheme</td>
+        </tr>
+        <tr>
+          <td>T or 9</td>
           <td>Timer</td>
           <td>Toggle the timer</td>
+        </tr>
+        <tr>
+          <td>V</td>
+          <td>Heise</td>
+          <td>Toggle Heise key mapping</td>
         </tr>
       </table>
       <br />
