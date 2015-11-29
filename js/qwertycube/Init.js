@@ -287,16 +287,13 @@ function initVars() {
     }
     cameraRadius = Math.sqrt(cameraRadius);
 
-    // Save the size of the key map to speed things up.
-    keyMapSize = 0;
-    for ( var key in keyMap) {
-        keyMapSize++;
-    }
-
     // Don't allow any rotation if rotationLock.
     if (orbitControls) {
         orbitControls.enabled = !rotationLock;
     }
+
+    // Update the key map.
+    eventUpdateKeyMap();
 }
 
 function initSetBackgroundColor() {

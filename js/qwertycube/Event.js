@@ -94,6 +94,22 @@ function eventAdd() {
             animateClearStatus);
 }
 
+function eventUpdateKeyMap() {
+    // Save the size of the key map to speed things up.
+    keyMapSize = 0;
+    for ( var key in keyMap) {
+        keyMapSize++;
+    }
+
+    // If there is both Heise and keyMap keyMap should take precedence.
+    keyMapTotal = copyMap(heise ? heiseMap : keyMap);
+    if (heise) {
+        for ( var item in keyMap) {
+            keyMapTotal[item] = keyMap[item];
+        }
+    }
+}
+
 // Private methods
 
 function getCoords(event) {
@@ -249,7 +265,7 @@ function onKeyDown(event) {
 
         // Make sure we don't process key combinations this program does not
         // understand - only the browser should.
-        if (alt || shift) {
+        if ((alt || shift) && !keyMapSize) {
             var valid = false;
             var alloweds = keyAllowedModifiersMap[eventChar];
             if (alloweds) {
@@ -436,12 +452,7 @@ function onKeyDown(event) {
             break;
         case "V": // Heise
             heise = !heise;
-            keyMapTotal = copyMap(heise ? heiseMap : keyMap);
-            if (!heise) {
-                for ( var item in keyMap) {
-                    keyMapTotal[item] = keyMap[item];
-                }
-            }
+            eventUpdateKeyMap();
             animateUpdateStatus((heise ? "Heise" : "RLUDFB") + " key mapping");
             break;
         default:
