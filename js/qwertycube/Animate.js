@@ -516,7 +516,9 @@ function doAnimate() {
                 moveCurrent = null;
                 rotationCurrent = null;
             }
-        } while ((moveQueue.length > scrambleJSSMax) && (moveCount <= 100));
+        } while ((moveQueue.length > scrambleJSSMax)
+                && ((moveHistoryNextLast - moveQueue.length) >= 2)
+                && (moveCount <= 100));
         animateUpdateStatus(null);
         animateUpdateTimer();
     } else {
