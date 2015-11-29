@@ -30,6 +30,12 @@ var heiseMap = {
     W : "mB",
     Y : "mX"
 };
+var keyAllowedModifiersMap = {
+    G : ["A", "S", "AS"],
+    J : ["AS"],
+    N : ["AS"],
+    P : ["AS"],
+};
 var keyMap = {};
 var keyMapSize = 0;
 var keyMapTotal = {};
@@ -212,6 +218,28 @@ function onKeyDown(event) {
             // Should not happen.
             console.log("Could not find numeric key \"" + eventChar + "\".");
             eventChar = eventCharOld;
+        }
+    }
+    // Make sure we don't process key combinations this program does not
+    // understand - only the browser should.
+    if (alt || shift) {
+        var valid = false;
+        var alloweds = keyAllowedModifiersMap[eventChar];
+        if (alloweds) {
+            for (i = 0; i < alloweds.length; i++) {
+                var allowed = alloweds[i];
+                if (((allowed === "A") && alt && !shift)
+                        || ((allowed === "S") && !alt && shift)
+                        || ((allowed === "AS") && alt && shift)) {
+                    valid = true;
+                }
+            }
+        }
+        if (!valid) {
+            console.log("Ignoring  key " + eventChar + " with "
+                    + "invalid alt or shift modifiers.  Allowed: "
+                    + (alloweds ? alloweds : "none"));
+            return;
         }
     }
 
