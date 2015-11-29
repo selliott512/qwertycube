@@ -24,7 +24,6 @@
       touch support on mobile devices.  If you just want to see a reference
       describing the buttons and keys <a href="#key-tables">scroll down</a>.
       </p>
-      <p/>
       <h3>Keyboard</h3>
       <p>The keyboard can be used to either make moves in the expected
       way (R, L, U, D, etc.) or for various commands (T, L, etc.).  Some
@@ -35,7 +34,6 @@
       reconfigured (see "Settings").  Note that some of the command keys have
       numeric alternatives.  This is helpful when the Heise key mapping is
       active.</p>
-      <p/>
       <h3>Mouse And Touch</h3>
       <p>Mouse and touch support should be intuitive, but there are some things
       about it that may not be obvious.  Clicking on the grey background
@@ -54,7 +52,17 @@
       the side closest to the click.  For edge stickers a single move is
       possible.  For corners, two moves are possible.  For middle stickers any
       of the four directions are possible for an entire cube rotation.</p>
-      <p/>
+      <p>Multi-touch is supported for mobile devices in order to make multiple
+      moves simultaneously as long as the moves are compatible.  See Move
+      Consolidation.</p>
+      <h3>Move Consolidation</h3>
+      <p>Multiple moves may be consolidated into a single move as long as they
+      are compatible.  Moves are considered to be compatible if they go the
+      same direction and amount around the same axis.  For example, L and M can
+      be consolidated to form l.  The consolidation is done if the moves are
+      made close to the same time, either by pressing keys or multi-touch.
+      This allows key mappings, such as Heise, to be used that depend on being
+      able to make simultaneous compatible moves.</p>
       <h3>Savepoints</h3>
       <p>If the cube is in a state that you want to get back to later then click
       Savepoint or the C key.  You might do this if you've reached the OLL or
@@ -64,7 +72,6 @@
       modified by the Alt (instead of a single move go until the next
       savepoint) or Shift (redo instead of undo).  See the
       <a href="#help-modifier-keys">modifier key table</a>.</p>
-      <p/>
       <h3>Scrambling</h3>
       <p>By default when Scramble or J is pressed a random-state scrambler
       named "jsss" is used to scramble the cube.  It works by randomly
@@ -80,7 +87,6 @@
       with a new cube, and then apply the scramble moves to that new cube, press
       Alt-Shift-J instead of J.  For non-keyboard users press New and then
       Scramble.</p>
-      <p/>
       <h3>Timer</h3>
       <p>A timer an be toggled by pressing Timer or T.  Scrambling the cube
       starts a 15 second count down at which time the timer is red. This is the
@@ -92,7 +98,6 @@
       the solve time.  The timer also turns green and starts counting up upon
       New or N just in case you want to time something that way.  The timer is
       off by default due to potentially high CPU usage.</p>
-      <p/>
       <h3>Settings</h3>
       <p>Pressing the Settings or I displays the settings dialog.  This is
       where various obscure and advanced settings are stored.  Things like the
