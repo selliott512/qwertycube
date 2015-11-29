@@ -50,6 +50,7 @@ var settingsVarNameDescs = [
     ["scrambleMoves", false, false, "Moves used to scramble the cube."],
     ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
     ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
+    ["timer", true, false, "Display the timer.  May result in high CPU usage."],
     ["timerInspectionSecs", true, false, "The amount of inspection time before solving."],
     ["wireframeSphere", true, false, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
