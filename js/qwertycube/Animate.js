@@ -222,7 +222,7 @@ function animateUpdateTimer() {
         timerEl.style.left = "0px";
         timerEl.style.opacity = 1.0;
 
-        if (timerState == "inspect") {
+        if (timerState === "inspect") {
             timerEl.style.backgroundColor = "#ff8080";
             var elapsedMsec = (1000 * timerInspectionSecs)
                     - (Date.now() - timerStart);
@@ -233,13 +233,13 @@ function animateUpdateTimer() {
                 timerStart = Date.now();
                 return;
             }
-        } else if (timerState == "scramble") {
+        } else if (timerState === "scramble") {
             timerEl.style.backgroundColor = "#808080";
             var elapsedMsec = null;
-        } else if (timerState == "solve") {
+        } else if (timerState === "solve") {
             timerEl.style.backgroundColor = "#80ff80";
             var elapsedMsec = Date.now() - timerStart;
-        } else if (timerState == "solved") {
+        } else if (timerState === "solved") {
             timerEl.style.backgroundColor = "#ffff80";
             var elapsedMsec = timerSolved - timerStart;
         } else {
@@ -445,7 +445,7 @@ function doAnimate() {
                         }
                         // Start the timer if it was inspection and the user did
                         // something other than rotate the entire cube.
-                        if ((timerState == "inspect")
+                        if ((timerState === "inspect")
                                 && !isFullCubeRotation(rotationCurrent)) {
                             timerState = "solve";
                             timerStart = Date.now();

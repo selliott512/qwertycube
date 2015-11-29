@@ -320,7 +320,7 @@ function fillMoveToRotation() {
                 moveRot[4] = 2;
             }
             for (var t = 1; t <= 2; t++) {
-                var twoLayer = t == 2;
+                var twoLayer = t === 2;
                 if (twoLayer) {
                     if ("XYZMSE".indexOf(face) !== -1) {
                         // Two layer of these moves does not make sense.

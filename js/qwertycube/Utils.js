@@ -22,7 +22,7 @@ function copyMap(oldMap) {
 
 // Convert an elapsed amount of time to mm:ss.x format.
 function elapsedMsecToStr(elapsedMsec) {
-    if (elapsedMsec == null) {
+    if (elapsedMsec === null) {
         return "";
     }
     // Work with integers and then add the decimal later.
@@ -162,7 +162,7 @@ function setGlobal(varName, varValueStr) {
             varValue = [];
         }
     } else if (varType === Boolean) {
-        varValue = varValueStr.toLowerCase().substr(0, 1) == "t";
+        varValue = varValueStr.toLowerCase().substr(0, 1) === "t";
     } else if (varType === Number) {
         if (varValueStr.indexOf(".") !== -1) {
             varValue = parseFloat(varValueStr);

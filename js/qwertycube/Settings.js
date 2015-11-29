@@ -96,7 +96,7 @@ function settingsOk() {
         // Strip off comments.
         line = line.replace(/#.*$/g, "");
         var eqIndex = line.indexOf("=");
-        if (eqIndex == -1) {
+        if (eqIndex === -1) {
             continue;
         }
         var varName = line.substr(0, eqIndex).trim();

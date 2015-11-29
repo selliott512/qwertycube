@@ -64,7 +64,7 @@ function rotateBegin(move, rotation, discardPrevious) {
 
     // If true then moves are being replayed (ok button clicked) and the we've
     // reached the point where the user is.
-    var endOfReplay = (moveHistoryNextLast != -1)
+    var endOfReplay = (moveHistoryNextLast !== -1)
             && (moveHistoryNext >= moveHistoryNextLast);
 
     if ((!rotation) || endOfReplay) {

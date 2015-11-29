@@ -94,13 +94,13 @@ var cube = {
 
 function scramble() {
     cube.reset();
-    if (scrambleType == "simple") {
+    if (scrambleType === "simple") {
         scrambleMoves = cube.scramble();
-    } else if (scrambleType == "jsss") {
+    } else if (scrambleType === "jsss") {
         var scrambleMovesNulls = scramblers["333"].getRandomScramble().scramble_string.split(" ");
         scrambleMoves.length = 0;
         for (var i = 0; i < scrambleMovesNulls.length; i++) {
-            if (scrambleMovesNulls[i] != "") {
+            if (scrambleMovesNulls[i] !== "") {
                 scrambleMoves.push(scrambleMovesNulls[i]);
             }
         }

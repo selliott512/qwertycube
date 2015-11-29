@@ -155,7 +155,7 @@ function onButtonBarButton(event, buttonEl, button) {
 }
 
 function onKeyDown(event) {
-    if ((event.keyCode == 16) || (event.keyCode == 18)) {
+    if ((event.keyCode === 16) || (event.keyCode === 18)) {
         // Ignore shift and alt being pressed by themselves.
         return;
     }
@@ -187,12 +187,12 @@ function onKeyDown(event) {
             keyMapValue = keyMapTotal[prefix + event.keyCode];
         }
         if (keyMapValue) {
-            if (keyMapValue[0] == "k") {
+            if (keyMapValue[0] === "k") {
                 // Map the keystroke to a different keystroke.
                 eventChar = keyMapValue.slice(-1);
                 alt = keyMapValue.indexOf("A") !== -1;
                 shift = keyMapValue.indexOf("S") !== -1;
-            } else if (keyMapValue[0] == "m") {
+            } else if (keyMapValue[0] === "m") {
                 // Map directly to a move and return.
                 var move = keyMapValue.substring(1);
                 enqueueMove(move);
@@ -226,7 +226,7 @@ function onKeyDown(event) {
     animateClearStatus();
 
     var rotation = faceToRotation[eventChar];
-    if (event.keyCode == 27) {
+    if (event.keyCode === 27) {
         if (helpDisplayed) {
             showHelp(false);
             return;
@@ -281,8 +281,8 @@ function onKeyDown(event) {
             animateUpdateStatus(msg);
             break;
         case "C": // (C)heckpoint
-            if ((moveHistory[moveHistoryNext - 1] == "|")
-                    || (moveHistory[moveHistoryNext] == "|")) {
+            if ((moveHistory[moveHistoryNext - 1] === "|")
+                    || (moveHistory[moveHistoryNext] === "|")) {
                 animateUpdateStatus("Savepoint already set");
             } else {
                 animateUpdateStatus("Savepoint set");
@@ -340,8 +340,8 @@ function onKeyDown(event) {
                 }
                 firstMove = false;
             }
-            if ((moveHistory[moveHistoryNext - 1] == "|")
-                    || (moveHistory[moveHistoryNext] == "|")) {
+            if ((moveHistory[moveHistoryNext - 1] === "|")
+                    || (moveHistory[moveHistoryNext] === "|")) {
                 animateUpdateStatus("Savepoint reached");
             }
             break;
@@ -592,7 +592,7 @@ function onMouseUp(event) {
                     }
                 }
 
-                if (Math.abs(layerStart - layerEnd) == 1) {
+                if (Math.abs(layerStart - layerEnd) === 1) {
                     // Since double layer moves are not in the faceToRotation
                     // table convert to single layer, but make a note that it's
                     // really a double layer.
@@ -617,8 +617,8 @@ function onMouseUp(event) {
                 // Look for the move in faceToRotation.
                 for ( var move in faceToRotation) {
                     var rotation = faceToRotation[move];
-                    if ((rotation[1] == axis) && (rotation[2] == layerMin)
-                            && (rotation[3] == layerMax)) {
+                    if ((rotation[1] === axis) && (rotation[2] === layerMin)
+                            && (rotation[3] === layerMax)) {
                         // Found a match. Create the move.
                         if (doubleLayer) {
                             move = move.toLowerCase();

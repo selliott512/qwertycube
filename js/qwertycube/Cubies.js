@@ -93,7 +93,7 @@ function cubiesCreate(oldCubies) {
         var vec = cubiesNumberToInitVector3(num);
         var sideMaterial = [];
         for ( var face in colorValues) {
-            if (face == "I") {
+            if (face === "I") {
                 continue;
             }
 
@@ -103,7 +103,7 @@ function cubiesCreate(oldCubies) {
             var sign = -rotation[0];
             var axis = rotation[1];
             sideMaterial
-                    .push(vec[axis] == sign * cubiesOff ? colorMatts[faceVectorToFacelet(
+                    .push(vec[axis] === sign * cubiesOff ? colorMatts[faceVectorToFacelet(
                             face, vec)]
                             : colorMatts.I);
         }
@@ -220,13 +220,13 @@ function cubiesSolved() {
         // determined by the center cubie, so there's no need to check them.
         var vec = cubiesNumberToInitVector3(num);
         var zeros = 0;
-        if (vec.x == 0) {
+        if (vec.x === 0) {
             zeros++;
         }
-        if (vec.y == 0) {
+        if (vec.y === 0) {
             zeros++;
         }
-        if (vec.z == 0) {
+        if (vec.z === 0) {
             zeros++;
         }
         if (zeros > 1) {
