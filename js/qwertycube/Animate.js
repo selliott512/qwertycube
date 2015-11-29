@@ -418,7 +418,9 @@ function doAnimate() {
         // If moveQueue is longer than a typical scramble (scrambleJSSMax) then
         // replay all of the moves prior to a typical scramble as quickly as
         // possible without updating the screen.
+        var moveCount = 0;
         do {
+            moveCount++;
             var endMove = false;
             if (!moveCurrent) {
                 // Keeping moveCurrent and rotationCurrent in sync depends on a
@@ -514,7 +516,7 @@ function doAnimate() {
                 moveCurrent = null;
                 rotationCurrent = null;
             }
-        } while (moveQueue.length > scrambleJSSMax);
+        } while ((moveQueue.length > scrambleJSSMax) && (moveCount <= 100));
         animateUpdateStatus(null);
         animateUpdateTimer();
     } else {
