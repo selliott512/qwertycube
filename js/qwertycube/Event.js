@@ -29,6 +29,7 @@ var heiseMap = {
     U : "mr",
     V : "ml",
     W : "mB",
+    X : "mM",
     Y : "mX",
     Z : "md",
     ";" : "mY",
