@@ -8,6 +8,7 @@ var heise = false;
 var heiseMap = {
     A : "mY'",
     B : "mX'",
+    C : "mu'",
     D : "mL",
     E : "mL'",
     F : "mU'",
@@ -28,7 +29,12 @@ var heiseMap = {
     U : "mr",
     V : "ml",
     W : "mB",
-    Y : "mX"
+    Y : "mX",
+    Z : "md",
+    ";" : "mY",
+    "," : "mu",
+    "." : "mM'",
+    "/" : "md'",
 };
 var keyAllowedModifiersMap = {
     G : ["A", "S", "AS"],
@@ -50,6 +56,13 @@ var keyNumericMap = {
     "7" : "O",
     "8" : "P",
     "9" : "T"
+};
+// Incomplete.  Added to as needed.
+var keyPunctuationMap = {
+    186 : ";",
+    188 : ",",
+    190 : ".",
+    191 : "/"
 };
 var moveBegins = [];
 var moveThreshold = 30;
@@ -171,13 +184,30 @@ function onButtonBarButton(event, buttonEl, button) {
 }
 
 function onKeyDown(event) {
-    if ((event.keyCode === 16) || (event.keyCode === 18)) {
+    var keyCode = event.keyCode;
+    if ((keyCode === 16) || (keyCode === 18)) {
         // Ignore shift and alt being pressed by themselves.
         return;
+    } else if ((!helpDisplayed) && (!settingsDisplayed) && (keyCode >= 0x80)) {
+        // A special punctuation character.  This just used by Heise and
+        // custom maps.
+        var eventChar = keyPunctuationMap[keyCode];
+        if (eventChar) {
+            // Preventing the default for a limited amount of punctuation should
+            // be ok.
+            event.preventDefault();
+        } else {
+            // Place holder for unknown characters for now.
+            eventChar = "?";
+            console.log("Mapping unknown punctuation keyCode " + keyCode
+                    + " to \"" + eventChar + "\".");
+        }
+    } else {
+        // Ordinary ASCII character.
+        var eventChar = event.buttonBarChar ? event.buttonBarChar : String
+                .fromCharCode(keyCode);
     }
     var buttonBar = event.buttonBar;
-    var eventChar = event.buttonBarChar ? event.buttonBarChar : String
-            .fromCharCode(event.keyCode);
     var alt = escLast || event.altKey;
     var shift = event.shiftKey;
     if (settingsDisplayed) {
