@@ -58,6 +58,7 @@ var keyNumericMap = {
     "8" : "P",
     "9" : "T"
 };
+var keyPreventDefault = true;
 // Incomplete.  Added to as needed.
 var keyPunctuationMap = {
     186 : ";",
@@ -193,11 +194,7 @@ function onKeyDown(event) {
         // A special punctuation character.  This just used by Heise and
         // custom maps.
         var eventChar = keyPunctuationMap[keyCode];
-        if (eventChar) {
-            // Preventing the default for a limited amount of punctuation should
-            // be ok.
-            event.preventDefault();
-        } else {
+        if (!eventChar) {
             // Place holder for unknown characters for now.
             eventChar = "?";
             console.log("Mapping unknown punctuation keyCode " + keyCode
@@ -292,6 +289,9 @@ function onKeyDown(event) {
         enqueueMove(move);
         animateCondReq(true);
         escLast = false;
+        if (keyPreventDefault) {
+            event.preventDefault();
+        }
     } else if (!helpDisplayed) {
         // Special keys
 
@@ -398,9 +398,6 @@ function onKeyDown(event) {
             break;
         case "I": // (I)nformation
             settingsShow();
-            if (!buttonBar) {
-                event.preventDefault();
-            }
             break;
         case "J": // (J)umble (S was taken)
             // If alt and shift then reset the cube to it's standard new
@@ -501,6 +498,9 @@ function onKeyDown(event) {
             }
             if (buttons) {
                 initSetButtonColor(buttons[0], buttons[1], true);
+            }
+            if (keyPreventDefault) {
+                event.preventDefault();
             }
         }
         escLast = false;

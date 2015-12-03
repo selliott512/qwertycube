@@ -38,6 +38,8 @@ var settingsVarNameDescs = [
             "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
             "before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
             "ASW:mR2 Q:kJ SX:mr"],
+    ["keyPreventDefault", true, false, "If true prevent default behavior when a key is recognized by this " +
+            "program.  This prevents the browser from reacting in addition to this program."],
     ["moveHistory", false, false, "All moves made since loading the page."],
     ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
     ["moveSec", true, false, "Number of moves per second when replaying."],
