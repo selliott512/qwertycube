@@ -269,7 +269,9 @@ function onKeyDown(event) {
     // means the user is no longer reading the message.
     animateClearStatus();
 
-    var rotation = faceToRotation[eventChar];
+    // For Heise all possible moves should have been specified by the map(s),
+    // so no need to look for the rotation here.
+    var rotation = heise ? null : faceToRotation[eventChar];
     if (event.keyCode === 27) {
         if (helpDisplayed) {
             showHelp(false);
@@ -296,8 +298,12 @@ function onKeyDown(event) {
         // Special keys
 
         // Make sure we don't process key combinations this program does not
-        // understand - only the browser should.
-        if ((alt || shift) && !keyMapSize) {
+        // understand - only the browser should.  Note that this check is not
+        // done if just shift is pressed as shift by itself is unlikely to have
+        // special meaning to the browser.  This also means that for some
+        // mappings, such as Heise, there is an alternative way of invoking
+        // commands (Shift-J to scramble, etc.).
+        if (alt) {
             var valid = false;
             var alloweds = keyAllowedModifiersMap[eventChar];
             if (alloweds) {
