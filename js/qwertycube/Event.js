@@ -276,6 +276,7 @@ function onKeyDown(event) {
     if (event.keyCode === 27) {
         if (helpDisplayed) {
             showHelp(false);
+            escLast = false;
             return;
         }
         escLast = true;
@@ -502,6 +503,7 @@ function onKeyDown(event) {
                 initSetButtonColor(buttons[0], buttons[1], true);
             }
         }
+        escLast = false;
     }
 }
 
