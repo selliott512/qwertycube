@@ -48,6 +48,8 @@ var settingsVarNameDescs = [
     ["rotationLock", true, false, "If true then the cube is not rotated by clicking and moving on the grey " +
             "background.  Instead, those clicks are interpreted as cube moves.  This both prevents accidental" +
             "rotations and it makes it possible to have less precise mouse/touch movements for cube moves."],
+    ["rotationLockLimit", true, false, "When rotationLock is true interpret clicks that are this close to " +
+            "the cube as a move."],
     ["scrambleCount", true, false, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
     ["scrambleMoves", false, false, "Moves used to scramble the cube."],
     ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],

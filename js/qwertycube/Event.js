@@ -69,6 +69,7 @@ var keyPunctuationMap = {
 var moveBegins = [];
 var moveThreshold = 30;
 var rotationLock = false;
+var rotationLockLimit = 100;
 var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
 var buttonFlashDelay = 300;

@@ -138,7 +138,7 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     worldCoord.unproject(camera);
 
     var bestMove = null;
-    var bestMoveScore = 1000000;
+    var bestMoveScore = rotationLockLimit;
 
     var axes = onAxis ? [onAxis] : ["x", "y", "z"];
     for (var i = 0; i <= axes.length; i++) {
@@ -285,7 +285,7 @@ function faceVectorToFacelet(face, vec) {
     return cubiesInitFacelets[base + offset];
 }
 
-// Determine which side a give click is closest to. Note that "move" is not the
+// Determine which side a given click is closest to. Note that "move" is not the
 // simple rotation letter type of move it is elsewhere.
 function getMoveScore(move) {
     var score = 0;
