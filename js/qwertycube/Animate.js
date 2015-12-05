@@ -26,6 +26,7 @@ var moveHistory = [];
 var moveHistoryNext = 0;
 var moveHistoryNextLast = -1; // Not set
 var moveQueue = [];
+var moveQueueLen = -1;
 var moveRadMsec = 0.0;
 var moveSec = 10.0;
 var moveStartMsec = 0;
@@ -290,112 +291,116 @@ function consolidateMoves() {
         return 0;
     }
 
-    // True for each layer that is rotating.
-    var layerActive = [false, false, false];
-    for (var i = rotationCurrent[2]; i <= rotationCurrent[3]; i++) {
-        layerActive[i + 1] = true;
-    }
-
-    // Moves found that are compatible with the current move.
-    var compatible = 0;
-
-    // For the moves to be compatible the axisSign, axisOfRot and amount must be
-    // the same.
-    outerLoop: for (var i = 0; i < rotationQueue.length; i++) {
-        var rotationOther = rotationQueue[i];
-        if ((!rotationOther) || (rotationCurrent[0] !== rotationOther[0])
-                || (rotationCurrent[1] !== rotationOther[1])
-                || (rotationCurrent[4] !== rotationOther[4])) {
-            break;
-        }
-
-        // First check that layers in question are clear and if so set them.
-        for (var j = rotationOther[2]; j <= rotationOther[3]; j++) {
-            if (layerActive[j + 1]) {
-                break outerLoop;
+    // The signed amount each layer is rotated.
+    var layerAmounts = [];
+    var rotationBest = null;
+    var bestI = 0;
+    var bestMove = null;
+    var bestRotation = null;
+    outerLoop: for (var i = 1; i <= Math.min(3, rotationQueue.length + 1); i++) {
+        var current = (i == 1);
+        var rotation = current ? rotationCurrent : rotationQueue[i - 2];
+        var amountSigned = rotation[0] * rotation[4];
+        for (var j = 0; j < 3; j++) {
+            var toAdd = (rotation[2] <= (j - 1)) && ((j - 1) <= rotation[3]) ? amountSigned
+                    : 0;
+            if (current) {
+                layerAmounts.push(toAdd);
+            } else if (toAdd) {
+                layerAmounts[j] += toAdd;
             }
         }
-        for (var j = rotationOther[2]; j <= rotationOther[3]; j++) {
-            layerActive[j + 1] = true;
+        if (current) {
+            continue;
         }
 
-        // This other move will possibly be consolidated.
-        compatible++;
-    }
+        // For layerAmounts to describe a valid move at minimal it must contain
+        // a contiguous set of non-zero values that are all equal ([0, 0, N] or
+        // [N, N, 0], for example).
 
-    if (!compatible) {
-        // No compatible moves were found.
+        // Examine layerActive to see if contains a contiguous block of trues.
+        var lo = null;
+        var hi = null;
+        var last = 0;
+        // TODO: It might be helpful if lo and hi were zero based. It would make
+        // it easier to generalize this for higher dimension cubes.
+        amountSigned = 0;
+        for (var j = 0; j < layerAmounts.length; j++) {
+            var as = layerAmounts[j];
+            var next = layerAmounts[j + 1];
+            if (as) {
+                if (amountSigned && (as !== amountSigned)) {
+                    // More than one non-zero value.
+                    continue outerLoop;
+                }
+                amountSigned = as;
+                if (!last) {
+                    if (lo !== null) {
+                        // More than one start - can't consolidate.
+                        continue outerLoop;
+                    }
+                    lo = j - 1;
+                }
+                if (!next) {
+                    if (hi !== null) {
+                        // More than one end - can't consolidate.
+                        continue outerLoop;
+                    }
+                    hi = j - 1;
+                }
+            }
+            last = as;
+        }
+
+        if ((lo !== null) && (hi !== null)) {
+            // Layers moved contiguously. It's a candidate.
+            var rotation = rotationCurrent.slice();
+            rotation[0] = amountSigned < 0 ? -1 : 1;
+            rotation[2] = lo;
+            rotation[3] = hi;
+            rotation[4] = Math.abs(amountSigned);
+
+            // TODO: For higher dimension cubes come up with a way of
+            // consolidating contiguous layers that don't have move names.
+            var moveNew = getMoveFromRotation(rotation);
+            if (moveNew) {
+                bestI = i;
+                bestMove = moveNew;
+                bestRotation = rotation;
+            } else {
+                // This should not happen for 3x3 cubes.
+                console.log("Unable to find consolidated move for rotation "
+                        + rotation);
+            }
+        }
+    }
+    if (!bestMove) {
+        // No good moves found.
         return 0;
     }
 
-    // Examine layerActive to see if contains a contiguous block of trues.
-    var lo = null;
-    var hi = null;
-    var last = false;
-    // TODO: It might be helpful if lo and hi were zero based. It would make it
-    // easier to generalize this for higher dimension cubes.
-    for (var i = -1; i <= 1; i++) {
-        var layer = layerActive[i + 1];
-        if (layer && !last) {
-            if (lo !== null) {
-                // More than one start of a block of trues - can't consolidate.
-                return 0;
-            }
-            lo = i;
-        } else if ((!layer) && last) {
-            if (hi !== null) {
-                // More than one end of a block of trues - can't consolidate.
-                return 0;
-            }
-            hi = i - 1;
-        }
-        last = layer;
-    }
-    if ((lo !== null) && (hi === null)) {
-        // The block of trues went ot the end.
-        hi = 1;
+    var first = true;
+    var movesBuf = "";
+    for (var i = 0; i <= bestI - 2; i++) {
+        movesBuf += (first ? "" : ", ") + moveQueue[i];
+        first = false;
     }
 
-    if ((lo !== null) && (hi !== null)) {
-        // Layers moved contiguously. It's a candidate.
-        var rotation = rotationCurrent.slice();
-        rotation[2] = lo;
-        rotation[3] = hi;
+    console.log("Consolidated moves " + moveCurrent + ", " + movesBuf
+            + " to form " + moveNew);
 
-        // TODO: For higher dimension cubes come up with a way of consolidating
-        // contiguous layers that don't have move names.
-        var moveNew = getMoveFromRotation(rotation);
-        if (!moveNew) {
-            // This should not happen for 3x3 cubes.
-            console.log("Unable to find consolidated move for rotation "
-                    + rotation);
-            return 0;
-        }
+    // Discard the moves that will be combined with the current move.
+    moveQueue.splice(0, bestI - 1);
+    moveQueueLen = moveQueue.length;
+    rotationQueue.splice(0, bestI - 1);
 
-        var first = true;
-        var movesBuf = "";
-        for (var i = 0; i < compatible; i++) {
-            movesBuf += (first ? "" : ", ") + moveQueue[i];
-            first = false;
-        }
+    // Update globals with the new consolidated move.
+    moveCurrent = moveNew;
+    rotationCurrent = rotation;
 
-        console.log("Consolidated moves " + moveCurrent + ", " + movesBuf
-                + " to form " + moveNew);
-
-        // Discard the moves that will be combined with the current move.
-        moveQueue.splice(0, compatible);
-        rotationQueue.splice(0, compatible);
-
-        // Update globals with the new consolidated move.
-        moveCurrent = moveNew;
-        rotationCurrent = rotation;
-
-        // +1 to include the total number of moves involved in the
-        // consolidation.
-        return compatible + 1;
-    } else {
-        return 0;
-    }
+    // +1 to include the total number of moves involved in the
+    // consolidation.
+    return bestI;
 }
 
 function doAnimate() {
@@ -431,11 +436,13 @@ function doAnimate() {
                     if (rotationCurrent) {
                         // Consolidate moves before beginning a new move.
                         if (consolidateMoves()) {
+                            moveQueueLen = moveQueue.length;
                             // This is the unlikely case given how the event
                             // handling works.
                             console.log("Consolidated before rotateBegin for "
                                     + "move " + moveCurrent);
                         }
+                        moveQueueLen = moveQueue.length;
                     }
                     // A new move. Prepare the cubies to be rotated.
                     rotateBegin(moveCurrent, rotationCurrent, false);
@@ -455,9 +462,8 @@ function doAnimate() {
             }
 
             if (rotationCurrent) {
-                // Consolidate now just in case a new move is waiting.
-                var consolidateCount = consolidateMoves();
-                if (consolidateCount) {
+                // Consolidate now if a new move is waiting.
+                if ((moveQueue.length !== moveQueueLen) && consolidateMoves()) {
                     // Rotate the current move back to where it started.
                     pivot.rotation[rotationCurrent[1]] = 0.0;
                     renderer.render(scene, camera);
@@ -467,6 +473,7 @@ function doAnimate() {
                     rotateEnd();
                     rotateBegin(moveCurrent, rotationCurrent, true);
                 }
+                moveQueueLen = moveQueue.length;
 
                 // Apply the next animation step to the prepared cubies.
                 // angleMax and angleGoal are always positive - the absolute
