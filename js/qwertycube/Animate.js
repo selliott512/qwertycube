@@ -291,15 +291,24 @@ function consolidateMoves() {
         return 0;
     }
 
+    // All moves need to be about he same axs.
+    var axis = null;
+
     // The signed amount each layer is rotated.
     var layerAmounts = [];
-    var rotationBest = null;
     var bestI = 0;
     var bestMove = null;
     var bestRotation = null;
     outerLoop: for (var i = 1; i <= Math.min(3, rotationQueue.length + 1); i++) {
         var current = (i == 1);
         var rotation = current ? rotationCurrent : rotationQueue[i - 2];
+        if (current) {
+            axis = rotation[1];
+        } else {
+            if ((!rotation) || (rotation[1] !== axis)) {
+                break;
+            }
+        }
         var amountSigned = rotation[0] * rotation[4];
         for (var j = 0; j < 3; j++) {
             var toAdd = (rotation[2] <= (j - 1)) && ((j - 1) <= rotation[3]) ? amountSigned
@@ -395,8 +404,8 @@ function consolidateMoves() {
     rotationQueue.splice(0, bestI - 1);
 
     // Update globals with the new consolidated move.
-    moveCurrent = moveNew;
-    rotationCurrent = rotation;
+    moveCurrent = bestMove;
+    rotationCurrent = bestRotation;
 
     // +1 to include the total number of moves involved in the
     // consolidation.
