@@ -307,7 +307,7 @@ function fillMoveToRotation() {
     var count = 0;
     for ( var face in faceToRotation) {
         var faceRot = faceToRotation[face];
-        for ( var s in moveSuffixes) {
+        for ( var s = 0; s < moveSuffixes.length; s++) {
             var suffix = moveSuffixes[s];
             var move = face + suffix;
             var moveRot = faceRot.slice();
