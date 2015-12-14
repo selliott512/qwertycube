@@ -291,6 +291,12 @@ function consolidateMoves() {
         return 0;
     }
 
+    var undo = moveCurrent.indexOf("G") !== -1;
+    if (undo) {
+        // Don't attempt to consolidate move undos.
+        return 0;
+    }
+
     // All moves need to be about he same axs.
     var axis = null;
 
