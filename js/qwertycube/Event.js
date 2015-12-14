@@ -415,7 +415,9 @@ function onKeyDown(event) {
             // existing cube.
             var newCube = alt && shift;
             if (newCube) {
-                animateNewCube();
+                if (!animateNewCube()) {
+                    return;
+                }
             }
 
             // Scrambling is structured this way, with two messages, because
@@ -442,7 +444,9 @@ function onKeyDown(event) {
         case "N": // (N)new cube
             if ((buttonBar && confirm("New cube?")) || (alt && shift)) {
                 animateUpdateStatus("New cube");
-                animateNewCube();
+                if (!animateNewCube()) {
+                    return;
+                }
             } else {
                 if (!buttonBar) {
                     animateUpdateStatus("New cube?  Alt-Shift-N");

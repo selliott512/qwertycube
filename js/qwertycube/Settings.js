@@ -91,7 +91,11 @@ function settingsOk() {
     console.log("Ok clicked");
 
     // Reset the cube.
-    animateNewCube();
+    if (!animateNewCube()) {
+        // Should be infrequent.
+        animateUpdateStatus("Can't apply settings.");
+        return;
+    }
 
     // Now apply the variables.
     var lines = settingsTextEl.value.split("\n");

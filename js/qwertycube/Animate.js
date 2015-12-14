@@ -155,6 +155,12 @@ function animateResize() {
 }
 
 function animateNewCube() {
+    if (moveCurrent || moveQueue.length) {
+        // Don't attempt to do a scramble if there are outstanding
+        // moves.
+        console.log("Can't new cube due to outstanding moves.");
+        return false;
+    }
     moveCurrent = null;
     clearMoveQueue();
     moveHistory.length = 0;
@@ -166,6 +172,7 @@ function animateNewCube() {
         timerStart = Date.now();
     }
     animateCondReq(true);
+    return true;
 }
 
 function animateSetCamera() {
