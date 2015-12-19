@@ -479,7 +479,7 @@ function onKeyDown(event) {
                 cubiesColorScheme = colorTableKeys[i];
                 animateUpdateStatus("Color scheme " + cubiesColorScheme);
             } else {
-                // This ssould not happen
+                // This should not happen
                 console.log("Unknown color scheme \"" + cubiesColorScheme
                         + "\".");
             }

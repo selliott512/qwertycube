@@ -390,7 +390,7 @@ function setup() {
         // better for people to upgrade their browsers.
         animateUpdateStatus("WebGL is not supported.");
         renderer = null;
-        // So it's not overritten by the help message.
+        // So it's not overwritten by the help message.
         helpFlashed = true;
     }
 
