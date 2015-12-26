@@ -42,6 +42,7 @@ var statusSecsPerChar = 0.05;
 var statusTimeMSec = 0;
 var text = [];
 var timer = false;
+var timerAnimated = false;
 var timerFrameNext = 0;
 var timerInspectionSecs = 15;
 var timerSolved;
@@ -66,7 +67,7 @@ function animateCondReq(needed) {
     // This method requests that doAnimate() be called next frame if need be.
     if ((!animationRequested)
             && (animateNeeded || moveCurrent || moveQueue.length
-                    || statusDisplayed || cameraAdjusting || timer)) {
+                    || statusDisplayed || cameraAdjusting || (timer && timerAnimated))) {
         window.requestAnimationFrame(doAnimate);
         animationRequested = true;
     }
@@ -231,6 +232,7 @@ function animateUpdateTimer() {
         timerEl.style.opacity = 1.0;
 
         if (timerState === "inspect") {
+            timerAnimated = true;
             timerEl.style.backgroundColor = "#ff8080";
             var elapsedMsec = (1000 * timerInspectionSecs)
                     - (Date.now() - timerStart);
@@ -242,15 +244,19 @@ function animateUpdateTimer() {
                 return;
             }
         } else if (timerState === "scramble") {
+            timerAnimated = false;
             timerEl.style.backgroundColor = "#808080";
             var elapsedMsec = null;
         } else if (timerState === "solve") {
+            timerAnimated = true;
             timerEl.style.backgroundColor = "#80ff80";
             var elapsedMsec = Date.now() - timerStart;
         } else if (timerState === "solved") {
+            timerAnimated = false;
             timerEl.style.backgroundColor = "#ffff80";
             var elapsedMsec = timerSolved - timerStart;
         } else {
+            timerAnimated = false;
             timerEl.style.backgroundColor = "#ff80ff";
             // Unknown timerState. This should not happen.
             animateUpdateStatus("Unknown timerState \"" + timerState + "\"");
