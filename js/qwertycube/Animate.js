@@ -278,7 +278,7 @@ function animateUpdateTimer() {
 
 function animateWireframeSphere(show) {
     if (show && !wireframeSphereMesh) {
-        // Add a sphere around the origin.
+        // Add a sphere around the origin that tightly contains the cube.
         var matt = new THREE.MeshBasicMaterial({
             color : "darkgreen",
             wireframe : true
@@ -294,7 +294,7 @@ function animateWireframeSphere(show) {
 
 // Private methods
 
-// Determine if the current move and next move can be consolidated. For
+// Determine if the current move and next few moves can be consolidated. For
 // example, L and then M could instead be l. This may happen when both moves
 // are about the same axis.
 function consolidateMoves() {
@@ -310,7 +310,7 @@ function consolidateMoves() {
         return 0;
     }
 
-    // All moves need to be about he same axs.
+    // All moves need to be about the same axis.
     var axis = null;
 
     // The signed amount each layer is rotated.
@@ -426,8 +426,7 @@ function consolidateMoves() {
     moveCurrent = bestMove;
     rotationCurrent = bestRotation;
 
-    // +1 to include the total number of moves involved in the
-    // consolidation.
+    // Return the number of moves that were consolidated.
     return bestI;
 }
 
@@ -534,8 +533,7 @@ function doAnimate() {
                 if (!moveQueue.length) {
                     if (timerState === "scramble") {
                         // If the last move of the scramble was made then begin
-                        // the
-                        // inspection phase.
+                        // the inspection phase.
                         timerState = "inspect";
                         timerStart = Date.now();
                     } else if (timerState === "solve" && moveHistory.length

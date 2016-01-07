@@ -53,8 +53,7 @@ function enqueueMove(move) {
     rotationQueue.push(getRotationFromMove(move));
 }
 
-// Queues up a move along with it's corresponding rotation. Note that index to
-// index moveQueue and rotationQueue must be kept in sync.
+// Queues up multiple moves.  See enqueueMove().
 function enqueueMoves(moves) {
     for ( var i = 0; i < moves.length; i++) {
         enqueueMove(moves[i]);

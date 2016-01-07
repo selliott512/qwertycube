@@ -401,7 +401,7 @@ function setup() {
 
     animateSetCamera();
 
-    // orbitControls:
+    // Orbit controls (rotating the camera around the cube).
     orbitControls = new THREE.OrbitControls(camera, renderer.domElement,
             renderer.domElement);
 
