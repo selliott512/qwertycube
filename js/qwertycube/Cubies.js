@@ -10,14 +10,16 @@ var cubiesSize = 100;
 var cubiesGap = Math.round(cubiesSize / 10);
 var cubiesHalfSide;
 var cubiesOff;
+var cubiesOrder = 4;
 var cubiesRadius;
 var cubiesSep;
 var cubiesSmallValue = 0.001;
-var cubiesCenterNum = 13; // The one in the center.
 var cubiesColorBackground = "0x808080";
 var cubiesColorOverrides = {};
 var cubiesColorScheme = "std-black";
 var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
+var cubiesNum = cubiesOrder * cubiesOrder * cubiesOrder;
+var centerNum = Math.floor(cubiesNum / 2); // The one in the center.
 
 // Other than the first color the colors are ordered in the same was as it is
 // for MeshFaceMaterial. I is interior (the color of the gaps). The remaining
@@ -89,7 +91,7 @@ function cubiesCreate(oldCubies) {
 
     var cubieGeometry = new THREE.BoxGeometry(cubiesSize, cubiesSize,
             cubiesSize);
-    for (var num = 0; num < 27; num++) {
+    for (var num = 0; num < cubiesNum; num++) {
         var vec = cubiesNumberToInitVector3(num);
         var sideMaterial = [];
         for ( var face in colorValues) {
@@ -102,8 +104,9 @@ function cubiesCreate(oldCubies) {
             // the face is on the positive side of the axis.
             var sign = -rotation[0];
             var axis = rotation[1];
+            // TODO: fix 1.5
             sideMaterial
-                    .push(vec[axis] === sign * cubiesOff ? colorMatts[faceVectorToFacelet(
+                    .push(vec[axis] === sign * 1.5 * cubiesOff ? colorMatts[faceVectorToFacelet(
                             face, vec)]
                             : colorMatts.I);
         }
@@ -118,11 +121,12 @@ function cubiesCreate(oldCubies) {
 // Convert cubie number to a vector that describes the initial solved location
 // of that cubie. X is least significant, low value first.
 function cubiesNumberToInitVector3(num) {
-    var x = cubiesOff * (num % 3 - 1);
-    num = 0 | (num / 3);
-    var y = cubiesOff * (num % 3 - 1);
-    num = 0 | (num / 3);
-    var z = cubiesOff * (num % 3 - 1);
+    var mid = (cubiesOrder - 1) / 2;
+    var x = cubiesOff * (num % cubiesOrder - mid);
+    num = 0 | (num / cubiesOrder);
+    var y = cubiesOff * (num % cubiesOrder - mid);
+    num = 0 | (num / cubiesOrder);
+    var z = cubiesOff * (num % cubiesOrder - mid);
 
     return new THREE.Vector3(x, y, z);
 }
@@ -206,13 +210,13 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
 
 // Return true if the cube is solved.
 function cubiesSolved() {
-    var center = cubies[cubiesCenterNum];
-    for (var i = 0; i < 27; i++) {
+    var center = cubies[centerNum];
+    for (var i = 0; i < cubiesNum; i++) {
         // The goal is to iterate through the cubies in a semi-random fashion
         // in order to increase the odds of detecting an unsolved cubie early.
         // If we went in order then just the back side being solved would delay
         // detection for 9 cubies.
-        var num = (11 * i + 7) % 27;
+        var num = (241 * i + 349) % cubiesOrder;
 
         // We only want to check corner and edge cubies relative to the
         // center cubie. As can be seen by disassembling an actual Rubik's
@@ -271,9 +275,10 @@ function faceVectorToFacelet(face, vec) {
 
     // Scale the vector to [-1, -1, -1] - [1, 1, 1].
     var vecOne = vec.clone();
-    vecOne.x = Math.round(vecOne.x / cubiesOff);
-    vecOne.y = Math.round(vecOne.y / cubiesOff);
-    vecOne.z = Math.round(vecOne.z / cubiesOff);
+    // TODO: Fix hard coded 1.5.
+    vecOne.x = Math.round(vecOne.x / (1.5 * cubiesOff));
+    vecOne.y = Math.round(vecOne.y / (1.5 * cubiesOff));
+    vecOne.z = Math.round(vecOne.z / (1.5 * cubiesOff));
 
     var mults = faceletAxisMults[face];
     // The center has offset 4 in each face section in the sequence of
@@ -330,7 +335,7 @@ function positionCubies(oldCubies) {
             cubies[i].rotation.copy(oldCubies[i].rotation);
         }
     } else {
-        for (var num = 0; num < 27; num++) {
+        for (var num = 0; num < cubiesNum; num++) {
             cubies[num].position.copy(cubiesNumberToInitVector3(num));
         }
     }
