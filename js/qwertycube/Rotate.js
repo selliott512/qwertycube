@@ -138,9 +138,9 @@ function limitToCoord(limit) {
     case -1:
         return -cubiesHalfSide - 1;
     case 0:
-        return -cubiesHalfSide + (cubiesSize + cubiesGap / 2);
+        return -cubiesHalfSide + (cubiesSizeScaled + cubiesGapScaled / 2);
     case 1:
-        return cubiesHalfSide - (cubiesSize + cubiesGap / 2);
+        return cubiesHalfSide - (cubiesSizeScaled + cubiesGapScaled / 2);
     case 2:
         return cubiesHalfSide + 1;
     }
