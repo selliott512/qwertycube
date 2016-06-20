@@ -271,8 +271,27 @@ function initVars() {
     mobile = isMobile();
     console.log("Mobile: " + mobile);
 
+    cubiesNum = cubiesOrder * cubiesOrder * cubiesOrder;
+    // TODO: How should this work for even orders?
+    cubiesCenter = Math.floor(cubiesNum / 2); // The one in the center.
+
+    // Scale the cubies based on the current order so that the overall cube has
+    // the same size as a 3x3. A 3x3, which is the default, consists of 3
+    // (order) cubies and 2 (order -1) gaps per dimension.
+    if (cubiesOrder === 3) {
+        cubiesScale = 1;
+    }
+    else {
+        cubiesScale = (3 * cubiesSize + 2 * cubiesGap) / (
+                cubiesOrder * cubiesSize + (cubiesOrder - 1) * cubiesGap);
+    }
+
+    cubiesSizeScaled = cubiesScaleDist(cubiesSize);
+    cubiesGapScaled = cubiesScaleDist(cubiesGap);
+
     // Used to find the position of each cubie.
     cubiesOff = cubiesSize + cubiesGap;
+    cubiesOffScaled = cubiesScaleDist(cubiesOff);
     cubiesHalfSide = Math.round(cubiesSize / 2 + cubiesOff);
     cubiesSep = Math.round((cubiesSize + cubiesGap) / 2);
 

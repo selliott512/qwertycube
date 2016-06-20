@@ -85,8 +85,8 @@ function rotateBegin(move, rotation, discardPrevious) {
 
     // Convert the -1, 0, 1 placement along the axes to limits
     // given the cubieOff between them. The limits are inclusive.
-    rotation[2] = cubiesOff * rotation[2] - 1; // Lower limit, so 1 before.
-    rotation[3] = cubiesOff * rotation[3] + 1; // Upper limit, so 1 after.
+    rotation[2] = limitToCoord(rotation[2]);
+    rotation[3] = limitToCoord(rotation[3] + 1); // +1 so inclusive
     inRangeRotate.apply(this, rotation);
 
     // True if this move is an undo - don't add it to the move history.
@@ -131,4 +131,17 @@ function inRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
         THREE.SceneUtils.attach(active[i], scene, pivot);
     }
     animateCondReq(true);
+}
+
+function limitToCoord(limit) {
+    switch (limit) {
+    case -1:
+        return -cubiesHalfSide - 1;
+    case 0:
+        return -cubiesHalfSide + (cubiesSize + cubiesGap / 2);
+    case 1:
+        return cubiesHalfSide - (cubiesSize + cubiesGap / 2);
+    case 2:
+        return cubiesHalfSide + 1;
+    }
 }

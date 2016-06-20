@@ -7,19 +7,23 @@ var cubies = [];
 
 // The size of the cubies.
 var cubiesSize = 100;
-var cubiesGap = Math.round(cubiesSize / 10);
+var cubiesSizeScaled;
+var cubiesGap = cubiesSize / 10;
+var cubiesGapScaled;
 var cubiesHalfSide;
 var cubiesOff;
-var cubiesOrder = 4;
+var cubiesOffScaled;
+var cubiesOrder = 3;
 var cubiesRadius;
+var cubiesScale;
 var cubiesSep;
 var cubiesSmallValue = 0.001;
 var cubiesColorBackground = "0x808080";
 var cubiesColorOverrides = {};
 var cubiesColorScheme = "std-black";
 var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
-var cubiesNum = cubiesOrder * cubiesOrder * cubiesOrder;
-var centerNum = Math.floor(cubiesNum / 2); // The one in the center.
+var cubiesNum;
+var cubiesCenter;
 
 // Other than the first color the colors are ordered in the same was as it is
 // for MeshFaceMaterial. I is interior (the color of the gaps). The remaining
@@ -89,10 +93,14 @@ function cubiesCreate(oldCubies) {
     var cbs = [];
     initMaterials();
 
-    var cubieGeometry = new THREE.BoxGeometry(cubiesSize, cubiesSize,
-            cubiesSize);
+    var cubieGeometry = new THREE.BoxGeometry(cubiesSizeScaled,
+            cubiesSizeScaled, cubiesSizeScaled);
     for (var num = 0; num < cubiesNum; num++) {
         var vec = cubiesNumberToInitVector3(num);
+        if (num === 0) {
+            // The offset of a corner, which should be the largest offset.
+            var cornerOffset = Math.abs(vec.x);
+        }
         var sideMaterial = [];
         for ( var face in colorValues) {
             if (face === "I") {
@@ -104,11 +112,8 @@ function cubiesCreate(oldCubies) {
             // the face is on the positive side of the axis.
             var sign = -rotation[0];
             var axis = rotation[1];
-            // TODO: fix 1.5
-            sideMaterial
-                    .push(vec[axis] === sign * 1.5 * cubiesOff ? colorMatts[faceVectorToFacelet(
-                            face, vec)]
-                            : colorMatts.I);
+            sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < 1 ?
+                    colorMatts[faceVectorToFacelet(face, vec)]: colorMatts.I);
         }
         var cubieMesh = new THREE.Mesh(cubieGeometry,
                 new THREE.MeshFaceMaterial(sideMaterial));
@@ -122,11 +127,11 @@ function cubiesCreate(oldCubies) {
 // of that cubie. X is least significant, low value first.
 function cubiesNumberToInitVector3(num) {
     var mid = (cubiesOrder - 1) / 2;
-    var x = cubiesOff * (num % cubiesOrder - mid);
+    var x = cubiesOffScaled * (num % cubiesOrder - mid);
     num = 0 | (num / cubiesOrder);
-    var y = cubiesOff * (num % cubiesOrder - mid);
+    var y = cubiesOffScaled * (num % cubiesOrder - mid);
     num = 0 | (num / cubiesOrder);
-    var z = cubiesOff * (num % cubiesOrder - mid);
+    var z = cubiesOffScaled * (num % cubiesOrder - mid);
 
     return new THREE.Vector3(x, y, z);
 }
@@ -208,9 +213,16 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     return rotationLock ? bestMove : null;
 }
 
+// Scale a distance based on the order so that he overall size of the cube
+// is the same for all orders.
+function cubiesScaleDist(dist)
+{
+    return cubiesScale * dist;
+}
+
 // Return true if the cube is solved.
 function cubiesSolved() {
-    var center = cubies[centerNum];
+    var center = cubies[cubiesCenter];
     for (var i = 0; i < cubiesNum; i++) {
         // The goal is to iterate through the cubies in a semi-random fashion
         // in order to increase the odds of detecting an unsolved cubie early.
@@ -275,10 +287,9 @@ function faceVectorToFacelet(face, vec) {
 
     // Scale the vector to [-1, -1, -1] - [1, 1, 1].
     var vecOne = vec.clone();
-    // TODO: Fix hard coded 1.5.
-    vecOne.x = Math.round(vecOne.x / (1.5 * cubiesOff));
-    vecOne.y = Math.round(vecOne.y / (1.5 * cubiesOff));
-    vecOne.z = Math.round(vecOne.z / (1.5 * cubiesOff));
+    vecOne.x = Math.round(vecOne.x / cubiesHalfSide);
+    vecOne.y = Math.round(vecOne.y / cubiesHalfSide);
+    vecOne.z = Math.round(vecOne.z / cubiesHalfSide);
 
     var mults = faceletAxisMults[face];
     // The center has offset 4 in each face section in the sequence of

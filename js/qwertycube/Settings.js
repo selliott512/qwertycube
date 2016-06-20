@@ -30,6 +30,7 @@ var settingsVarNameDescs = [
     ["cubiesGap", true, true, "The size of the gaps between cubies."],
     ["cubiesInitFacelets", true, true, "Facelet pattern used for new cubes.  The pattern specified is " +
             "considered to be solved (the timer will stop when it's reached). Order is URFDLB."],
+    ["cubiesOrder", true, true, "The order of the cube.  The order of the usual 3x3x3 cube is 3."],
     ["cubiesSize", true, true, "The size of each cubie."],
     ["dispOrientationLabels", true, false, "Display labels that to show the orientation \"O\" toggles)."],
     ["flashHelp", true, false, "If true then flash the Help button on load and inform the user to click it."],
