@@ -228,7 +228,7 @@ function cubiesSolved() {
         // in order to increase the odds of detecting an unsolved cubie early.
         // If we went in order then just the back side being solved would delay
         // detection for 9 cubies.
-        var num = (241 * i + 349) % cubiesOrder;
+        var num = (233 * i + 349) % cubiesNum;
 
         // We only want to check corner and edge cubies relative to the
         // center cubie. As can be seen by disassembling an actual Rubik's
