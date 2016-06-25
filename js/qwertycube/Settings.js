@@ -91,6 +91,11 @@ function settingsHide() {
 function settingsOk() {
     console.log("Ok clicked");
 
+    // This is done twice since creating a new cube depends on some of the
+    // varaibles.
+    applyVariables();
+    initVars();
+
     // Reset the cube.
     if (!animateNewCube()) {
         // Should be infrequent.
@@ -98,37 +103,13 @@ function settingsOk() {
         return;
     }
 
-    // Now apply the variables.
-    var lines = settingsTextEl.value.split("\n");
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i];
-        // Strip off comments.
-        line = line.replace(/#.*$/g, "");
-        var eqIndex = line.indexOf("=");
-        if (eqIndex === -1) {
-            continue;
-        }
-        var varName = line.substr(0, eqIndex).trim();
-        var varValueStr = line.substr(eqIndex + 1).trim();
-        setGlobal(varName, varValueStr);
-    }
-
-    // Miscellaneous checks for variables.
-    if (moveHistoryNext > moveHistory.length) {
-        moveHistoryNext = moveHistory.length;
-    }
-    // Standard upper case, no spaces, truncate if too long.
-    cubiesInitFacelets = cubiesInitFacelets.replace(/ /g, "").toUpperCase().substring(0, 54);
-    while (cubiesInitFacelets.length < 54) {
-        // Just use internal if the string is too short for some reason.
-        cubiesInitFacelets += "I";
-    }
+    // Do this again to re-set variables set by creating a new cube.
+    applyVariables();
 
     // Now that the globals have been updated save to persistent storage.
     initSaveStorage();
     animateUpdateStatus("Settings saved");
 
-    initVars();
     initSetBackgroundColor();
     animateSetCamera();
     animateWireframeSphere(wireframeSphere);
@@ -224,6 +205,35 @@ function settingsShow() {
 }
 
 // Private methods
+
+function applyVariables() {
+    // Apply the variables in the text area.
+    var lines = settingsTextEl.value.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        // Strip off comments.
+        line = line.replace(/#.*$/g, "");
+        var eqIndex = line.indexOf("=");
+        if (eqIndex === -1) {
+            continue;
+        }
+        var varName = line.substr(0, eqIndex).trim();
+        var varValueStr = line.substr(eqIndex + 1).trim();
+        setGlobal(varName, varValueStr);
+    }
+
+    // Miscellaneous checks for variables.
+    if (moveHistoryNext > moveHistory.length) {
+        moveHistoryNext = moveHistory.length;
+    }
+    // Standard upper case, no spaces, truncate if too long.
+    cubiesInitFacelets = cubiesInitFacelets.replace(/ /g, "").toUpperCase().
+        substring(0, 54);
+    while (cubiesInitFacelets.length < 54) {
+        // Just use internal if the string is too short for some reason.
+        cubiesInitFacelets += "I";
+    }
+}
 
 function setCursorAfterInit() {
     settingsTextEl.spellcheck = false;
