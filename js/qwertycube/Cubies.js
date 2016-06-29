@@ -6,24 +6,31 @@
 var cubies = [];
 
 // The size of the cubies.
+var cubiesCenter;
 var cubiesSize = 100;
 var cubiesSizeScaled;
 var cubiesGap = cubiesSize / 10;
 var cubiesGapScaled;
 var cubiesHalfSide;
-var cubiesOff;
-var cubiesOffScaled;
+var cubiesOffset;
+var cubiesOffsetScaled;
 var cubiesOrder = 3;
 var cubiesRadius;
 var cubiesScale;
 var cubiesSep;
+var cubiesSmallDist = 0.1;
 var cubiesSmallValue = 0.001;
 var cubiesColorBackground = "0x808080";
 var cubiesColorOverrides = {};
 var cubiesColorScheme = "std-black";
+var cubiesEdgesIndex;
 var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
-var cubiesNum;
-var cubiesCenter;
+var cubiesMiddlesIndex;
+var cubiesMiddlesInfo;
+var cubiesCornerOffset;
+var cubiesCornerRange;
+var cubiesSmall = 0.1;
+
 
 // Other than the first color the colors are ordered in the same was as it is
 // for MeshFaceMaterial. I is interior (the color of the gaps). The remaining
@@ -90,19 +97,52 @@ var faceletOrder = "URFDLB";
 // Public methods
 
 function cubiesCreate(oldCubies) {
+    var cbsCorners = [];
+    var cbsEdges = [];
+    var cbsMiddles = [];
     var cbs = [];
+    cubiesMiddlesInfo = [];
     initMaterials();
 
-    var cornerOffset;
     var cubieGeometry = new THREE.BoxGeometry(cubiesSizeScaled,
             cubiesSizeScaled, cubiesSizeScaled);
     for (var zi = 0; zi < cubiesOrder; zi++) {
         for (var yi = 0; yi < cubiesOrder; yi++) {
             for (var xi = 0; xi < cubiesOrder; xi++) {
+                // True if the cubie touches the surface of the cubie on the
+                // axis specified.
+                var surfs = 0;
+                var surfInfo = null;
+                var indexMax = cubiesOrder - 1;
+                var xSurf = (xi === 0) || (xi === indexMax);
+                if (xSurf) {
+                    surfs++;
+                    surfInfo = {axis: "x", move: (xi !== 0)};
+                }
+                var ySurf = (yi === 0) || (yi === indexMax);
+                if (ySurf) {
+                    surfs++;
+                    if (!surfInfo) {
+                        surfInfo = {axis: "y", move: (yi !== 0)};
+                    }
+                }
+                var zSurf = (zi === 0) || (zi === indexMax);
+                if (zSurf) {
+                    surfs++;
+                    if (!surfInfo) {
+                        surfInfo = {axis: "z", move: (zi !== 0)};
+                    }
+                }
+                if (!surfs) {
+                    // If it's not touching any surface then it's inside the
+                    // cube and we don't need to render it.
+                    continue;
+                }
                 var vec = cubiesIndexesToInitVector3(xi, yi, zi);
-                if (!cornerOffset) {
+                if (!cubiesCornerOffset) {
                     // The offset of a corner, which should be the largest offset.
-                    var cornerOffset = Math.abs(vec.x);
+                    cubiesCornerOffset = Math.abs(vec.x);
+                    cubiesCornerRange = 2 * cubiesCornerOffset;
                 }
                 var sideMaterial = [];
                 for ( var face in colorValues) {
@@ -115,7 +155,7 @@ function cubiesCreate(oldCubies) {
                     // the face is on the positive side of the axis.
                     var sign = -rotation[0];
                     var axis = rotation[1];
-                    sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < 0.1 ?
+                    sideMaterial.push(Math.abs(vec[axis] - sign * cubiesCornerOffset) < cubiesSmallDist ?
                             colorMatts[faceVectorToFacelet(face, vec)]: colorMatts.I);
                 }
                 var cubieMesh = new THREE.Mesh(cubieGeometry,
@@ -127,20 +167,34 @@ function cubiesCreate(oldCubies) {
                 } else {
                     cubieMesh.position.copy(vec);
                 }
-                cbs.push(cubieMesh);
+                switch (surfs) {
+                case 1:
+                    cbsMiddles.push(cubieMesh);
+                    cubiesMiddlesInfo.push(surfInfo);
+                    break;
+                case 2:
+                    cbsEdges.push(cubieMesh);
+                    break;
+                case 3:
+                    cbsCorners.push(cubieMesh);
+                    break;
+                }
             }
         }
     }
-    cubies = cbs;
+    // Order cubies by cubie type.
+    cubies = cbsCorners.concat(cbsEdges, cbsMiddles);
+    cubiesEdgesIndex = cbsCorners.length;
+    cubiesMiddlesIndex = cubiesEdgesIndex + cbsEdges.length;
 }
 
 // Convert cubie indexes (zero based set of three integers) to a vector that
 // describes the initial solved location of that cubie.
 function cubiesIndexesToInitVector3(xi, yi, zi) {
     var mid = (cubiesOrder - 1) / 2;
-    var x = cubiesOffScaled * (xi - mid);
-    var y = cubiesOffScaled * (yi - mid);
-    var z = cubiesOffScaled * (zi - mid);
+    var x = cubiesOffsetScaled * (xi - mid);
+    var y = cubiesOffsetScaled * (yi - mid);
+    var z = cubiesOffsetScaled * (zi - mid);
 
     return new THREE.Vector3(x, y, z);
 }
@@ -231,41 +285,65 @@ function cubiesScaleDist(dist)
 
 // Return true if the cube is solved.
 function cubiesSolved() {
-    var center = cubies[cubiesCenter];
-    for (var i = 0; i < cubiesNum; i++) {
+    var ref = cubies[0];
+    for (var i = 0; i < cubiesMiddlesIndex; i++) {
         // The goal is to iterate through the cubies in a semi-random fashion
         // in order to increase the odds of detecting an unsolved cubie early.
         // If we went in order then just the back side being solved would delay
         // detection for 9 cubies.
-        var num = (233 * i + 349) % cubiesNum;
+        // var num = (233 * i + 349) % cubiesNum;
+        var num = i; // TODO: more random
 
-        // We only want to check corner and edge cubies relative to the
-        // center cubie. As can be seen by disassembling an actual Rubik's
-        // cube the six center edge pieces are effectively attached to and
-        // determined by the center cubie, so there's no need to check them.
-        var vec = cubiesNumberToInitVector3(num);
-        var zeros = 0;
-        if (vec.x === 0) {
-            zeros++;
-        }
-        if (vec.y === 0) {
-            zeros++;
-        }
-        if (vec.z === 0) {
-            zeros++;
-        }
-        if (zeros > 1) {
-            // Skip the six side center cubies as well as the cubie in the
-            // center.
-            continue;
-        }
-
-        // A real cubie that needs to checked completely.
+        // A corner or edge cubie. In this case the cubie is in the correct
+        // location if and only if it has the same rotation as the reference
+        // cubie.
         var cubie = cubies[num];
-        if (angleIsLarge(cubie.rotation.x - center.rotation.x)
-                || angleIsLarge(cubie.rotation.y - center.rotation.y)
-                || angleIsLarge(cubie.rotation.z - center.rotation.z)) {
+        if (angleIsLarge(cubie.rotation.x - ref.rotation.x)
+                || angleIsLarge(cubie.rotation.y - ref.rotation.y)
+                || angleIsLarge(cubie.rotation.z - ref.rotation.z)) {
             return false;
+        }
+    }
+
+    // From the reference cubie to the first corner cubie, which was along the X
+    // axis for the original solved cube. It may have been rotated, so look for
+    // an axis that has a siginifcant value and that becomes refToXAxis.
+    var axisToAxis = {};
+    var axes = ["x", "y", "z"];
+    for (var i = 0; i < axes.length; i++) {
+        var axis = axes[i];
+        // Index to the corresponding corner that is closest to the zero
+        // corner.  The Z corner is a special case because we want to skip over
+        // the +X +Y -Z corner.
+        var cornerIndex = (i === 2) ? 2 : 1;
+        var refToCorner = ref.position.clone().sub(
+                cubies[i + cornerIndex].position);
+        var currentAxis = largestAbsoluteAxis(refToCorner);
+        axisToAxis[axis] = currentAxis;
+    }
+
+    for (var i = cubiesMiddlesIndex; i < cubies.length; i++) {
+        // The goal is to iterate through the cubies in a semi-random fashion
+        // in order to increase the odds of detecting an unsolved cubie early.
+        // If we went in order then just the back side being solved would delay
+        // detection for 9 cubies.
+        // var num = (233 * i + 349) % cubiesNum;
+        var num = i; // TODO: more random
+        var cubie = cubies[num];
+        var surfInfo = cubiesMiddlesInfo[i - cubiesMiddlesIndex];
+        var axis = surfInfo.axis;
+        var move = surfInfo.move;
+        var currentAxis = axisToAxis[axis];
+        var dist = Math.abs(cubie.position[currentAxis] -
+                ref.position[currentAxis]);
+        if (move) {
+            if (Math.abs(dist - cubiesCornerRange) > cubiesSmallDist) {
+                return false;
+            }
+        } else {
+            if (dist > cubiesSmallDist) {
+                return false;
+            }
         }
     }
 
@@ -284,7 +362,7 @@ function cubiesToVector3(cubie) {
 
 // True if the angle is not close to some multiple of 2*PI.
 function angleIsLarge(angle) {
-    return ((Math.abs(angle) + 0.1) % (2 * Math.PI)) > 0.2;
+    return ((Math.abs(angle) + cubiesSmallDist) % (2 * Math.PI)) > 0.2;
 }
 
 // Given a face and a vector return the facelet (sticker).
