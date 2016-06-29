@@ -117,10 +117,16 @@ function cubiesCreate(oldCubies) {
         }
         var cubieMesh = new THREE.Mesh(cubieGeometry,
                 new THREE.MeshFaceMaterial(sideMaterial));
+        if (oldCubies) {
+            // Set the position and angle based on the old cubies.
+            cubieMesh.position.copy(oldCubies[num].position);
+            cubieMesh.rotation.copy(oldCubies[num].rotation);
+        } else {
+            cubieMesh.position.copy(cubiesNumberToInitVector3(num));
+        }
         cbs.push(cubieMesh);
     }
     cubies = cbs;
-    positionCubies(oldCubies);
 }
 
 // Convert cubie number to a vector that describes the initial solved location
@@ -334,20 +340,5 @@ function initMaterials() {
         colorMatts[side] = new THREE.MeshBasicMaterial({
             color : color,
         });
-    }
-}
-
-// Set the location of the cubies.
-function positionCubies(oldCubies) {
-    if (oldCubies) {
-        // Set the position and angle based on the old cubies.
-        for (var i = 0; i < cubies.length; i++) {
-            cubies[i].position.copy(oldCubies[i].position);
-            cubies[i].rotation.copy(oldCubies[i].rotation);
-        }
-    } else {
-        for (var num = 0; num < cubiesNum; num++) {
-            cubies[num].position.copy(cubiesNumberToInitVector3(num));
-        }
     }
 }
