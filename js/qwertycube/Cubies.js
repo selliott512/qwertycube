@@ -93,51 +93,54 @@ function cubiesCreate(oldCubies) {
     var cbs = [];
     initMaterials();
 
+    var cornerOffset;
     var cubieGeometry = new THREE.BoxGeometry(cubiesSizeScaled,
             cubiesSizeScaled, cubiesSizeScaled);
-    for (var num = 0; num < cubiesNum; num++) {
-        var vec = cubiesNumberToInitVector3(num);
-        if (num === 0) {
-            // The offset of a corner, which should be the largest offset.
-            var cornerOffset = Math.abs(vec.x);
-        }
-        var sideMaterial = [];
-        for ( var face in colorValues) {
-            if (face === "I") {
-                continue;
-            }
+    for (var zi = 0; zi < cubiesOrder; zi++) {
+        for (var yi = 0; yi < cubiesOrder; yi++) {
+            for (var xi = 0; xi < cubiesOrder; xi++) {
+                var vec = cubiesIndexesToInitVector3(xi, yi, zi);
+                if (!cornerOffset) {
+                    // The offset of a corner, which should be the largest offset.
+                    var cornerOffset = Math.abs(vec.x);
+                }
+                var sideMaterial = [];
+                for ( var face in colorValues) {
+                    if (face === "I") {
+                        continue;
+                    }
 
-            var rotation = faceToRotation[face];
-            // The meaning of sign is the opposite here - it's positive if
-            // the face is on the positive side of the axis.
-            var sign = -rotation[0];
-            var axis = rotation[1];
-            sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < 1 ?
-                    colorMatts[faceVectorToFacelet(face, vec)]: colorMatts.I);
+                    var rotation = faceToRotation[face];
+                    // The meaning of sign is the opposite here - it's positive if
+                    // the face is on the positive side of the axis.
+                    var sign = -rotation[0];
+                    var axis = rotation[1];
+                    sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < 0.1 ?
+                            colorMatts[faceVectorToFacelet(face, vec)]: colorMatts.I);
+                }
+                var cubieMesh = new THREE.Mesh(cubieGeometry,
+                        new THREE.MeshFaceMaterial(sideMaterial));
+                if (oldCubies) {
+                    // Set the position and angle based on the old cubies.
+                    cubieMesh.position.copy(oldCubies[num].position);
+                    cubieMesh.rotation.copy(oldCubies[num].rotation);
+                } else {
+                    cubieMesh.position.copy(vec);
+                }
+                cbs.push(cubieMesh);
+            }
         }
-        var cubieMesh = new THREE.Mesh(cubieGeometry,
-                new THREE.MeshFaceMaterial(sideMaterial));
-        if (oldCubies) {
-            // Set the position and angle based on the old cubies.
-            cubieMesh.position.copy(oldCubies[num].position);
-            cubieMesh.rotation.copy(oldCubies[num].rotation);
-        } else {
-            cubieMesh.position.copy(cubiesNumberToInitVector3(num));
-        }
-        cbs.push(cubieMesh);
     }
     cubies = cbs;
 }
 
-// Convert cubie number to a vector that describes the initial solved location
-// of that cubie. X is least significant, low value first.
-function cubiesNumberToInitVector3(num) {
+// Convert cubie indexes (zero based set of three integers) to a vector that
+// describes the initial solved location of that cubie.
+function cubiesIndexesToInitVector3(xi, yi, zi) {
     var mid = (cubiesOrder - 1) / 2;
-    var x = cubiesOffScaled * (num % cubiesOrder - mid);
-    num = 0 | (num / cubiesOrder);
-    var y = cubiesOffScaled * (num % cubiesOrder - mid);
-    num = 0 | (num / cubiesOrder);
-    var z = cubiesOffScaled * (num % cubiesOrder - mid);
+    var x = cubiesOffScaled * (xi - mid);
+    var y = cubiesOffScaled * (yi - mid);
+    var z = cubiesOffScaled * (zi - mid);
 
     return new THREE.Vector3(x, y, z);
 }
