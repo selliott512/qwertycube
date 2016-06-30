@@ -162,11 +162,7 @@ function cubiesCreate(oldCubies) {
                 }
                 var cubieMesh = new THREE.Mesh(cubieGeometry,
                         new THREE.MeshFaceMaterial(sideMaterial));
-                if (oldCubies) {
-                    // Set the position and angle based on the old cubies.
-                    cubieMesh.position.copy(oldCubies[num].position);
-                    cubieMesh.rotation.copy(oldCubies[num].rotation);
-                } else {
+                if (!oldCubies) {
                     cubieMesh.position.copy(vec);
                 }
                 switch (surfs) {
@@ -188,6 +184,16 @@ function cubiesCreate(oldCubies) {
     cubies = cbsCorners.concat(cbsEdges, cbsMiddles);
     cubiesEdgesIndex = cbsCorners.length;
     cubiesMiddlesIndex = cubiesEdgesIndex + cbsEdges.length;
+
+    if (oldCubies) {
+        // Set the position and angle based on the old cubies.
+        for (var i = 0; i < cubies.length; i++) {
+            var cubie = cubies[i];
+
+            cubie.position.copy(oldCubies[i].position);
+            cubie.rotation.copy(oldCubies[i].rotation);
+        }
+    }
 }
 
 // Convert cubie indexes (zero based set of three integers) to a vector that
