@@ -340,9 +340,13 @@ function onKeyDown(event) {
             settingsApply(false);
             break;
         case "_": // Decrease the order.
-            cubiesOrder--;
-            animateUpdateStatus("Decreased order to " + cubiesOrder);
-            settingsApply(false);
+            if (cubiesOrder > 2) {
+                cubiesOrder--;
+                animateUpdateStatus("Decreased order to " + cubiesOrder);
+                settingsApply(false);
+            } else {
+                animateUpdateStatus("Minmimum order is 2");
+            }
             break;
 
         // A lot of good letters were already taken.
