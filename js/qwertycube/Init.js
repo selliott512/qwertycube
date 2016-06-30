@@ -15,6 +15,9 @@ var mainButtonList = [{
     key : "V",
     toggle : "heise"
 }, {
+    label : "NxNxN",
+    key : "^",
+}, {
     label : "Scramble",
     key : "J"
 }, {
@@ -32,6 +35,9 @@ var mainButtonList = [{
     key : "A",
     toggle : "animationInst",
 }, {
+    label : "3x3x3",
+    key : "-",
+}, {
     label : "Savepoint",
     key : "C"
 }, {
@@ -46,6 +52,9 @@ var mainButtonList = [{
 }, {
     label : "Color",
     key : "Q"
+}, {
+    label : "nxnxn",
+    key : "_"
 }, {
     label : "Redo",
     key : "SG"

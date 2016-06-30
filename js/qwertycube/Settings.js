@@ -71,6 +71,53 @@ var settingsButtonList = [ {
 
 // Public methods
 
+function settingsApply(okClicked) {
+    // This is done twice since creating a new cube depends on some of the
+    // varaibles.
+    if (okClicked) {
+        applyVariables();
+    }
+    initVars();
+
+    // Reset the cube.
+    if (!animateNewCube(okClicked)) {
+        // Should be infrequent.
+        animateUpdateStatus("Can't apply settings.");
+        return;
+    }
+
+    // Do this again to re-set variables set by creating a new cube.
+    if (okClicked) {
+        applyVariables();
+    }
+
+    // Now that the globals have been updated save to persistent storage.
+    if (okClicked) {
+        initSaveStorage();
+        animateUpdateStatus("Settings saved");
+    }
+
+    initSetBackgroundColor();
+    animateSetCamera();
+    animateWireframeSphere(wireframeSphere);
+
+    // Apply the new move history to the cube.
+    // TODO: If the cube is partially rewound then those moves after
+    // moveHistoryNext are lost upon restore.
+    clearMoveQueue();
+    enqueueMoves(moveHistory);
+    if (moveHistory.length) {
+        moveHistory.length = 0; // The moveQueue will be appended.
+        moveHistoryNextLast = moveHistoryNext;
+        moveHistoryNext = 0;
+    }
+    if (okClicked) {
+        settingsHide();
+    }
+    animateResize();
+    animateCondReq(true);
+}
+
 function settingsCancel() {
     console.log("Cancel clicked")
     settingsHide();
@@ -90,43 +137,7 @@ function settingsHide() {
 
 function settingsOk() {
     console.log("Ok clicked");
-
-    // This is done twice since creating a new cube depends on some of the
-    // varaibles.
-    applyVariables();
-    initVars();
-
-    // Reset the cube.
-    if (!animateNewCube()) {
-        // Should be infrequent.
-        animateUpdateStatus("Can't apply settings.");
-        return;
-    }
-
-    // Do this again to re-set variables set by creating a new cube.
-    applyVariables();
-
-    // Now that the globals have been updated save to persistent storage.
-    initSaveStorage();
-    animateUpdateStatus("Settings saved");
-
-    initSetBackgroundColor();
-    animateSetCamera();
-    animateWireframeSphere(wireframeSphere);
-
-    // Apply the new move history to the cube.
-    // TODO: If the cube is partially rewound then those moves after
-    // moveHistoryNext are lost upon restore.
-    clearMoveQueue();
-    enqueueMoves(moveHistory);
-    if (moveHistory.length) {
-        moveHistory.length = 0; // The moveQueue will be appended.
-        moveHistoryNextLast = moveHistoryNext;
-        moveHistoryNext = 0;
-    }
-    settingsHide();
-    animateResize();
-    animateCondReq(true);
+    settingsApply(true);
 }
 
 function settingsOnKeyDown(event) {

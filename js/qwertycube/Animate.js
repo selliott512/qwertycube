@@ -155,7 +155,7 @@ function animateResize() {
     }
 }
 
-function animateNewCube() {
+function animateNewCube(clearHistory) {
     if (moveCurrent || moveQueue.length) {
         // Don't attempt to do a scramble if there are outstanding
         // moves.
@@ -164,8 +164,10 @@ function animateNewCube() {
     }
     moveCurrent = null;
     clearMoveQueue();
-    moveHistory.length = 0;
-    moveHistoryNext = 0;
+    if (clearHistory) {
+        moveHistory.length = 0;
+        moveHistoryNext = 0;
+    }
     rotateEnd();
     animateResetScene(null);
     if (!settingsDisplayed) {

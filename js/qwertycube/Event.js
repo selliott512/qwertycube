@@ -327,6 +327,24 @@ function onKeyDown(event) {
 
         var validEventChar = true;
         switch (eventChar) {
+        // Punctuation is used for changing the cube order since those buttons
+        // don't have a key binding.
+        case "^": // Increase the order
+            cubiesOrder++;
+            animateUpdateStatus("Increased order to " + cubiesOrder);
+            settingsApply(false);
+            break;
+        case "-": // Go back to 3x3x3.
+            cubiesOrder = 3;
+            animateUpdateStatus("Reset order to " + cubiesOrder);
+            settingsApply(false);
+            break;
+        case "_": // Decrease the order.
+            cubiesOrder--;
+            animateUpdateStatus("Decreased order to " + cubiesOrder);
+            settingsApply(false);
+            break;
+
         // A lot of good letters were already taken.
         case "A": // (A)nimation toggle
             animationInst = !animationInst;
@@ -415,7 +433,7 @@ function onKeyDown(event) {
             // existing cube.
             var newCube = alt && shift;
             if (newCube) {
-                if (!animateNewCube()) {
+                if (!animateNewCube(true)) {
                     return;
                 }
             }
@@ -444,7 +462,7 @@ function onKeyDown(event) {
         case "N": // (N)new cube
             if ((buttonBar && confirm("New cube?")) || (alt && shift)) {
                 animateUpdateStatus("New cube");
-                if (!animateNewCube()) {
+                if (!animateNewCube(true)) {
                     return;
                 }
             } else {
