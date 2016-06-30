@@ -27,7 +27,6 @@ var cubiesEdgesIndex;
 var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 var cubiesMiddlesIndex;
 var cubiesMiddlesInfo;
-var cubiesCornerOffset;
 var cubiesCornerRange;
 var cubiesSmall = 0.1;
 
@@ -101,11 +100,13 @@ function cubiesCreate(oldCubies) {
     var cbsEdges = [];
     var cbsMiddles = [];
     var cbs = [];
+    var cornerOffset = 0;
+    var cubieGeometry = new THREE.BoxGeometry(cubiesSizeScaled,
+            cubiesSizeScaled, cubiesSizeScaled);
+
     cubiesMiddlesInfo = [];
     initMaterials();
 
-    var cubieGeometry = new THREE.BoxGeometry(cubiesSizeScaled,
-            cubiesSizeScaled, cubiesSizeScaled);
     for (var zi = 0; zi < cubiesOrder; zi++) {
         for (var yi = 0; yi < cubiesOrder; yi++) {
             for (var xi = 0; xi < cubiesOrder; xi++) {
@@ -139,10 +140,11 @@ function cubiesCreate(oldCubies) {
                     continue;
                 }
                 var vec = cubiesIndexesToInitVector3(xi, yi, zi);
-                if (!cubiesCornerOffset) {
-                    // The offset of a corner, which should be the largest offset.
-                    cubiesCornerOffset = Math.abs(vec.x);
-                    cubiesCornerRange = 2 * cubiesCornerOffset;
+                if (!cornerOffset) {
+                    // The offset of the first or reference corner, which should
+                    // be the largest offset.
+                    cornerOffset = Math.abs(vec.x);
+                    cubiesCornerRange = 2 * cornerOffset;
                 }
                 var sideMaterial = [];
                 for ( var face in colorValues) {
@@ -155,7 +157,7 @@ function cubiesCreate(oldCubies) {
                     // the face is on the positive side of the axis.
                     var sign = -rotation[0];
                     var axis = rotation[1];
-                    sideMaterial.push(Math.abs(vec[axis] - sign * cubiesCornerOffset) < cubiesSmallDist ?
+                    sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < cubiesSmallDist ?
                             colorMatts[faceVectorToFacelet(face, vec)]: colorMatts.I);
                 }
                 var cubieMesh = new THREE.Mesh(cubieGeometry,
