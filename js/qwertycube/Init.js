@@ -110,7 +110,7 @@ function initAddUpdateButtons(buttonList) {
     var cols = Math.floor(buttonList.length / rows + 0.99);
 
     // Calculate what the size of each mutton must be.
-    var buttonWidth = Math.floor(canvasWidth / cols);
+    var buttonWidth = canvasWidth / cols;
     var buttonHeight = Math.floor(buttonBarHeight / buttonRowsMax);
     var buttonTopOffset = (buttonRowsMax - rows) * buttonHeight;
     primaryHeight = canvasHeight + buttonTopOffset;
@@ -138,9 +138,9 @@ function initAddUpdateButtons(buttonList) {
         buttonEl.id = "button-" + button.label.toLowerCase().replace(" ", "-");
 
         // Set the size and location.
-        buttonEl.style.left = (col * buttonWidth) + "px";
+        buttonEl.style.left = Math.round(col * buttonWidth) + "px";
         buttonEl.style.top = (row * buttonHeight + primaryHeight) + "px";
-        buttonEl.style.width = (buttonWidth) + "px";
+        buttonEl.style.width = Math.round(buttonWidth) + "px";
         buttonEl.style.height = buttonHeight + "px";
 
         // Add a literal.
