@@ -221,7 +221,7 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     var bestMoveScore = rotationLockLimit;
 
     var axes = onAxis ? [onAxis] : ["x", "y", "z"];
-    for (var i = 0; i <= axes.length; i++) {
+    for (var i = 0; i < axes.length; i++) {
         var axis = axes[i];
         // Of the two sides for each axis we only need to consider the one
         // closest to the camera.
