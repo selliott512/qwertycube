@@ -218,6 +218,9 @@ function settingsShow() {
 // Private methods
 
 function applyVariables() {
+    // Save variables where special action needs to be taken when they change.
+    var scrambleCountOld = scrambleCount;
+
     // Apply the variables in the text area.
     var lines = settingsTextEl.value.split("\n");
     for (var i = 0; i < lines.length; i++) {
@@ -243,6 +246,16 @@ function applyVariables() {
     while (cubiesInitFacelets.length < 54) {
         // Just use internal if the string is too short for some reason.
         cubiesInitFacelets += "I";
+    }
+
+    // If the scrambleCount was changed then the cached scrambles may need
+    // to be recreated.
+    if (scrambleCount !== scrambleCountOld) {
+        for (var name in scrambles) {
+            if ((name.length > 3) || (name > "333")) {
+                delete scrambles[name];
+            }
+        }
     }
 }
 

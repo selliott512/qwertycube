@@ -16,6 +16,9 @@ if (typeof scramblers === "undefined") {
     // https://github.com/lgarron/randomInt.js
     randomInt: function(){function n(){var n="WARNING: randomInt is falling back to Math.random for random number generation.";console.warn?console.warn(n):console.log(n),e=!0}function o(n){if("number"!=typeof n||0>n||Math.floor(n)!==n)throw new Error("randomInt.below() not called with a positive integer value.");if(n>9007199254740992)throw new Error("Called randomInt.below() with max == "+n+", which is larger than Javascript can handle with integer precision.")}function r(n){o(n);var e=a(),i=Math.floor(t/n)*n;return i>e?e%n:r(n)}var a,t=9007199254740992,e=!1,i=window.crypto||window.msCrypto||window.cryptoUint32;if(i)a=function(){var n=2097152,o=new Uint32Array(2);return i.getRandomValues(o),o[0]*n+(o[1]>>21)};else{var l="ERROR: randomInt could not find a suitable crypto.getRandomValues() function.";console.error?console.error(l):console.log(l),a=function(){if(e)return Math.floor(Math.random()*t);throw new Error("randomInt cannot get random values.")}}return{below:r,enableInsecureMathRandomFallback:n}}()
   }
+
+  // Global place holder for a function to get scramblers of arbitrary size.
+  var getNNNScrambler;
 }
 
 // We use an anonymous wrapper (and call it immediately) in order to avoid leaving the generator hanging around in the top-level scope.
@@ -315,19 +318,10 @@ if (typeof scramblers === "undefined") {
           if( i!=0 ) s+=" ";
           var k=seq[n][i]>>2;
        
+          // Modified to produce the same scramble syntax for all sizes.
           j=k%6; k=(k-j)/6;
-          if( k && size<=5 && !mult ) {
-            s+="dlburf".charAt(j);  // use lower case only for inner slices on 4x4x4 or 5x5x5
-          }else{
-            if(size<=5 && mult ){
-              s+="DLBURF".charAt(j);
-              if(k) s+="w"; // use w only for double layers on 4x4x4 and 5x5x5
-            }
-            else{
-              if(k) s+=(k+1);
-              s+="DLBURF".charAt(j);
-            }
-          }
+          if(k) s+=(k+1);
+          s+="DLBURF".charAt(j);
        
           j=seq[n][i]&3;
           if(j!=0) s+=" 2'".charAt(j);
@@ -512,9 +506,29 @@ if (typeof scramblers === "undefined") {
     })();
   }
 
-  scramblers["444bf"] = scramblers["444"] = generate_NNN_scrambler(4, 40, true);
-  scramblers["555bf"] = scramblers["555"] = generate_NNN_scrambler(5, 60, true);
-  scramblers["666"] = generate_NNN_scrambler(6, 70, true);
-  scramblers["777"] = generate_NNN_scrambler(7, 100, true);
+  // No scramblers by default.  Add as needed.
+
+  // Extracted from the "scramlers" entries that were removed.
+  var sizeToSeqlen = {4: 40, 5: 60, 6: 70, 7: 100};
+
+  // Wrapper for generate_NNN_scrambler that is global and that picks the seqlen
+  // if need be.
+  getNNNScrambler = function(size, seqlen) {
+    if (!seqlen) {
+      if (size > 7) {
+        // TODO: Keep adding 30 for higher orders?
+        seqlen = sizeToSeqlen[7] + 30 * (size - 7);
+      } else {
+        seqlen = sizeToSeqlen[size];
+      }
+    }
+
+    // I'm not sure what "mult" is (last argument), but it seems to be true
+    // for all the scramblers.
+    var scrambler = generate_NNN_scrambler(size, seqlen, true);
+    var name = String(cubiesOrder) + String(cubiesOrder) + String(cubiesOrder);
+    scramblers[name] = scrambler;
+    return scrambler;
+  }
 
 })();

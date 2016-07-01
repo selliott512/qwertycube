@@ -3,14 +3,18 @@
 // Globals
 
 var scrambleMoves = [];
-var scrambleCount = 30;
+var scrambleCount = 0; // 0 to let the scrambler decide.
 var scrambleJSSMax = 21; // Observed maximum for JSS.
 var scrambleType = "jsss";
+
+var simpleCount = 0; // Simple scrambler.
 
 // Discard moves that produce the same cube a second time, which seems to be
 // rare.
 var dupCubeCheck = false;
 
+// TODO: Perhaps this "simple" scrambler should be removed as I'm not sure why
+// anyone would want use it in place of the official WCA derived scramblers.
 var cube = {
     // Define the six faces of the cube
     faces : "DLBURF",
@@ -53,7 +57,7 @@ var cube = {
     },
     // Scramble the cube
     scramble : function() {
-        var count = 0, total = scrambleCount, state, prevState = cube.states[cube.states.length - 1], move, moves = [], modifiers = [
+        var count = 0, total = simpleCount, state, prevState = cube.states[cube.states.length - 1], move, moves = [], modifiers = [
                 "", "'", "2" ];
         while (count < total) {
             // Generate a random move
@@ -95,9 +99,24 @@ var cube = {
 function scramble() {
     cube.reset();
     if (scrambleType === "simple") {
+        // 30 is the default for the simple scrambler.
+        simpleCount = scrambleCount ? scrambleCount : 30;
         scrambleMoves = cube.scramble();
     } else if (scrambleType === "jsss") {
-        var scrambleMovesNulls = scramblers["333"].getRandomScramble().scramble_string.split(" ");
+        var name = String(cubiesOrder) + String(cubiesOrder) + String(cubiesOrder);
+        var scrambler = scramblers[name];
+        if (!scrambler) {
+            // This should only happen for cubes with order higher than 3.
+            console.log("Getting new scrambler for order " + cubiesOrder +
+                    " with a count of " + scrambleCount);
+            scrambler = getNNNScrambler(cubiesOrder, scrambleCount);
+            if (!scrambler) {
+              console.log("Unable to get scrambler named \"" + name +
+                  "\" for order " + cubiesOrder);
+              return;
+            }
+        }
+        var scrambleMovesNulls = scrambler.getRandomScramble().scramble_string.split(" ");
         scrambleMoves.length = 0;
         for (var i = 0; i < scrambleMovesNulls.length; i++) {
             if (scrambleMovesNulls[i] !== "") {
@@ -118,5 +137,6 @@ function scramble() {
     timerState = "scramble";
     animateCondReq();
 
+    console.log("Scramble length: " + scrambleMoves.length);
     console.log("Scramble: " + scrambleMoves.join(" "));
 }
