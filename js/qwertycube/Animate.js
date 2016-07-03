@@ -107,6 +107,7 @@ function animateResize() {
     }
     buttonBarHeight = buttonHeightScale
             * Math.floor(buttonBarHeightFraction * window.innerHeight);
+    buttonBarHeight = Math.max(buttonBarHeight, 15);
     buttonBarEl.style.height = buttonBarHeight + "px";
     containerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
     canvasHeight = containerEl.clientHeight;
