@@ -23,18 +23,18 @@ var rotateTwoLayer = false;
 //                is set dynamically as the move is analyzed
 //   limHiIdx   - Like limLoIdx, but for the upper bound.
 var faceToRotation = {
-    B : [1, "z", -1, -1, 1, 0, 0],
-    D : [1, "y", -1, -1, 1, 0, 0],
-    E : [1, "y", 0, 0, 1, 0, 0],
-    F : [-1, "z", 1, 1, 1, 0, 0],
-    L : [1, "x", -1, -1, 1, 0, 0],
-    M : [1, "x", 0, 0, 1, 0, 0],
-    R : [-1, "x", 1, 1, 1, 0, 0],
-    S : [-1, "z", 0, 0, 1, 0, 0],
-    U : [-1, "y", 1, 1, 1, 0, 0],
-    X : [-1, "x", -1, 1, 1, 0, 0],
-    Y : [-1, "y", -1, 1, 1, 0, 0],
-    Z : [-1, "z", -1, 1, 1, 0, 0]
+    B : [1, "z", -1, -1, 1, -1, -1],
+    D : [1, "y", -1, -1, 1, -1, -1],
+    E : [1, "y", 0, 0, 1, -1, -1],
+    F : [-1, "z", 1, 1, 1, -1, -1],
+    L : [1, "x", -1, -1, 1, -1, -1],
+    M : [1, "x", 0, 0, 1, -1, -1],
+    R : [-1, "x", 1, 1, 1, -1, -1],
+    S : [-1, "z", 0, 0, 1, -1, -1],
+    U : [-1, "y", 1, 1, 1, -1, -1],
+    X : [-1, "x", -1, 1, 1, -1, -1],
+    Y : [-1, "y", -1, 1, 1, -1, -1],
+    Z : [-1, "z", -1, 1, 1, -1, -1]
 };
 
 // Like the above, but for all moves. This is populated dynamically on
@@ -90,12 +90,12 @@ function rotateBegin(move, rotation, discardPrevious) {
 
     // Convert the -1, 0, 1 placement along the axes to limits
     // given the cubieOff between them. The limits are inclusive.
-    if (rotation[5] || rotation[6]) { // xxdebug
+    if ((rotation[5] !== -1) &&  (rotation[6] !== -1)) {
         rotation[2] = limitToCoordIdx(rotation[5]);
         rotation[3] = limitToCoordIdx(rotation[6] + 1); // +1 so inclusive
     } else {
-        rotation[2] = limitToCoord(rotation[2]);
-        rotation[3] = limitToCoord(rotation[3] + 1); // +1 so inclusive
+        console.log("Rotation indexes not set for move \"" + move + "\"");
+        return;
     }
     inRangeRotate.apply(this, rotation);
 
@@ -141,19 +141,6 @@ function inRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
         THREE.SceneUtils.attach(active[i], scene, pivot);
     }
     animateCondReq(true);
-}
-
-function limitToCoord(limit) {
-    switch (limit) {
-    case -1:
-        return -cubiesHalfSide - 1;
-    case 0:
-        return -cubiesHalfSide + (cubiesSizeScaled + cubiesGapScaled / 2);
-    case 1:
-        return cubiesHalfSide - (cubiesSizeScaled + cubiesGapScaled / 2);
-    case 2:
-        return cubiesHalfSide + 1;
-    }
 }
 
 function limitToCoordIdx(limit) {
