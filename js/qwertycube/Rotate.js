@@ -14,22 +14,27 @@ var rotateTwoLayer = false;
 //   axisOfRot  - The axis about which the face rotates.
 //   limLo      - An inclusive lower bound indicating which of the three
 //                layers perpendicular to the axis will rotate.  This can
-//                be -1, 0 or 1.
+//                be -1, 0 or 1.  For higher order cubes -1 is the lowest
+//                layer, 0 is all internal layers and 1 is the higher layer.
 //   limHi      - Same as limLo, but for the upper bound.
 //   amount     - The amount or rotation to do measured in 90 degree turns.
+//   limLoIdx   - Like limLo, but a zero based index into the layers of the
+//                cube along the axis.  Range is [0, cubiesOrder - 1].  This
+//                is set dynamically as the move is analyzed
+//   limHiIdx   - Like limLoIdx, but for the upper bound.
 var faceToRotation = {
-    B : [1, "z", -1, -1, 1],
-    D : [1, "y", -1, -1, 1],
-    E : [1, "y", 0, 0, 1],
-    F : [-1, "z", 1, 1, 1],
-    L : [1, "x", -1, -1, 1],
-    M : [1, "x", 0, 0, 1],
-    R : [-1, "x", 1, 1, 1],
-    S : [-1, "z", 0, 0, 1],
-    U : [-1, "y", 1, 1, 1],
-    X : [-1, "x", -1, 1, 1],
-    Y : [-1, "y", -1, 1, 1],
-    Z : [-1, "z", -1, 1, 1]
+    B : [1, "z", -1, -1, 1, 0, 0],
+    D : [1, "y", -1, -1, 1, 0, 0],
+    E : [1, "y", 0, 0, 1, 0, 0],
+    F : [-1, "z", 1, 1, 1, 0, 0],
+    L : [1, "x", -1, -1, 1, 0, 0],
+    M : [1, "x", 0, 0, 1, 0, 0],
+    R : [-1, "x", 1, 1, 1, 0, 0],
+    S : [-1, "z", 0, 0, 1, 0, 0],
+    U : [-1, "y", 1, 1, 1, 0, 0],
+    X : [-1, "x", -1, 1, 1, 0, 0],
+    Y : [-1, "y", -1, 1, 1, 0, 0],
+    Z : [-1, "z", -1, 1, 1, 0, 0]
 };
 
 // Like the above, but for all moves. This is populated dynamically on
@@ -85,8 +90,13 @@ function rotateBegin(move, rotation, discardPrevious) {
 
     // Convert the -1, 0, 1 placement along the axes to limits
     // given the cubieOff between them. The limits are inclusive.
-    rotation[2] = limitToCoord(rotation[2]);
-    rotation[3] = limitToCoord(rotation[3] + 1); // +1 so inclusive
+    if (rotation[5] || rotation[6]) { // xxdebug
+        rotation[2] = limitToCoordIdx(rotation[5]);
+        rotation[3] = limitToCoordIdx(rotation[6] + 1); // +1 so inclusive
+    } else {
+        rotation[2] = limitToCoord(rotation[2]);
+        rotation[3] = limitToCoord(rotation[3] + 1); // +1 so inclusive
+    }
     inRangeRotate.apply(this, rotation);
 
     // True if this move is an undo - don't add it to the move history.
@@ -144,4 +154,9 @@ function limitToCoord(limit) {
     case 2:
         return cubiesHalfSide + 1;
     }
+}
+
+function limitToCoordIdx(limit) {
+    return (cubiesSizeScaled + cubiesGapScaled) * limit -
+        cubiesHalfSide - cubiesGapScaled / 2;
 }

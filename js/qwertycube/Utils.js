@@ -83,7 +83,77 @@ function getMoveFromRotation(rotation) {
 
 // Converts a move to rotation. Returns undefined for savepoints.
 function getRotationFromMove(move) {
-    return moveToRotation[move.replace("G", "")];
+    // Iterate through and parse the possible lo[-hi] prefix.
+    var buf = "";
+    var dash = false;
+    var lo = -1;
+    var hi = -1;
+    for (var i = 0; i < move.length; i++) {
+        var c = move[i];
+        if ((c >= "0") && (c <= "9")) {
+            buf += c;
+        } else if (c === "-") {
+            if (!buf) {
+                // This should not happen.
+                console.log("Invalid prefix for move \"" + move + "\".");
+                return null;
+            }
+            lo = parseInt(buf);
+            buf = "";
+            dash = true;
+        } else {
+            // i points to the first non-prefix character.
+            if (i) {
+                if (!buf) {
+                    // This should not happen.
+                    console.log("Invalid prefix for move \"" + move + "\".");
+                    return null;
+                }
+                if (lo !== -1) {
+                    hi = parseInt(buf);
+                } else {
+                    lo = hi = parseInt(buf);
+                }
+            }
+            break;
+        }
+    }
+
+    // "G" for undo is not part of the table.
+    for (var j = move.length - 1; j >= 0; j--) {
+        if (move[j] !== "G") {
+            break;
+        }
+    }
+
+    // The prefix is not part of the table.
+    var rotation = moveToRotation[move.substr(i, j - i + 1)];
+
+    if (i && rotation) {
+        // There was a range prefix.
+        rotation = rotation.slice();
+        var limLo = rotation[2];
+        var limHi = rotation[3];
+        if (limHi > limLo) {
+            // Two layer.
+            hi++;
+        }
+        var sum = limLo + limHi;
+        if (sum < 0) {
+            var limLoIdx = lo - 1;
+            var limLoIdx = hi - 1;
+        } else if (sum > 0) {
+            var limLoIdx = cubiesOrder - lo;
+            var limHiIdx = cubiesOrder - hi;
+        } else  {
+            // This should not happen.
+            console.log("lo + hi has a sum of " + sum );
+            return null;
+        }
+        rotation[5] = limLoIdx;
+        rotation[6] = limHiIdx;
+    }
+    return rotation;
 }
 
 // Return the name of the coordinate that has the largest absolute value.
