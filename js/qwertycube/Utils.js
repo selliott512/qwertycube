@@ -15,7 +15,7 @@ function clearMoveQueue() {
 //this should be the inverse of indexToCoord.
 function coordToIndex(coord) {
      return Math.floor((coord + (cubiesHalfSide + (cubiesGapScaled / 2))) /
-             cubiesOffset);
+             cubiesOffsetScaled);
 }
 
 // Copy a map. Note that this is not a deep/recursive copy.
@@ -106,11 +106,17 @@ function getMoveFromLayers(axis, layers) {
     // First attempt to find an entry in moveToRotation that matches layers.
     var lo = -1;
     var hi = -1;
-    var amount = null;
+    var amount = 0;
+    var end = false;
     for (var i = 0; i < layers.length; i++) {
         var layer = layers[i];
         if (layer) {
-            if (amount !== null) {
+            if (end) {
+                // This should not happen.
+                console.log("Layers has multiple ends");
+                return null;
+            }
+            if (amount) {
                 if (layer !== amount) {
                     console.log("Unable to convert layers with multiple amounts " +
                     "to a move");
@@ -123,10 +129,12 @@ function getMoveFromLayers(axis, layers) {
                 lo = i;
             }
             hi = i;
+        } else if (amount) {
+            end = true;
         }
     }
 
-    if (amount === null) {
+    if (!amount) {
         // This should not happen.
         console.log("No layers were rotated");
         return null;
@@ -135,8 +143,28 @@ function getMoveFromLayers(axis, layers) {
     var sign = getSign(amount);
     amount = Math.abs(amount);
 
-    if ((lo > 1) && (lo < (cubiesOrder - 2)) ||
-        (hi > 1) && (hi < (cubiesOrder - 2))) {
+    if ((lo === hi) && ((lo === 0) || (lo == (cubiesOrder - 1))) ||
+            (lo <= 1) && (hi >= (cubiesOrder - 2))) {
+        // There is no prefix.  It should be possible to match an existing
+        // entry in rotationToMove.
+        var prefix = false;
+
+        if (lo === 0) {
+            var limLo = -1;
+        } else if (lo < cubiesOrder - 1) {
+            var limLo = 0;
+        } else {
+            var limLo = 1;
+        }
+
+        if (hi === 0) {
+            var limHi = -1;
+        } else if (hi < cubiesOrder - 1) {
+            var limHi = 0;
+        } else {
+            var limHi = 1;
+        }
+    } else {
         // There is a prefix. Find which side a bulk of the layers are closest
         // to and make that the basis of the move.
         var prefix = true;
@@ -160,26 +188,6 @@ function getMoveFromLayers(axis, layers) {
                 limLo = limHi = 1;
             }
         }
-    } else {
-        // There is no prefix.  It should be possible to match an existing
-        // entry in rotationToMove.
-        var prefix = false;
-
-        if (lo === 0) {
-            var limLo = -1;
-        } else if (lo < cubiesOrder - 1) {
-            var limLo = 0;
-        } else {
-            var limLo = 1;
-        }
-
-        if (hi === 0) {
-            var limHi = -1;
-        } else if (hi < cubiesOrder - 1) {
-            var limHi = 0;
-        } else {
-            var limHi = 1;
-        }
     }
 
     // We now have enough information to build a rotation.
@@ -202,8 +210,8 @@ function getMoveFromLayers(axis, layers) {
                 hiRange--;
             }
         } else if (limHi === 1) {
-            var loRange = cubiesOrder - hi - 1;
-            var hiRange = cubiesOrder - lo - 1;
+            var loRange = cubiesOrder - hi;
+            var hiRange = cubiesOrder - lo;
             if (twoLayer) {
                 hiRange--;
             }
