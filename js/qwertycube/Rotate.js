@@ -91,8 +91,8 @@ function rotateBegin(move, rotation, discardPrevious) {
     // Convert the -1, 0, 1 placement along the axes to limits
     // given the cubieOff between them. The limits are inclusive.
     if ((rotation[5] !== -1) &&  (rotation[6] !== -1)) {
-        rotation[2] = limitToCoordIdx(rotation[5]);
-        rotation[3] = limitToCoordIdx(rotation[6] + 1); // +1 so inclusive
+        rotation[2] = indexToCoord(rotation[5]);
+        rotation[3] = indexToCoord(rotation[6] + 1); // +1 so inclusive
     } else {
         console.log("Rotation indexes not set for move \"" + move + "\"");
         return;
@@ -143,7 +143,4 @@ function inRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
     animateCondReq(true);
 }
 
-function limitToCoordIdx(limit) {
-    return (cubiesSizeScaled + cubiesGapScaled) * limit -
-        cubiesHalfSide - cubiesGapScaled / 2;
-}
+// TODO: Move these functions to utils and rename.

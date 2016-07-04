@@ -11,6 +11,13 @@ function clearMoveQueue() {
     rotationQueue.length = 0;
 }
 
+//Convert from a coordinate on the cube to an index into the layers. Note that
+//this should be the inverse of indexToCoord.
+function coordToIndex(coord) {
+     return Math.floor((coord + (cubiesHalfSide + (cubiesGapScaled / 2))) /
+             cubiesOffset);
+}
+
 // Copy a map. Note that this is not a deep/recursive copy.
 function copyMap(oldMap) {
     var newMap = {};
@@ -74,6 +81,148 @@ function getInverseMove(move) {
         // It as non-prime, return prime.
         return move + "'";
     }
+}
+
+// Given a sign, limLoIdx and limHiIdx produce an array of layers.
+function getLayersFromIndexes(sign, limLoIdx, limHiIdx) {
+    var layers = [];
+    for (var i = 0; i < cubiesOrder; i++) {
+        layers[i] = ((i >= limLoIdx) && (i <= limHiIdx)) ? sign : 0;
+    }
+    return layers;
+}
+
+// Given the axis about which layers are rotated and how much each layer is
+// rotated return a move if possible. Positive rotation is in the vector sense
+// with 1 for each 90 degrees counterclockwise.
+function getMoveFromLayers(axis, layers) {
+    if (layers.length !== cubiesOrder) {
+        // This should not happen.
+        console.log("Layers has length " + layers.length + " instead of " +
+                cubiesOrder);
+        return null;
+    }
+
+    // First attempt to find an entry in moveToRotation that matches layers.
+    var lo = -1;
+    var hi = -1;
+    var amount = null;
+    for (var i = 0; i < layers.length; i++) {
+        var layer = layers[i];
+        if (layer) {
+            if (amount !== null) {
+                if (layer !== amount) {
+                    console.log("Unable to convert layers with multiple amounts " +
+                    "to a move");
+                    return null;
+                }
+            } else {
+                amount = layer;
+            }
+            if (lo === -1) {
+                lo = i;
+            }
+            hi = i;
+        }
+    }
+
+    if (amount === null) {
+        // This should not happen.
+        console.log("No layers were rotated");
+        return null;
+    }
+
+    var sign = getSign(amount);
+    amount = Math.abs(amount);
+
+    if ((lo > 1) && (lo < (cubiesOrder - 2)) ||
+        (hi > 1) && (hi < (cubiesOrder - 2))) {
+        // There is a prefix. Find which side a bulk of the layers are closest
+        // to and make that the basis of the move.
+        var prefix = true;
+
+        // Round up for the average in order to bias in favor of the positive
+        // end of the cube.
+        var avg = Math.ceil((lo + hi) / 2);
+        var twoLayer = (hi - lo) === 1;
+        if (avg < ((cubiesOrder - 1) / 2)) {
+            if (twoLayer) {
+                limLo = -1;
+                limHi = 0;
+            } else {
+                limLo = limHi = -1;
+            }
+        } else {
+            if (twoLayer) {
+                limLo = 0;
+                limHi = 1;
+            } else {
+                limLo = limHi = 1;
+            }
+        }
+    } else {
+        // There is no prefix.  It should be possible to match an existing
+        // entry in rotationToMove.
+        var prefix = false;
+
+        if (lo === 0) {
+            var limLo = -1;
+        } else if (lo < cubiesOrder - 1) {
+            var limLo = 0;
+        } else {
+            var limLo = 1;
+        }
+
+        if (hi === 0) {
+            var limHi = -1;
+        } else if (hi < cubiesOrder - 1) {
+            var limHi = 0;
+        } else {
+            var limHi = 1;
+        }
+    }
+
+    // We now have enough information to build a rotation.
+    var rotation = [];
+    rotation[0] = sign;
+    rotation[1] = axis;
+    rotation[2] = limLo;
+    rotation[3] = limHi
+    rotation[4] = amount;
+    rotation[5] = -1;
+    rotation[6] = -1;
+
+    var move = getMoveFromRotation(rotation);
+
+    if (prefix) {
+        if (limLo === -1) {
+            var loRange = lo + 1;
+            var hiRange = hi + 1;
+            if (twoLayer) {
+                hiRange--;
+            }
+        } else if (limHi === 1) {
+            var loRange = cubiesOrder - hi - 1;
+            var hiRange = cubiesOrder - lo - 1;
+            if (twoLayer) {
+                hiRange--;
+            }
+        }
+        else {
+            // This should not happen.
+            console.log("Unexpected ranges limLo=" + limLo + " limHi=" +
+                    limHi);
+        }
+        if (loRange === hiRange) {
+            // Prefixed with a single number.
+            move = loRange + move;
+        } else {
+            // Prefixed with a range.
+            move = loRange + "-" + hiRange + move;
+        }
+    }
+
+    return move;
 }
 
 // Converts a rotation to a move.
@@ -198,6 +347,24 @@ function getRotationFromMove(move) {
     rotation[6] = limHiIdx;
 
     return rotation;
+}
+
+// Like Math.sign(), which is not supported everywhere.
+function getSign(num) {
+    if (num < 0) {
+        return - 1;
+    } else if (num === 0) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+
+//Convert from a index into the layers to a coordinate on the cube.
+function indexToCoord(limit) {
+ return (cubiesSizeScaled + cubiesGapScaled) * limit -
+     cubiesHalfSide - cubiesGapScaled / 2;
 }
 
 // Return the name of the coordinate that has the largest absolute value.

@@ -648,74 +648,31 @@ function onMouseUp(event) {
                 var axis = largestAbsoluteAxis(torque);
                 var sign = torque[axis] >= 0 ? 1 : -1;
 
-                // Convert from the coordinate along the rotating axis to one of
-                // three layers -1, 0 and 1. cubiesSep is right in the middle of
-                // the
-                // gap between layers.
-                var layerStart = (moveBegin.pos[axis] < -cubiesSep) ? -1
-                        : ((moveBegin.pos[axis] > cubiesSep) ? 1 : 0);
+                // Get the indexes into the layers along axis.
+                var limLoIdx = coordToIndex(moveBegin.pos[axis]);
                 if (mouseMoved) {
-                    var layerEnd = (moveEnd.pos[axis] < -cubiesSep) ? -1
-                            : ((moveEnd.pos[axis] > cubiesSep) ? 1 : 0);
+                    var limHiIdx = coordToIndex(moveEnd.pos[axis]);
                 } else {
                     if ((Math.abs(moveFaceDirection.x) < cubiesSep)
                             && (Math.abs(moveFaceDirection.y) < cubiesSep)
                             && (Math.abs(moveFaceDirection.z) < cubiesSep)) {
                         // A middle was clicked - whole cube rotation.
-                        layerStart = -1;
-                        var layerEnd = 1;
+                        limLoIdx = 0;
+                        var limHiIdx = cubiesOrder - 1;
                     } else {
-                        var layerEnd = layerStart;
+                        var limHiIdx = limLoIdx;
                     }
                 }
 
-                if (Math.abs(layerStart - layerEnd) === 1) {
-                    // Since double layer moves are not in the faceToRotation
-                    // table convert to single layer, but make a note that it's
-                    // really a double layer.
-                    var doubleLayer = true;
-                    if (!layerStart) {
-                        layerStart = layerEnd;
-                    } else {
-                        layerEnd = layerStart;
-                    }
-                } else {
-                    var doubleLayer = false;
-                }
+                var layers = getLayersFromIndexes(sign, limLoIdx, limHiIdx);
+                var move = getMoveFromLayers(axis, layers);
+                if (move) {
+                    // Queue the move up.
+                    enqueueMove(move);
 
-                if (layerStart < layerEnd) {
-                    var layerMin = layerStart;
-                    var layerMax = layerEnd;
-                } else {
-                    var layerMin = layerEnd;
-                    var layerMax = layerStart;
-                }
-
-                // Look for the move in faceToRotation.
-                for ( var move in faceToRotation) {
-                    var rotation = faceToRotation[move];
-                    if ((rotation[1] === axis) && (rotation[2] === layerMin)
-                            && (rotation[3] === layerMax)) {
-                        // Found a match. Create the move.
-                        if (doubleLayer) {
-                            move = move.toLowerCase();
-                        }
-                        if (rotation[0] !== sign) {
-                            // Either the direction of the unmodified move in
-                            // the table, or the direction the user specified
-                            // about the axis, is negative. Go the other way.
-                            move += "'";
-                        }
-
-                        // Queue the move up.
-                        enqueueMove(move);
-
-                        // If the user made a move they probably don't care
-                        // about the message.
-                        animateClearStatus();
-
-                        break;
-                    }
+                    // If the user made a move they probably don't care
+                    // about the message.
+                    animateClearStatus();
                 }
             }
         }
