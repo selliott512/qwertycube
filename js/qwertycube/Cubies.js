@@ -9,6 +9,7 @@ var cubies = [];
 var cubiesCenter;
 var cubiesSize = 100;
 var cubiesSizeScaled;
+var cubiesExtendedMiddle;
 var cubiesGap = cubiesSize / 10;
 var cubiesGapScaled;
 var cubiesHalfSide;

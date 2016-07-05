@@ -652,10 +652,17 @@ function onMouseUp(event) {
                 var limLoIdx = coordToIndex(moveBegin.pos[axis]);
                 if (mouseMoved) {
                     var limHiIdx = coordToIndex(moveEnd.pos[axis]);
+                    if (limLoIdx > limHiIdx) {
+                        var buf = limLoIdx;
+                        limLoIdx = limHiIdx;
+                        limHiIdx = buf;
+                    }
                 } else {
-                    if ((Math.abs(moveFaceDirection.x) < cubiesSep)
-                            && (Math.abs(moveFaceDirection.y) < cubiesSep)
-                            && (Math.abs(moveFaceDirection.z) < cubiesSep)) {
+                    if ((Math.abs(moveFaceDirection.x) < cubiesExtendedMiddle)
+                            && (Math.abs(moveFaceDirection.y) <
+                                    cubiesExtendedMiddle)
+                            && (Math.abs(moveFaceDirection.z) <
+                                    cubiesExtendedMiddle)) {
                         // A middle was clicked - whole cube rotation.
                         limLoIdx = 0;
                         var limHiIdx = cubiesOrder - 1;

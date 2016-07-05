@@ -299,6 +299,8 @@ function initVars() {
     cubiesOffsetScaled = cubiesScaleDist(cubiesOffset);
     cubiesHalfSide = Math.round(cubiesSize / 2 + cubiesOffset);
     cubiesSep = Math.round((cubiesSize + cubiesGap) / 2);
+    cubiesExtendedMiddle = cubiesHalfSide - cubiesSizeScaled -
+        (cubiesGapScaled / 2);
 
     // Radius of the smallest sphere that completely encloses the entire cube.
     cubiesRadius = Math.sqrt(3.0) * cubiesHalfSide;
