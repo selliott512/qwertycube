@@ -255,6 +255,11 @@ function getMoveFromRotation(rotation) {
 
 // Converts a move to rotation. Returns undefined for savepoints.
 function getRotationFromMove(move) {
+    // There is no rotation for savepoints.
+    if (move === "|") {
+        return null;
+    }
+
     // Iterate through and parse the possible lo[-hi] prefix.
     var buf = "";
     var dash = false;
