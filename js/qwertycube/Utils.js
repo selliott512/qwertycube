@@ -60,6 +60,16 @@ function enqueueMove(move) {
     rotationQueue.push(getRotationFromMove(move));
 }
 
+// Like enqueueMove except that the rotation may already be known (not null)
+// in which case we don't want to calculate it again.
+function enqueueMoveRotation(moveRot) {
+    if (!moveRot[1]) {
+        moveRot[1] = getRotationFromMove(moveRot[0]);
+    }
+    moveQueue.push(moveRot[0]);
+    rotationQueue.push(moveRot[1]);
+}
+
 // Queues up multiple moves.  See enqueueMove().
 function enqueueMoves(moves) {
     for ( var i = 0; i < moves.length; i++) {
@@ -95,7 +105,7 @@ function getLayersFromIndexes(sign, limLoIdx, limHiIdx) {
 // Given the axis about which layers are rotated and how much each layer is
 // rotated return a move if possible. Positive rotation is in the vector sense
 // with 1 for each 90 degrees counterclockwise.
-function getMoveFromLayers(axis, layers) {
+function getMoveRotationFromLayers(axis, layers) {
     if (layers.length !== cubiesOrder) {
         // This should not happen.
         console.log("Layers has length " + layers.length + " instead of " +
@@ -202,6 +212,11 @@ function getMoveFromLayers(axis, layers) {
 
     var move = getMoveFromRotation(rotation);
 
+    // Now that the lookup has been done setting the following makes the
+    // rotation fully valid and ready for use.
+    rotation[5] = lo;
+    rotation[6] = hi;
+
     if (prefix) {
         if (limLo === -1) {
             var loRange = lo + 1;
@@ -230,7 +245,7 @@ function getMoveFromLayers(axis, layers) {
         }
     }
 
-    return move;
+    return [move, rotation];
 }
 
 // Converts a rotation to a move.

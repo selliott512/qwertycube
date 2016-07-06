@@ -672,10 +672,10 @@ function onMouseUp(event) {
                 }
 
                 var layers = getLayersFromIndexes(sign, limLoIdx, limHiIdx);
-                var move = getMoveFromLayers(axis, layers);
-                if (move) {
-                    // Queue the move up.
-                    enqueueMove(move);
+                var moveRot = getMoveRotationFromLayers(axis, layers);
+                if (moveRot) {
+                    // Queue the move and rotation up.
+                    enqueueMoveRotation(moveRot);
 
                     // If the user made a move they probably don't care
                     // about the message.
