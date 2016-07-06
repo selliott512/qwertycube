@@ -9,19 +9,19 @@ var rotateTwoLayer = false;
 
 // The following lookup table should be kept in sync and in alphabetical order
 // by key.  The five values for each face have the following meanings:
-//   axisSign   - Which direction, in the vector sense, the face rotates
+//   0 axisSign   - Which direction, in the vector sense, the face rotates
 //                about the axis.
-//   axisOfRot  - The axis about which the face rotates.
-//   limLo      - An inclusive lower bound indicating which of the three
+//   1 axisOfRot  - The axis about which the face rotates.
+//   2 limLo      - An inclusive lower bound indicating which of the three
 //                layers perpendicular to the axis will rotate.  This can
 //                be -1, 0 or 1.  For higher order cubes -1 is the lowest
 //                layer, 0 is all internal layers and 1 is the higher layer.
-//   limHi      - Same as limLo, but for the upper bound.
-//   amount     - The amount or rotation to do measured in 90 degree turns.
-//   limLoIdx   - Like limLo, but a zero based index into the layers of the
+//   3 limHi      - Same as limLo, but for the upper bound.
+//   4 amount     - The amount or rotation to do measured in 90 degree turns.
+//   5 limLoIdx   - Like limLo, but a zero based index into the layers of the
 //                cube along the axis.  Range is [0, cubiesOrder - 1].  This
 //                is set dynamically as the move is analyzed
-//   limHiIdx   - Like limLoIdx, but for the upper bound.
+//   6 limHiIdx   - Like limLoIdx, but for the upper bound.
 var faceToRotation = {
     B : [1, "z", -1, -1, 1, -1, -1],
     D : [1, "y", -1, -1, 1, -1, -1],
