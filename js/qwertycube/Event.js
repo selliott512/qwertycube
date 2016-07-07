@@ -46,28 +46,41 @@ var keyAllowedModifiersMap = {
 var keyMap = {};
 var keyMapSize = 0;
 var keyMapTotal = {};
-var keyNumericMap = {
+var keyAdditionalMap = {
     "0" : "A",
     "1" : "C",
-    "2" : "G",
-    "3" : "H",
-    "4" : "I",
-    "5" : "J",
-    "6" : "K",
-    "7" : "N",
-    "8" : "P",
-    "9" : "T"
+    "'" : "G",
+    "2" : "H",
+    "3" : "I",
+    "[" : "J",
+    "4" : "K",
+    "]" : "N",
+    "5" : "O",
+    "=" : "P",
+    "6" : "Q",
+    "7" : "T",
+    "8" : "V"
 };
 var keyPreventDefault = true;
 // Incomplete.  Added to as needed.
 var keyPunctuationMap = {
+     50 : "@",
+     51 : "#",
+     52 : "$",
+    173 : "-",
     186 : ";",
+    187 : "=",
     188 : ",",
+    189 : "-",
     190 : ".",
-    191 : "/"
+    191 : "/",
+    219 : "[",
+    221 : "]",
+    222 : "'"
 };
 var moveBegins = [];
 var moveThreshold = 30;
+var numericPrefix = "";
 var rotationLock = false;
 var rotationLockLimit = 100;
 var buttonColorOrig;
@@ -188,6 +201,7 @@ function onButtonBarButton(event, buttonEl, button) {
 
 function onKeyDown(event) {
     var keyCode = event.keyCode;
+    var punctuation = false;
     if ((keyCode === 16) || (keyCode === 18)) {
         // Ignore shift and alt being pressed by themselves.
         return;
@@ -195,7 +209,9 @@ function onKeyDown(event) {
         // A special punctuation character.  This just used by Heise and
         // custom maps.
         var eventChar = keyPunctuationMap[keyCode];
-        if (!eventChar) {
+        if (eventChar) {
+            punctuation = true;
+        } else {
             // Place holder for unknown characters for now.
             eventChar = "?";
             console.log("Mapping unknown punctuation keyCode " + keyCode
@@ -255,14 +271,31 @@ function onKeyDown(event) {
         }
     }
 
-    if ((eventChar >= "0") && (eventChar <= "9")) {
-        // Convert the alternate numeric key to a command key.
+    var numeric = (eventChar >= "0") && (eventChar <= "9");
+    if ((alt && shift && numeric) || (punctuation && (eventChar !== "-"))) {
+        // Convert the alternate numeric or punctuation key to a command key.
         var eventCharOld = eventChar;
-        eventChar = keyNumericMap[eventChar];
+        eventChar = keyAdditionalMap[eventChar];
         if (!eventChar) {
             // Should not happen.
-            console.log("Could not find numeric key \"" + eventChar + "\".");
+            console.log("Could not find additional key \"" + eventChar + "\".");
             eventChar = eventCharOld;
+        }
+    } else if (numeric || (eventChar === "-")) {
+        if (shift) {
+            var eventCharOld = eventChar;
+            eventChar = keyPunctuationMap[keyCode];
+            if (!eventChar) {
+                eventChar = eventCharOld;
+            }
+        } else {
+            // The key typed is probably meant to be a numeric prefix for a higher
+            // order cube.
+            numericPrefix += eventChar;
+            animateCondReq(true);
+            escLast = false;
+            animateClearStatus();
+            return;
         }
     }
 
@@ -306,7 +339,11 @@ function onKeyDown(event) {
         // commands (Shift-J to scramble, etc.).
         if (alt) {
             var valid = false;
-            var alloweds = keyAllowedModifiersMap[eventChar];
+            if (numeric) {
+                var alloweds = ["AS"];
+            } else {
+                var alloweds = keyAllowedModifiersMap[eventChar];
+            }
             if (alloweds) {
                 for (i = 0; i < alloweds.length; i++) {
                     var allowed = alloweds[i];
@@ -329,17 +366,7 @@ function onKeyDown(event) {
         switch (eventChar) {
         // Punctuation is used for changing the cube order since those buttons
         // don't have a key binding.
-        case "^": // Increase the order
-            cubiesOrder++;
-            animateUpdateStatus("Increased order to " + cubiesOrder);
-            settingsApply(false);
-            break;
-        case "-": // Go back to 3x3x3.
-            cubiesOrder = 3;
-            animateUpdateStatus("Reset order to " + cubiesOrder);
-            settingsApply(false);
-            break;
-        case "_": // Decrease the order.
+        case "@": // Decrease the order.
             if (cubiesOrder > 2) {
                 cubiesOrder--;
                 animateUpdateStatus("Decreased order to " + cubiesOrder);
@@ -347,6 +374,16 @@ function onKeyDown(event) {
             } else {
                 animateUpdateStatus("Minmimum order is 2");
             }
+            break;
+        case "#": // Go back to 3x3x3.
+            cubiesOrder = 3;
+            animateUpdateStatus("Reset order to " + cubiesOrder);
+            settingsApply(false);
+            break;
+        case "$": // Increase the order
+            cubiesOrder++;
+            animateUpdateStatus("Increased order to " + cubiesOrder);
+            settingsApply(false);
             break;
 
         // A lot of good letters were already taken.
