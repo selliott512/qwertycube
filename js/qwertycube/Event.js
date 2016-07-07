@@ -256,7 +256,8 @@ function onKeyDown(event) {
             } else if (keyMapValue[0] === "m") {
                 // Map directly to a move and return.
                 var move = keyMapValue.substring(1);
-                enqueueMove(move);
+                enqueueMove(numericPrefix + move);
+                numericPrefix = "";
                 animateCondReq(true);
                 escLast = false;
 
@@ -322,7 +323,8 @@ function onKeyDown(event) {
         if (alt) {
             move = move.toLowerCase();
         }
-        enqueueMove(move);
+        enqueueMove(numericPrefix + move);
+        numericPrefix = "";
         animateCondReq(true);
         escLast = false;
         if (keyPreventDefault) {
