@@ -18,13 +18,13 @@ var mainButtonList = [{
     label : "N·N·N",
     key : "$",
 }, {
-    label : "Scramble",
+    label : "Jumble",
     key : "J"
 }, {
     label : "New",
     key : "N"
 }, {
-    label : "Settings",
+    label : "Config",
     key : "I"
 }, {
     label : "Lock",
@@ -38,13 +38,13 @@ var mainButtonList = [{
     label : "3·3·3",
     key : "#",
 }, {
-    label : "Savepoint",
+    label : "Save",
     key : "C"
 }, {
     label : "Reset",
     key : "P"
 }, {
-    label : "Undo All",
+    label : "UndoA",
     key : "AG"
 }, {
     label : "Undo",
@@ -59,7 +59,7 @@ var mainButtonList = [{
     label : "Redo",
     key : "SG"
 }, {
-    label : "Redo All",
+    label : "RedoA",
     key : "ASG"
 }];
 
