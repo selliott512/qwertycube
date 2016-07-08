@@ -9,55 +9,54 @@ var settingsInitialText =
     "button (or Esc) to abandon the changes.  They're in alphabetical order. " +
     "You may have to scroll to see some. Variables marked with \"persist\" are " +
     "stored in local storage so that they'll have that value the next time " +
-    "QWERTYcube is loaded. Variables marked with \"new-cube\" will not take " +
-    "effect until a new cube (press New or N) is created.";
+    "QWERTYcube is loaded.";
 
-// Each entry is name, persist, new-cube, description
+// Each entry is name, persist, description
 var settingsVarNameDescs = [
-    ["animationInst", true, false, "If true then moves happen instantaneously. \"A\" toggles."],
-    ["animationLimit", true, false, "Bypass animation when more than this number of moves are queued up."],
-    ["buttonHeightScale", true, false, "Scale the height of the buttons.  0 for no buttons."],
-    ["buttonStyle", true, false, "How the buttons are aranged at the button of the screen.  Choices are " +
+    ["animationInst", true, "If true then moves happen instantaneously. \"A\" toggles."],
+    ["animationLimit", true, "Bypass animation when more than this number of moves are queued up."],
+    ["buttonHeightScale", true, "Scale the height of the buttons.  0 for no buttons."],
+    ["buttonStyle", true, "How the buttons are aranged at the button of the screen.  Choices are " +
              "\"portrait\" (3 rows), \"landscape\" (1 row) or \"auto\" (3 rows for mobile and 1 row for " +
               "non-mobile)."],
-    ["cameraLocation", true, false, "Location of the camera."],
-    ["cubiesColorBackground", true, false, "Background color to use.  Some color names work as well as 0xRRGGBB."],
-    ["cubiesColorOverrides", true, true, "Color overrides.  Space separated list of color override items " +
+    ["cameraLocation", true, "Location of the camera."],
+    ["cubiesColorBackground", true, "Background color to use.  Some color names work as well as 0xRRGGBB."],
+    ["cubiesColorOverrides", true, "Color overrides.  Space separated list of color override items " +
             "where each item has the form <side>:<color>. For example, to map the right side to grey, the " +
             "left side to magenta and the interior to 0x224466: R:grey L:magenta I:0x224466"],
-    ["cubiesColorScheme", true, true, "Cube color scheme.  Valid values are \"hc-black\", \"hc-white\", " +
+    ["cubiesColorScheme", true, "Cube color scheme.  Valid values are \"hc-black\", \"hc-white\", " +
             "\"std-black\" and \"std-white\".  \"hc\" is high contrast."],
-    ["cubiesGap", true, true, "The size of the gaps between cubies."],
-    ["cubiesInitFacelets", true, true, "Facelet pattern used for new cubes.  The pattern specified is " +
+    ["cubiesGap", true, "The size of the gaps between cubies."],
+    ["cubiesInitFacelets", true, "Facelet pattern used for new cubes.  The pattern specified is " +
             "considered to be solved (the timer will stop when it's reached). Order is URFDLB."],
-    ["cubiesOrder", true, true, "The order of the cube.  The order of the usual 3x3x3 cube is 3."],
-    ["cubiesSize", true, true, "The size of each cubie."],
-    ["dispOrientationLabels", true, false, "Display labels that to show the orientation \"O\" toggles)."],
-    ["flashHelp", true, false, "If true then flash the Help button on load and inform the user to click it."],
-    ["heise", true, false, "If true use Heise key mapping instead of the standard RLUDFB."],
-    ["keyMap", true, false, "Key map.  Space separated list of key mapping items where each item has the form " +
+    ["cubiesOrder", true, "The order of the cube.  The order of the usual 3x3x3 cube is 3."],
+    ["cubiesSize", true, "The size of each cubie."],
+    ["dispOrientationLabels", true, "Display labels that to show the orientation \"O\" toggles)."],
+    ["flashHelp", true, "If true then flash the Help button on load and inform the user to click it."],
+    ["heise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
+    ["keyMap", true, "Key map.  Space separated list of key mapping items where each item has the form " +
             "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
             "before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
             "ASW:mR2 Q:kJ SX:mr"],
-    ["keyPreventDefault", true, false, "If true prevent default behavior when a key is recognized by this " +
+    ["keyPreventDefault", true, "If true prevent default behavior when a key is recognized by this " +
             "program.  This prevents the browser from reacting in addition to this program."],
-    ["moveHistory", false, false, "All moves made since loading the page."],
-    ["moveHistoryNext", false, false, "Next move to be made if a redo (Shift-G) is done."],
-    ["moveSec", true, false, "Number of moves per second when replaying."],
-    ["moveThreshold", true, false, "Mouse movements must be at least this many pixels.  Less is interpreted" +
+    ["moveHistory", false, "All moves made since loading the page."],
+    ["moveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
+    ["moveSec", true, "Number of moves per second when replaying."],
+    ["moveThreshold", true, "Mouse movements must be at least this many pixels.  Less is interpreted" +
              "as a single click."],
-    ["rotationLock", true, false, "If true then the cube is not rotated by clicking and moving on the grey " +
+    ["rotationLock", true, "If true then the cube is not rotated by clicking and moving on the grey " +
             "background.  Instead, those clicks are interpreted as cube moves.  This both prevents accidental" +
             "rotations and it makes it possible to have less precise mouse/touch movements for cube moves."],
-    ["rotationLockLimit", true, false, "When rotationLock is true interpret clicks that are this close to " +
+    ["rotationLockLimit", true, "When rotationLock is true interpret clicks that are this close to " +
             "the cube as a move."],
-    ["scrambleCount", true, false, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
-    ["scrambleMoves", false, false, "Moves used to scramble the cube."],
-    ["scrambleType", true, false, "Type of scrambler used.  \"simple\" or \"jsss\"."],
-    ["statusSecs", true, false, "How long status is displayed at the top of the browser."],
-    ["timer", true, false, "Display the timer.  May result in high CPU usage."],
-    ["timerInspectionSecs", true, false, "The amount of inspection time before solving."],
-    ["wireframeSphere", true, false, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
+    ["scrambleCount", true, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
+    ["scrambleMoves", false, "Moves used to scramble the cube."],
+    ["scrambleType", true, "Type of scrambler used.  \"simple\" or \"jsss\"."],
+    ["statusSecs", true, "How long status is displayed at the top of the browser."],
+    ["timer", true, "Display the timer.  May result in high CPU usage."],
+    ["timerInspectionSecs", true, "The amount of inspection time before solving."],
+    ["wireframeSphere", true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
@@ -192,11 +191,9 @@ function settingsShow() {
         var varNameDesc = settingsVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
-        var varNewCube = varNameDesc[2];
-        var varDesc = varNameDesc[3];
+        var varDesc = varNameDesc[2];
         settingsTextEl.value += "\n" + wrapWithComments(varDesc  +
-                (varPersist ? " persist" : "") +
-                (varNewCube ? " new-cube" : "")) + "\n";
+                (varPersist ? " persist" : "")) + "\n";
         var varValue = window[varName];
         var line = varName + "=";
         if (varValue.constructor === Array) {
