@@ -79,12 +79,23 @@ function enqueueMoves(moves) {
 
 // For a given move return the inverse move that will undo it.
 function getInverseMove(move) {
-    if (move.indexOf("2") !== -1) {
+    for (var i = 0; i < move.length; i++) {
+        var c = move[i];
+        if (!(((c >= "0") && (c <= "9")) || (c === "-"))) {
+            // i now points to the first non-prefix character.
+            break;
+        }
+    }
+
+    // The move without the prefix.
+    var moveSuffix = i ? move.substr(i) : move;
+
+    if (moveSuffix.indexOf("2") !== -1) {
         // Doubles are their own inverse.
         return move;
     }
 
-    if (move.indexOf("'") !== -1) {
+    if (moveSuffix.indexOf("'") !== -1) {
         // It was prime, return non-prime.
         return move.replace("'", "");
     } else {
