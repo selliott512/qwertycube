@@ -7,6 +7,7 @@ var cubies = [];
 
 // The size of the cubies.
 var cubiesCenter;
+var cubiesIndexesShuffled;
 var cubiesSize = 100;
 var cubiesSizeScaled;
 var cubiesExtendedMiddle;
@@ -181,10 +182,24 @@ function cubiesCreate(oldCubies) {
             }
         }
     }
-    // Order cubies by cubie type.
+
+    // Order cubies by cubie type.  The resulting cubies array consists of
+    // corners, then edges and finally middles.
     cubies = cbsCorners.concat(cbsEdges, cbsMiddles);
     cubiesEdgesIndex = cbsCorners.length;
     cubiesMiddlesIndex = cubiesEdgesIndex + cbsEdges.length;
+
+    // Now that the indexes of the various cube types are known create a
+    // shuffled map that translates 1:1 from a cubie index to another cubie
+    // index of the same type.  The first shuffle starts at one to avoid
+    // mapping the reference cubie, which is special.
+    if ((!cubiesIndexesShuffled) ||
+            (cubiesIndexesShuffled.length !== cubies.length)) {
+        cubiesIndexesShuffled = getSeq(cubies.length);
+        shuffleArray(cubiesIndexesShuffled, 1, cubiesEdgesIndex);
+        shuffleArray(cubiesIndexesShuffled, cubiesEdgesIndex, cubiesMiddlesIndex);
+        shuffleArray(cubiesIndexesShuffled, cubiesMiddlesIndex, cubies.length);
+    }
 
     if (oldCubies) {
         // Set the position and angle based on the old cubies.
@@ -294,14 +309,13 @@ function cubiesScaleDist(dist)
 
 // Return true if the cube is solved.
 function cubiesSolved() {
-    var ref = cubies[0];
-    for (var i = 0; i < cubiesMiddlesIndex; i++) {
+    var ref = cubies[0]; // reference cubie.
+    for (var i = 1; i < cubiesMiddlesIndex; i++) {
         // The goal is to iterate through the cubies in a semi-random fashion
         // in order to increase the odds of detecting an unsolved cubie early.
         // If we went in order then just the back side being solved would delay
-        // detection for 9 cubies.
-        // var num = (233 * i + 349) % cubiesNum;
-        var num = i; // TODO: more random
+        // detection for too long.
+        var num = cubiesIndexesShuffled[i];
 
         // A corner or edge cubie. In this case the cubie is in the correct
         // location if and only if it has the same rotation as the reference
@@ -332,14 +346,10 @@ function cubiesSolved() {
     }
 
     for (var i = cubiesMiddlesIndex; i < cubies.length; i++) {
-        // The goal is to iterate through the cubies in a semi-random fashion
-        // in order to increase the odds of detecting an unsolved cubie early.
-        // If we went in order then just the back side being solved would delay
-        // detection for 9 cubies.
-        // var num = (233 * i + 349) % cubiesNum;
-        var num = i; // TODO: more random
+        // Pick a random middle cubie.
+        var num = cubiesIndexesShuffled[i];
         var cubie = cubies[num];
-        var surfInfo = cubiesMiddlesInfo[i - cubiesMiddlesIndex];
+        var surfInfo = cubiesMiddlesInfo[num - cubiesMiddlesIndex];
         var axis = surfInfo.axis;
         var move = surfInfo.move;
         var currentAxis = axisToAxis[axis];
@@ -356,7 +366,7 @@ function cubiesSolved() {
         }
     }
 
-    // None of the cubies were rotated.
+    // All of the cubies are in the correct solved location.
     return true;
 }
 

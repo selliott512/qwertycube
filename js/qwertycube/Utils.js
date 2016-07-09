@@ -426,6 +426,15 @@ function getRotationFromMove(move) {
     return rotation;
 }
 
+// Like the "seq" CLI except it starts at 0.  Returns an arary of size num.
+function getSeq(num) {
+    var nums = [];
+    for (var i = 0; i < num; i++) {
+        nums.push(i);
+    }
+    return nums;
+}
+
 // Like Math.sign(), which is not supported everywhere.
 function getSign(num) {
     if (num < 0) {
@@ -436,7 +445,6 @@ function getSign(num) {
         return 1;
     }
 }
-
 
 //Convert from a index into the layers to a coordinate on the cube.
 function indexToCoord(limit) {
@@ -491,6 +499,18 @@ function isMobile() {
         }
     }
     return false;
+}
+
+// Shuffle a subset of an array beginning and index begin (inclusive) and
+// ending at index end (exclusive).  The shuffled portion of the arary will be
+// end - begin entries long.
+function shuffleArray(nums, begin, end) {
+    for (var i = begin; i < end; i++) {
+        var j = Math.floor(Math.random() * (end - i)) + i;
+        var buff  = nums[i];
+        nums[i] = nums[j];
+        nums[j] = buff;
+    }
 }
 
 // Set a global variable by name while preserving the type of the global.
