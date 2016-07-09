@@ -208,14 +208,21 @@ function initClearStorage() {
 }
 
 function initLoadStorage() {
+    var queryParams = getQueryParameters();
+
     for (var i = 0; i < settingsVarNameDescs.length; i++) {
         var varNameDesc = settingsVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
-        if (!varPersist) {
-            continue;
+        // Persistent storage takes precedence over HTTP query parameters.
+        var varValueStr = varPersist ?
+                localStorage.getItem(presistentPrefix + varName) : null;
+        if (varValueStr === null) {
+            var values = queryParams[varName];
+            if (values) {
+                varValueStr = values.join(" ");
+            }
         }
-        var varValueStr = localStorage.getItem(presistentPrefix + varName);
         if (varValueStr !== null) {
             setGlobal(varName, varValueStr);
         }

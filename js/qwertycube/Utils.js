@@ -264,6 +264,44 @@ function getMoveFromRotation(rotation) {
     return rotationToMove[rotation];
 }
 
+// Simple function to parse the HTTP query parameters that should be good
+// enough.  The values are arrays to allow for duplicate keys.
+function getQueryParameters() {
+    var href = window.location.href;
+    var qParams = {};
+    var begin = href.indexOf("?");
+    if (begin !== -1) {
+        begin++;
+    }
+    while (begin !== -1) {
+        var end = href.indexOf("&", begin);
+        if (end === -1) {
+            // End of the query string reached.
+            var keyValue = href.substr(begin);
+            begin = -1;
+        } else {
+            // More items to follow.
+            var keyValue = href.substr(begin, end - begin);
+            begin = end + 1;
+        }
+        var items = keyValue.split("=");
+        if (items.length !== 2) {
+            console.log("Ignoring query parameter does not have 2 items: " +
+                    items);
+            continue;
+        }
+        var key = items[0];
+        var value = decodeURIComponent(items[1]);
+        var oldValue = qParams[key];
+        if (oldValue) {
+            oldValue.push(value);
+        } else {
+            qParams[key] = [value];
+        }
+    }
+    return qParams;
+}
+
 // Converts a move to rotation. Returns undefined for savepoints.
 function getRotationFromMove(move) {
     // There is no rotation for savepoints.

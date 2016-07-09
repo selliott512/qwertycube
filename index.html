@@ -119,6 +119,16 @@
       is loaded.  To save that and all other settings to persistent storage
       click Config or I and then click Ok.  Note that persistent storage can
       be cleared by pressing Reset or P.</p>
+      <h3>Query Parameters</h3>
+      <p>It's possible to override the built in defaults for the variables that
+      can be seen in the settings dialog by appending HTTP query parameters
+      to the URL.  For example, when the page is first loaded to set the
+      cubiesOrder to 4 and to set cubiesColorOverrides to
+      "R:grey L:magenta I:0x224466" append
+      "?cubiesOrder=4&cubiesColorOverrides=R%3Agrey%20L%3Amagenta%20I%3A0x224466"
+      to the URL.  Note the percent encoding.  The user can override the values
+      via the settings dialog.
+      </p>
       <p/>
       <a name="key-tables"></a>
       <h3>Key Tables</h3>
