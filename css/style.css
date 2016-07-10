@@ -86,3 +86,18 @@ textarea {
     opacity: 0.0;
     position: absolute;
 }
+
+#tip {
+    background-color: black;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    font-weight: bold;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    padding: 3px 8px;
+    position: absolute;
+    visibility: hidden;
+    white-space: nowrap;
+    z-index: 1;
+}

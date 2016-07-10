@@ -6,61 +6,85 @@
 var mainButtonList = [{
     label : "Help",
     key : "H",
+    tip : "Help with QWERTYcube"
 }, {
     label : "Timer",
     key : "T",
-    toggle : "timer"
+    toggle : "timer",
+    tip : "Time solves with an inspection period"
+
 }, {
     label : "Heise",
     key : "V",
-    toggle : "heise"
+    toggle : "heise",
+    tip : "Use Heise keymap"
+
 }, {
     label : "N·N·N",
     key : "$",
+    tip : "Increase the cube order by one"
 }, {
     label : "Jumble",
-    key : "J"
+    key : "J",
+    tip : "Jumble/scramble the cube"
+
 }, {
     label : "New",
-    key : "N"
+    key : "N",
+    tip : "Switch to a new solved cube"
+
 }, {
     label : "Config",
-    key : "I"
+    key : "I",
+    tip : "Display the configuration/settings dialog"
+
 }, {
     label : "Lock",
     key : "K",
-    toggle : "rotationLock"
+    toggle : "rotationLock",
+    tip : "Lock the cube so it does not rotate"
 }, {
     label : "Inst",
     key : "A",
     toggle : "animationInst",
+    tip : "Make moves instantly instead of animating"
 }, {
     label : "3·3·3",
     key : "#",
+    tip : "Set the cube order to 3"
 }, {
     label : "Save",
-    key : "C"
+    key : "C",
+    tip : "Set a savepoint at the current state"
 }, {
     label : "Reset",
-    key : "P"
+    key : "P",
+    tip : "Factory reset"
+
 }, {
     label : "UndoA",
-    key : "AG"
+    key : "AG",
+    tip : "Undo all move until savepoint or the beginning"
 }, {
     label : "Undo",
-    key : "G"
+    key : "G",
+    tip : "Undo one move"
 }, {
     label : "Color",
-    key : "Q"
+    key : "Q",
+    tip : "Change the color"
 }, {
     label : "n·n·n",
-    key : "@"
+    key : "@",
+    tip : "Decrease the cube order by one"
 }, {
     label : "Redo",
-    key : "SG"
+    key : "SG",
+    tip : "Redo one move"
 }, {
     label : "RedoA",
-    key : "ASG"
+    key : "ASG",
+    tip : "Redo all move until savepoint or the end"
 }];
 
 var buttonKeyToElMap = {};
@@ -78,6 +102,7 @@ var helpEl;
 var settingsTextEl;
 var statusEl;
 var timerEl;
+var tipEl;
 
 // Strings that moves can be suffixed with.
 var moveSuffixes = ["", "'", "2"];
@@ -155,9 +180,24 @@ function initAddUpdateButtons(buttonList) {
         // Make it handle the click event as if it was a key event.
         buttonEl.onclick = (function(elem, butt) {
             return function(event) {
-                onButtonBarButton(event, elem, butt)
+                onButtonClick(event, elem, butt)
             };
         })(buttonEl, button);
+
+        // Tool tip help for non-mobile only.
+        if (!mobile) {
+            buttonEl.onmouseover = (function(elem, butt) {
+                return function(event) {
+                    onButtonOver(event, elem, butt)
+                };
+            })(buttonEl, button);
+
+            buttonEl.onmouseout = (function(elem, butt) {
+                return function(event) {
+                    onButtonOut(event, elem, butt)
+                };
+            })(buttonEl, button);
+        }
 
         // Don't respond to attempts to move the buttons.
         if (mobile) {
@@ -409,6 +449,7 @@ function getElements() {
     settingsTextEl = document.getElementById("settings-text");
     statusEl = document.getElementById("status");
     timerEl = document.getElementById("timer");
+    tipEl = document.getElementById("tip");
 }
 
 // Scene initialization code:

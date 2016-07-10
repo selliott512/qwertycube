@@ -56,16 +56,20 @@ var settingsVarNameDescs = [
     ["statusSecs", true, "How long status is displayed at the top of the browser."],
     ["timer", true, "Display the timer.  May result in high CPU usage."],
     ["timerInspectionSecs", true, "The amount of inspection time before solving."],
+    ["toolTipTimeout", true, "Milliseconds of hovering over a button before a tooltip is displayed.  " +
+            "0 for no delay.  -1 to disable tooltips."],
     ["wireframeSphere", true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
 var settingsButtonList = [ {
     label : "Cancel",
-    func : settingsCancel
+    func : settingsCancel,
+    tip : "Discard changes"
 }, {
     label : "Ok",
-    func : settingsOk
+    func : settingsOk,
+    tip : "Save changes to persistent storage"
 } ];
 
 // Public methods

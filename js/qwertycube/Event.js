@@ -87,11 +87,14 @@ var buttonColorOrig;
 var buttonColorHighlight = "rgb(255, 255, 128)";
 var buttonFlashDelay = 300;
 var scramblerInitialized = false;
+var toolTipButtonEl;
+var toolTipTimeout = 700;
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
 var helpButtonList = [{
     label : "Close",
-    func : helpClose
+    func : helpClose,
+    tip : "Close this help dialog"
 }];
 
 // Public methods
@@ -158,7 +161,7 @@ function helpClose() {
     showHelp(false);
 }
 
-function onButtonBarButton(event, buttonEl, button) {
+function onButtonClick(event, buttonEl, button) {
     var func = button.func;
     var key = button.key;
     var label = button.label;
@@ -197,6 +200,53 @@ function onButtonBarButton(event, buttonEl, button) {
     }
 
     initSetButtonColor(buttonEl, button, true);
+
+    toolTipButtonEl = null;
+    tipEl.style.visibility = "hidden";
+}
+
+function onButtonOver(event, buttonEl, button) {
+    if (toolTipTimeout === -1) {
+        // Tool tips have been disabled.
+        return;
+    }
+
+    // The location will be relative to the button.
+    var left = parseInt(buttonEl.style.left);
+    var top = parseInt(buttonEl.style.top);
+
+    if (!button.tip) {
+        // The should not happen.
+        console.log("Button " + button.label + " is missing a tooltip");
+        return;
+    }
+    tipEl.innerHTML = button.tip;
+
+    // Now that the width is known the left side can be adjusted so that it's
+    // centered over the button, but also entirely on the screen.
+    left += (buttonEl.clientWidth - tipEl.clientWidth) / 2;
+    left = Math.max(0, left);
+    left = Math.min(left, canvasWidth - tipEl.clientWidth);
+    top -= 1.4 * parseInt(tipEl.clientHeight);
+
+    tipEl.style.left = left + "px";
+    tipEl.style.top = top + "px";
+
+    console.log("ch = " + tipEl.clientHeight);
+
+    toolTipButtonEl = buttonEl;
+    setTimeout(function(elem) {
+        return function() {
+            if (elem === toolTipButtonEl) {
+                tipEl.style.visibility = "visible";
+            }
+        };
+    }(buttonEl), toolTipTimeout);
+}
+
+function onButtonOut(event, buttonEl, button) {
+    toolTipButtonEl = null;
+    tipEl.style.visibility = "hidden";
 }
 
 function onKeyDown(event) {
