@@ -54,6 +54,7 @@ var settingsVarNameDescs = [
     ["scrambleMoves", false, "Moves used to scramble the cube."],
     ["scrambleType", true, "Type of scrambler used.  \"simple\" or \"jsss\"."],
     ["statusSecs", true, "How long status is displayed at the top of the browser."],
+    ["testsRunAll", true, "Run all unit tests when Ok is clicked after applying the settings."],
     ["timer", true, "Display the timer.  May result in high CPU usage."],
     ["timerInspectionSecs", true, "The amount of inspection time before solving."],
     ["toolTipTimeout", true, "Milliseconds of hovering over a button before a tooltip is displayed.  " +
@@ -141,6 +142,19 @@ function settingsHide() {
 function settingsOk() {
     console.log("Ok clicked");
     settingsApply(true);
+    if (testsRunAll) {
+        try {
+            testsRun();
+            console.log("All unit tests passed.")
+        } catch (e) {
+            var msg = "One or more unit tests failed";
+            console.log(msg + ": " + e);
+            if (e.stack) {
+                console.log("Call stack: " + e.stack);
+            }
+            alert(msg + ".  See console log for details.");
+        }
+    }
 }
 
 function settingsOnKeyDown(event) {
