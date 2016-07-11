@@ -217,7 +217,7 @@ function onButtonOver(event, buttonEl, button) {
 
     if (!button.tip) {
         // The should not happen.
-        console.log("Button " + button.label + " is missing a tooltip");
+        console.log("Button " + button.label + " is missing a tool tip");
         return;
     }
     tipEl.innerHTML = button.tip;
@@ -227,12 +227,12 @@ function onButtonOver(event, buttonEl, button) {
     left += (buttonEl.clientWidth - tipEl.clientWidth) / 2;
     left = Math.max(0, left);
     left = Math.min(left, canvasWidth - tipEl.clientWidth);
+
+    // A bit above the button.
     top -= 1.4 * parseInt(tipEl.clientHeight);
 
     tipEl.style.left = left + "px";
     tipEl.style.top = top + "px";
-
-    console.log("ch = " + tipEl.clientHeight);
 
     toolTipButtonEl = buttonEl;
     setTimeout(function(elem) {
