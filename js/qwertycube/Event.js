@@ -211,10 +211,6 @@ function onButtonOver(event, buttonEl, button) {
         return;
     }
 
-    // The location will be relative to the button.
-    var left = parseInt(buttonEl.style.left);
-    var top = parseInt(buttonEl.style.top);
-
     if (!button.tip) {
         // The should not happen.
         console.log("Button " + button.label + " is missing a tool tip");
@@ -224,12 +220,14 @@ function onButtonOver(event, buttonEl, button) {
 
     // Now that the width is known the left side can be adjusted so that it's
     // centered over the button, but also entirely on the screen.
-    left += (buttonEl.clientWidth - tipEl.clientWidth) / 2;
+    var left = parseInt(buttonEl.style.left) +
+        (buttonEl.offsetWidth - tipEl.clientWidth) / 2;
     left = Math.max(0, left);
     left = Math.min(left, canvasWidth - tipEl.clientWidth);
 
     // A bit above the button.
-    top -= 1.4 * parseInt(tipEl.clientHeight);
+    var top = parseInt(buttonEl.style.top) -
+        1.4 * parseInt(tipEl.clientHeight);
 
     tipEl.style.left = left + "px";
     tipEl.style.top = top + "px";

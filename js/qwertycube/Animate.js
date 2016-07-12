@@ -156,6 +156,9 @@ function animateResize() {
     if (helpDisplayed) {
         showHelp(true);
     }
+
+    toolTipButtonEl = null;
+    tipEl.style.visibility = "hidden";
 }
 
 function animateNewCube(clearHistory) {
