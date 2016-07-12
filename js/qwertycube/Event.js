@@ -805,7 +805,7 @@ function showHelp(show) {
     if (show) {
         helpEl.style.left = "0px";
         helpEl.style.top = "0px";
-        helpEl.style.width = (canvasWidth - 6) + "px";
+        helpEl.style.width = canvasWidth + "px";
         helpEl.style.height = primaryHeight + "px";
 
         // It seems both the tabIndex and the delay is needed for the help to

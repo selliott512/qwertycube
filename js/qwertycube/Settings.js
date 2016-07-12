@@ -185,11 +185,17 @@ function settingsResize() {
 
     settingsTextEl.style.left = "0px";
     settingsTextEl.style.top = "0px";
-    settingsTextEl.style.width = (canvasWidth - 6) + "px";
+    settingsTextEl.style.width = canvasWidth + "px";
     settingsTextEl.style.height = settingsHeight + "px";
 }
 
 function settingsShow() {
+    // Oddly this prevents a problem where the settings text does undesirable
+    // horizontal scrolling when page-down is first pressed, at least on
+    // Chrome.
+    helpEl.style.left = "0px";
+    helpEl.style.top = "0px";
+
     // The orbit controls grab events that are needed.
     orbitControls.enabled = false;
 
