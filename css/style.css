@@ -1,5 +1,6 @@
-/* This file is ordered alphabetically.  Elements are first followed by Ids.
-   The properties are alphabetical too. */
+/* Other than those cases where the specific must follow the general this file
+   is ordered alphabetically.  Elements are first followed by Ids.  The
+   properties are alphabetical too. */
 
 * {
     -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
@@ -17,7 +18,7 @@ body {
 button {
     background-color: lightgrey;
     border-radius: 6px;
-    border: solid;
+    border: medium solid black;
     font-weight: bold;
     position: absolute;
     visibility: hidden;
@@ -28,13 +29,6 @@ p {
     margin-top: 1em;
 }
 
-table {
-    margin: 0px;
-    margin: calc(5px);
-    width: 100%;
-    width: calc(100% - 10px);
-}
-
 table, td, th {
     background-color: #ffff80;
     border-collapse: collapse;
@@ -43,14 +37,21 @@ table, td, th {
     text-align: left;
 }
 
+table {
+    margin: 0px;
+    margin: calc(5px);
+    width: 100%;
+    width: calc(100% - 10px);
+}
+
 textarea {
     width: 100%;
 }
 
 #help, #settings-text {
-	-webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch;
     background-color: #C0FFC0;
-    border: none;
+    border-style: hidden;
     font-family: "courier new";
     font-size: 120%;
     height: 100%;
@@ -63,42 +64,38 @@ textarea {
     width: 100%;
 }
 
-#status {
-    background-color: #FFFF80;
+#status, #timer, #tip {
     border-radius: 6px;
-    font-family: "courier new";
-    font-size: 180%;
     font-weight: bold;
-    margin-bottom: 0em;
-    margin-top: 0em;
-    opacity: 0.0;
-    padding: 2px;
+    margin-bottom: 0px;
+    margin-top: 0px;
     position: absolute;
 }
 
-#timer {
-    border-radius: 6px;
+#status {
+    background-color: #FFFF80;
     font-family: "courier new";
-    font-size: 200%;
-    font-weight: bold;
-    margin-bottom: 0em;
-    margin-top: 0em;
+    font-size: 180%;
     opacity: 0.0;
     padding: 2px;
-    position: absolute;
+}
+
+#timer {
+    font-family: "courier new";
+    font-size: 200%;
+    opacity: 0.0;
+    padding: 2px;
 }
 
 #tip {
     background-color: black;
-    border-radius: 6px;
-    border: none;
+    border-style: hidden;
     color: white;
-    font-weight: bold;
+    font-family: sans-serif;
     font-size: 120%;
     margin-bottom: 0px;
     margin-top: 0px;
     padding: 3px 8px;
-    position: absolute;
     visibility: hidden;
     white-space: nowrap;
     z-index: 1;
