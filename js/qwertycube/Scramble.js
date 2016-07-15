@@ -126,6 +126,7 @@ function scramble() {
     } else {
         // TODO: Probably prevent this in Settings.js.
         console.log("Unknown scrambler type \"" + scrambleType + "\".");
+        return;
     }
 
     // Apply the scramble found.
