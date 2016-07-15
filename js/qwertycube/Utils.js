@@ -356,6 +356,28 @@ function getRotationFromMove(move) {
         }
     }
 
+    if (lo > hi) {
+        // This should only happen if an invalid prefix was explicitly entered.
+        console.log("Prefix with incorrect order for move \"" + move + "\"");
+        return null;
+    }
+
+    // Limit lo and hi to valid ranges, but only if the the range overlaps
+    // with some portion of the cube.  The goal is gracefully apply moves
+    // that were valid for a higher order cube to the current cube.
+    if ((lo < 1) && (hi >= 1)) {
+        lo = 1;
+    }
+    if ((lo <= cubiesOrder) && (hi > cubiesOrder)) {
+        hi = cubiesOrder;
+    }
+
+    if ((lo < 1) || (hi > cubiesOrder)) {
+        // Nothing to do for this move for the current order.
+        console.log("Prefix entirely out of range for move \"" + move + "\"");
+        return null;
+    }
+
     // "G" for undo is not part of the table.
     for (var j = move.length - 1; j >= 0; j--) {
         if (move[j] !== "G") {
