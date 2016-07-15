@@ -1,13 +1,9 @@
 "use strict";
 
-// Globals
-
-// The global list of smaller cubes.
-var cubies = [];
+// Public globals
 
 // The size of the cubies.
-var cubiesCenter;
-var cubiesIndexesShuffled;
+var cubies = [];
 var cubiesSize = 100;
 var cubiesSizeScaled;
 var cubiesExtendedMiddle;
@@ -20,25 +16,29 @@ var cubiesOrder = 3;
 var cubiesRadius;
 var cubiesScale;
 var cubiesSep;
-var cubiesSmallDist = 0.1;
-var cubiesSmallValue = 0.001;
 var cubiesColorBackground = "0x808080";
 var cubiesColorOverrides = {};
 var cubiesColorScheme = "std-black";
-var cubiesEdgesIndex;
 var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
-var cubiesMiddlesIndex;
-var cubiesMiddlesInfo;
-var cubiesCornerRange;
-var cubiesSmall = 0.1;
 
+// Private globals
+
+var _cubiesCenter;
+var _cubiesIndexesShuffled;
+var _cubiesSmallDist = 0.1;
+var _cubiesSmallValue = 0.001;
+var _cubiesEdgesIndex;
+var _cubiesMiddlesIndex;
+var _cubiesMiddlesInfo;
+var _cubiesCornerRange;
+var _cubiesSmall = 0.1;
 
 // Other than the first color the colors are ordered in the same was as it is
 // for MeshFaceMaterial. I is interior (the color of the gaps). The remaining
 // letters are named after the faces.
 
 // High contrast black. Each color should be distinct on all monitors.
-var hcBlackColors = {
+var _cubesHcBlackColors = {
     I : 0x000000,
     R : 0xFF0000,
     L : 0xFF00FF,
@@ -49,11 +49,11 @@ var hcBlackColors = {
 };
 
 // High contrast white. Each color should be distinct on all monitors.
-var hcWhiteColors = copyMap(hcBlackColors);
-hcWhiteColors.I = hcBlackColors.D;
+var _cubesHcWhiteColors = copyMap(_cubesHcBlackColors);
+_cubesHcWhiteColors.I = _cubesHcBlackColors.D;
 
 // A black cube with standard colors.
-var stdBlackColors = {
+var _cubesStdBlackColors = {
     I : 0x000000,
     R : 0x9B1516,
     L : 0xFF6020,
@@ -64,26 +64,26 @@ var stdBlackColors = {
 };
 
 // A white cube with standard colors.
-var stdWhiteColors = copyMap(stdBlackColors);
-stdWhiteColors.I = stdWhiteColors.D;
+var _cubesStdWhiteColors = copyMap(_cubesStdBlackColors);
+_cubesStdWhiteColors.I = _cubesStdWhiteColors.D;
 
-var colorTable = {
-    "hc-black" : hcBlackColors,
-    "hc-white" : hcWhiteColors,
-    "std-black" : stdBlackColors,
-    "std-white" : stdWhiteColors
+var _cubesColorTable = {
+    "hc-black" : _cubesHcBlackColors,
+    "hc-white" : _cubesHcWhiteColors,
+    "std-black" : _cubesStdBlackColors,
+    "std-white" : _cubesStdWhiteColors
 };
 
-var colorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
+var _cubesColorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
 
 // The above, but in to material instead of number.
-var colorMatts = {};
+var _cubesColorMatts = {};
 
-// Points to one of the color tables after initMaterials is called.
-var colorValues;
+// Points to one of the color tables after _cubesInitMaterials is called.
+var _cubesColorValues;
 
 // How axis relate to the offset in standard facelets order.
-var faceletAxisMults = {
+var _cubesFaceletAxisMults = {
     U : [1, 0, 3],
     R : [0, -3, -1],
     F : [1, -3, 0],
@@ -93,9 +93,9 @@ var faceletAxisMults = {
 }
 
 // Used to index into cubiesInitFacelets
-var faceletOrder = "URFDLB";
+var _cubesFaceletOrder = "URFDLB";
 
-// Public methods
+// Public functions
 
 function cubiesCreate(oldCubies) {
     var cbsCorners = [];
@@ -106,8 +106,8 @@ function cubiesCreate(oldCubies) {
     var cubieGeometry = new THREE.BoxGeometry(cubiesSizeScaled,
             cubiesSizeScaled, cubiesSizeScaled);
 
-    cubiesMiddlesInfo = [];
-    initMaterials();
+    _cubiesMiddlesInfo = [];
+    _cubesInitMaterials();
 
     for (var zi = 0; zi < cubiesOrder; zi++) {
         for (var yi = 0; yi < cubiesOrder; yi++) {
@@ -146,10 +146,10 @@ function cubiesCreate(oldCubies) {
                     // The offset of the first or reference corner, which should
                     // be the largest offset.
                     cornerOffset = Math.abs(vec.x);
-                    cubiesCornerRange = 2 * cornerOffset;
+                    _cubiesCornerRange = 2 * cornerOffset;
                 }
                 var sideMaterial = [];
-                for ( var face in colorValues) {
+                for ( var face in _cubesColorValues) {
                     if (face === "I") {
                         continue;
                     }
@@ -159,8 +159,8 @@ function cubiesCreate(oldCubies) {
                     // the face is on the positive side of the axis.
                     var sign = -rotation[0];
                     var axis = rotation[1];
-                    sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < cubiesSmallDist ?
-                            colorMatts[faceVectorToFacelet(face, vec)]: colorMatts.I);
+                    sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < _cubiesSmallDist ?
+                            _cubesColorMatts[_cubesFaceVectorToFacelet(face, vec)]: _cubesColorMatts.I);
                 }
                 var cubieMesh = new THREE.Mesh(cubieGeometry,
                         new THREE.MeshFaceMaterial(sideMaterial));
@@ -170,7 +170,7 @@ function cubiesCreate(oldCubies) {
                 switch (surfs) {
                 case 1:
                     cbsMiddles.push(cubieMesh);
-                    cubiesMiddlesInfo.push(surfInfo);
+                    _cubiesMiddlesInfo.push(surfInfo);
                     break;
                 case 2:
                     cbsEdges.push(cubieMesh);
@@ -186,19 +186,19 @@ function cubiesCreate(oldCubies) {
     // Order cubies by cubie type.  The resulting cubies array consists of
     // corners, then edges and finally middles.
     cubies = cbsCorners.concat(cbsEdges, cbsMiddles);
-    cubiesEdgesIndex = cbsCorners.length;
-    cubiesMiddlesIndex = cubiesEdgesIndex + cbsEdges.length;
+    _cubiesEdgesIndex = cbsCorners.length;
+    _cubiesMiddlesIndex = _cubiesEdgesIndex + cbsEdges.length;
 
     // Now that the indexes of the various cube types are known create a
     // shuffled map that translates 1:1 from a cubie index to another cubie
     // index of the same type.  The first shuffle starts at one to avoid
     // mapping the reference cubie, which is special.
-    if ((!cubiesIndexesShuffled) ||
-            (cubiesIndexesShuffled.length !== cubies.length)) {
-        cubiesIndexesShuffled = getSeq(cubies.length);
-        shuffleArray(cubiesIndexesShuffled, 1, cubiesEdgesIndex);
-        shuffleArray(cubiesIndexesShuffled, cubiesEdgesIndex, cubiesMiddlesIndex);
-        shuffleArray(cubiesIndexesShuffled, cubiesMiddlesIndex, cubies.length);
+    if ((!_cubiesIndexesShuffled) ||
+            (_cubiesIndexesShuffled.length !== cubies.length)) {
+        _cubiesIndexesShuffled = getSeq(cubies.length);
+        shuffleArray(_cubiesIndexesShuffled, 1, _cubiesEdgesIndex);
+        shuffleArray(_cubiesIndexesShuffled, _cubiesEdgesIndex, _cubiesMiddlesIndex);
+        shuffleArray(_cubiesIndexesShuffled, _cubiesMiddlesIndex, cubies.length);
     }
 
     if (oldCubies) {
@@ -277,17 +277,17 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
         }
 
         // Since the calculation attempts to find a point on the surface of
-        // cube cubiesSmallValue is added to allow for rounding errors.
-        if ((Math.abs(clicked.x) <= (cubiesHalfSide + cubiesSmallValue))
-                && (Math.abs(clicked.y) <= (cubiesHalfSide + cubiesSmallValue))
-                && (Math.abs(clicked.z) <= (cubiesHalfSide + cubiesSmallValue))) {
+        // cube _cubiesSmallValue is added to allow for rounding errors.
+        if ((Math.abs(clicked.x) <= (cubiesHalfSide + _cubiesSmallValue))
+                && (Math.abs(clicked.y) <= (cubiesHalfSide + _cubiesSmallValue))
+                && (Math.abs(clicked.z) <= (cubiesHalfSide + _cubiesSmallValue))) {
             // The location found was on the cube, so no need to search
             // further.
             return move;
         } else if (rotationLock) {
             // For rotationLock find the best axis to use for the move begin
             // even if it's not on the cube.
-            var moveScore = getMoveScore(move);
+            var moveScore = _cubesGetMoveScore(move);
             if (moveScore < bestMoveScore) {
                 bestMove = move;
                 bestMoveScore = moveScore;
@@ -310,20 +310,20 @@ function cubiesScaleDist(dist)
 // Return true if the cube is solved.
 function cubiesSolved() {
     var ref = cubies[0]; // reference cubie.
-    for (var i = 1; i < cubiesMiddlesIndex; i++) {
+    for (var i = 1; i < _cubiesMiddlesIndex; i++) {
         // The goal is to iterate through the cubies in a semi-random fashion
         // in order to increase the odds of detecting an unsolved cubie early.
         // If we went in order then just the back side being solved would delay
         // detection for too long.
-        var num = cubiesIndexesShuffled[i];
+        var num = _cubiesIndexesShuffled[i];
 
         // A corner or edge cubie. In this case the cubie is in the correct
         // location if and only if it has the same rotation as the reference
         // cubie.
         var cubie = cubies[num];
-        if (angleIsLarge(cubie.rotation.x - ref.rotation.x)
-                || angleIsLarge(cubie.rotation.y - ref.rotation.y)
-                || angleIsLarge(cubie.rotation.z - ref.rotation.z)) {
+        if (_cubesAngleIsLarge(cubie.rotation.x - ref.rotation.x)
+                || _cubesAngleIsLarge(cubie.rotation.y - ref.rotation.y)
+                || _cubesAngleIsLarge(cubie.rotation.z - ref.rotation.z)) {
             return false;
         }
     }
@@ -345,22 +345,22 @@ function cubiesSolved() {
         axisToAxis[axis] = currentAxis;
     }
 
-    for (var i = cubiesMiddlesIndex; i < cubies.length; i++) {
+    for (var i = _cubiesMiddlesIndex; i < cubies.length; i++) {
         // Pick a random middle cubie.
-        var num = cubiesIndexesShuffled[i];
+        var num = _cubiesIndexesShuffled[i];
         var cubie = cubies[num];
-        var surfInfo = cubiesMiddlesInfo[num - cubiesMiddlesIndex];
+        var surfInfo = _cubiesMiddlesInfo[num - _cubiesMiddlesIndex];
         var axis = surfInfo.axis;
         var move = surfInfo.move;
         var currentAxis = axisToAxis[axis];
         var dist = Math.abs(cubie.position[currentAxis] -
                 ref.position[currentAxis]);
         if (move) {
-            if (Math.abs(dist - cubiesCornerRange) > cubiesSmallDist) {
+            if (Math.abs(dist - _cubiesCornerRange) > _cubiesSmallDist) {
                 return false;
             }
         } else {
-            if (dist > cubiesSmallDist) {
+            if (dist > _cubiesSmallDist) {
                 return false;
             }
         }
@@ -377,16 +377,16 @@ function cubiesToVector3(cubie) {
     return position;
 }
 
-// Private methods
+// Private functions
 
 // True if the angle is not close to some multiple of 2*PI.
-function angleIsLarge(angle) {
-    return ((Math.abs(angle) + cubiesSmallDist) % (2 * Math.PI)) > 0.2;
+function _cubesAngleIsLarge(angle) {
+    return ((Math.abs(angle) + _cubiesSmallDist) % (2 * Math.PI)) > 0.2;
 }
 
 // Given a face and a vector return the facelet (sticker).
-function faceVectorToFacelet(face, vec) {
-    var base = 9 * faceletOrder.indexOf(face);
+function _cubesFaceVectorToFacelet(face, vec) {
+    var base = 9 * _cubesFaceletOrder.indexOf(face);
     if (base < 0) {
         console.log("Unable to find face \"" + face + "\".");
     }
@@ -397,7 +397,7 @@ function faceVectorToFacelet(face, vec) {
     vecOne.y = Math.round(vecOne.y / cubiesHalfSide);
     vecOne.z = Math.round(vecOne.z / cubiesHalfSide);
 
-    var mults = faceletAxisMults[face];
+    var mults = _cubesFaceletAxisMults[face];
     // The center has offset 4 in each face section in the sequence of
     // facelets. Relative to that apply the multipliers to the vecOne to
     // find the offset.
@@ -409,7 +409,7 @@ function faceVectorToFacelet(face, vec) {
 
 // Determine which side a given click is closest to. Note that "move" is not the
 // simple rotation letter type of move it is elsewhere.
-function getMoveScore(move) {
+function _cubesGetMoveScore(move) {
     var score = 0;
     var axes = ["x", "y", "z"];
     for (var i = 0; i <= axes.length; i++) {
@@ -427,17 +427,17 @@ function getMoveScore(move) {
     return score;
 }
 
-// Initialize colorMatts based on colorValues.
-function initMaterials() {
-    colorValues = colorTable[cubiesColorScheme];
-    for ( var side in colorValues) {
-        var color = colorValues[side];
+// Initialize _cubesColorMatts based on _cubesColorValues.
+function _cubesInitMaterials() {
+    _cubesColorValues = _cubesColorTable[cubiesColorScheme];
+    for ( var side in _cubesColorValues) {
+        var color = _cubesColorValues[side];
         var colorOverride = cubiesColorOverrides[side];
         if (colorOverride) {
             color = colorOverride;
         }
         color = normalizeColor(color);
-        colorMatts[side] = new THREE.MeshBasicMaterial({
+        _cubesColorMatts[side] = new THREE.MeshBasicMaterial({
             color : color,
         });
     }
