@@ -167,7 +167,7 @@ function onButtonClick(event, buttonEl, button) {
     var label = button.label;
 
     // Don't confuse OrbitControls by allowing it to see this click.
-    orbitControls.enabled = false;
+    animateOrbitControls.enabled = false;
 
     if (key) {
         // Create a pseudo event and pretend it was a key press.
@@ -223,7 +223,7 @@ function onButtonOver(event, buttonEl, button) {
     var left = parseInt(buttonEl.style.left) +
         (buttonEl.offsetWidth - initTipEl.clientWidth) / 2;
     left = Math.max(0, left);
-    left = Math.min(left, canvasWidth - initTipEl.clientWidth);
+    left = Math.min(left, animateCanvasWidth - initTipEl.clientWidth);
 
     // A bit above the button.
     var top = parseInt(buttonEl.style.top) -
@@ -438,23 +438,23 @@ function onKeyDown(event) {
 
         // A lot of good letters were already taken.
         case "A": // (A)nimation toggle
-            animationInst = !animationInst;
+            animateAnimationInst = !animateAnimationInst;
             var msg = "Animation "
-                    + (animationInst ? "is instantaneous"
-                            : ("at " + moveSec + " TPS"));
+                    + (animateAnimationInst ? "is instantaneous"
+                            : ("at " + animateMoveSec + " TPS"));
             animateUpdateStatus(msg);
             break;
         case "C": // (C)heckpoint
-            if ((moveHistory[moveHistoryNext - 1] === "|")
-                    || (moveHistory[moveHistoryNext] === "|")) {
+            if ((animateMoveHistory[animateMoveHistoryNext - 1] === "|")
+                    || (animateMoveHistory[animateMoveHistoryNext] === "|")) {
                 animateUpdateStatus("Savepoint already set");
             } else {
                 animateUpdateStatus("Savepoint set");
-                moveHistory.splice(moveHistoryNext++, 0, "|");
+                animateMoveHistory.splice(animateMoveHistoryNext++, 0, "|");
             }
             break
         case "G": // Undo (like Ctrl-G in Emacs). Shift to redo.
-            if (moveCurrent || moveQueue.length) {
+            if (animateMoveCurrent || animateMoveQueue.length) {
                 console.log("Ignoring undo/redo due to pending moves.");
                 return;
             }
@@ -462,17 +462,17 @@ function onKeyDown(event) {
             while (true) {
                 var move = null;
                 var moveG = null;
-                var moveHistoryNextOld = moveHistoryNext;
+                var moveHistoryNextOld = animateMoveHistoryNext;
                 if (shift) {
                     // redo
-                    if (moveHistoryNext < moveHistory.length) {
-                        move = moveHistory[moveHistoryNext++];
+                    if (animateMoveHistoryNext < animateMoveHistory.length) {
+                        move = animateMoveHistory[animateMoveHistoryNext++];
                         moveG = move;
                     }
                 } else {
                     // undo
-                    if (moveHistoryNext > 0) {
-                        move = moveHistory[--moveHistoryNext];
+                    if (animateMoveHistoryNext > 0) {
+                        move = animateMoveHistory[--animateMoveHistoryNext];
                         moveG = getInverseMove(move);
                     }
                 }
@@ -484,7 +484,7 @@ function onKeyDown(event) {
                 if (alt && (move === "|")) {
                     // A savepoint was reached with the alt key pressed, so
                     // stop without processing the savepoint.
-                    moveHistoryNext = moveHistoryNextOld;
+                    animateMoveHistoryNext = moveHistoryNextOld;
                     break;
                 }
                 console.log((shift ? "Redoing" : "Undoing")
@@ -504,8 +504,8 @@ function onKeyDown(event) {
                 }
                 firstMove = false;
             }
-            if ((moveHistory[moveHistoryNext - 1] === "|")
-                    || (moveHistory[moveHistoryNext] === "|")) {
+            if ((animateMoveHistory[animateMoveHistoryNext - 1] === "|")
+                    || (animateMoveHistory[animateMoveHistoryNext] === "|")) {
                 animateUpdateStatus("Savepoint reached");
             }
             break;
@@ -563,9 +563,9 @@ function onKeyDown(event) {
             }
             break;
         case "O": // (O)rientation display toggle.
-            dispOrientationLabels = !dispOrientationLabels;
+            animateDispOrientationLabels = !animateDispOrientationLabels;
             animateUpdateStatus("Orientation labels "
-                    + (dispOrientationLabels ? "enabled" : "disabled"))
+                    + (animateDispOrientationLabels ? "enabled" : "disabled"))
             animateCondReq(true);
             break;
         case "P": // (P)ersistent storage clear
@@ -595,8 +595,8 @@ function onKeyDown(event) {
             animateResetScene(cubies);
             break;
         case "T": // (T)imer
-            timer = !timer;
-            console.log("timer: " + timer);
+            animateTimer = !animateTimer;
+            console.log("animateTimer: " + animateTimer);
             animateCondReq(true);
             break;
         case "V": // Heise
@@ -653,13 +653,13 @@ function onMouseDown(event) {
             }
         }
         // Don't rotate the cube if the user clicked on it.
-        orbitControls.enabled = moveBegins.length ? false : !rotationLock;
+        animateOrbitControls.enabled = moveBegins.length ? false : !rotationLock;
     }
 
-    // The user may be adjusting the camera if a mouse button is done. When
+    // The user may be adjusting the animateCamera if a mouse button is done. When
     // in doubt animate.
-    if (orbitControls.enabled) {
-        cameraAdjusting = true;
+    if (animateOrbitControls.enabled) {
+        animateCameraAdjusting = true;
         animateCondReq(true);
     }
 }
@@ -778,8 +778,8 @@ function onMouseUp(event) {
         animateCondReq(true);
     }
 
-    orbitControls.enabled = !rotationLock;
-    cameraAdjusting = false;
+    animateOrbitControls.enabled = !rotationLock;
+    animateCameraAdjusting = false;
 }
 
 function onResize(event) {
@@ -803,7 +803,7 @@ function showHelp(show) {
     if (show) {
         initHelpEl.style.left = "0px";
         initHelpEl.style.top = "0px";
-        initHelpEl.style.width = canvasWidth + "px";
+        initHelpEl.style.width = animateCanvasWidth + "px";
         initHelpEl.style.height = initPrimaryHeight + "px";
 
         // It seems both the tabIndex and the delay is needed for the help to

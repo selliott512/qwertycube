@@ -10,7 +10,7 @@ var initMainButtonList = [{
 }, {
     label : "Timer",
     key : "T",
-    toggle : "timer",
+    toggle : "animateTimer",
     tip : "Time solves with an inspection period"
 
 }, {
@@ -46,7 +46,7 @@ var initMainButtonList = [{
 }, {
     label : "Inst",
     key : "A",
-    toggle : "animationInst",
+    toggle : "animateAnimationInst",
     tip : "Make moves instantly instead of animating"
 }, {
     label : "3·3·3",
@@ -124,11 +124,11 @@ function initAddUpdateButtons(buttonList) {
     }
 
     // Allow more rows on mobile by default.
-    if (buttonStyle === "portrait") {
+    if (animateButtonStyle === "portrait") {
         _initButtonRowsMax = 3;
-    } else if (buttonStyle === "landscape") {
+    } else if (animateButtonStyle === "landscape") {
         _initButtonRowsMax = 1;
-    } else if (buttonStyle === "auto") {
+    } else if (animateButtonStyle === "auto") {
         _initButtonRowsMax = initMobile ? 3 : 1;
     }
 
@@ -137,10 +137,10 @@ function initAddUpdateButtons(buttonList) {
     var cols = Math.floor(buttonList.length / rows + 0.99);
 
     // Calculate what the size of each mutton must be.
-    var buttonWidth = canvasWidth / cols;
-    var buttonHeight = Math.floor(buttonBarHeight / _initButtonRowsMax);
+    var buttonWidth = animateCanvasWidth / cols;
+    var buttonHeight = Math.floor(animateButtonBarHeight / _initButtonRowsMax);
     var buttonTopOffset = (_initButtonRowsMax - rows) * buttonHeight;
-    initPrimaryHeight = canvasHeight + buttonTopOffset;
+    initPrimaryHeight = animateCanvasHeight + buttonTopOffset;
 
     if (!buttonHeight) {
         // No need to add buttons that have no height.
@@ -299,7 +299,7 @@ function initSaveStorage() {
 // Init miscellaneous variables.
 function initVars() {
     // Calculate radians per msec given the moves (half turns) per second.
-    moveRadMsec = (moveSec / 1000.0) * (Math.PI / 2.0);
+    animateMoveRadMsec = (animateMoveSec / 1000.0) * (Math.PI / 2.0);
 
     // Don't display the help dialog for mobile devices. Leave it be for
     // non-mobile.
@@ -332,16 +332,16 @@ function initVars() {
     cubiesRadius = Math.sqrt(3.0) * cubiesHalfSide;
 
     // Radius of the smallest sphere centered at the origin that encloses both
-    // the cube and the camera (or, distance from the camera to the origin).
-    cameraRadius = 0.0;
-    for (var i = 0; i < cameraLocation.length; i++) {
-        cameraRadius += cameraLocation[i] * cameraLocation[i];
+    // the cube and the animateCamera (or, distance from the animateCamera to the origin).
+    animateCameraRadius = 0.0;
+    for (var i = 0; i < animateCameraLocation.length; i++) {
+        animateCameraRadius += animateCameraLocation[i] * animateCameraLocation[i];
     }
-    cameraRadius = Math.sqrt(cameraRadius);
+    animateCameraRadius = Math.sqrt(animateCameraRadius);
 
     // Don't allow any rotation if rotationLock.
-    if (orbitControls) {
-        orbitControls.enabled = !rotationLock;
+    if (animateOrbitControls) {
+        animateOrbitControls.enabled = !rotationLock;
     }
 
     // Update the key map.
@@ -349,7 +349,7 @@ function initVars() {
 }
 
 function initSetBackgroundColor() {
-    renderer.setClearColor(normalizeColor(cubiesColorBackground));
+    animateRenderer.setClearColor(normalizeColor(cubiesColorBackground));
 }
 
 // Private functions
@@ -403,21 +403,21 @@ function _initFillMoveToRotation() {
 }
 
 function _initFillScene() {
-    scene = new THREE.Scene();
+    animateScene = new THREE.Scene();
     cubiesCreate(null);
-    text = new textCreate();
+    animateText = new textCreate();
 
     pivot = new THREE.Object3D();
-    scene.add(pivot);
+    animateScene.add(pivot);
 
-    // Add cubies (Child cubes) to scene
+    // Add cubies (Child cubes) to animateScene
     for (var i = 0; i < cubies.length; i++) {
-        scene.add(cubies[i]);
+        animateScene.add(cubies[i]);
     }
 
-    if (wireframeSphere) {
+    if (animateWireframeSphere) {
         // Enclose the cube in a wireframe sphere.
-        animateWireframeSphere(true);
+        animateDrawWireframeSphere(true);
     }
 }
 
@@ -457,14 +457,14 @@ function _initLoadStorage() {
 function _initSetup() {
     // Renderer:
     if (Detector.webgl) {
-        renderer = new THREE.WebGLRenderer({
+        animateRenderer = new THREE.WebGLRenderer({
             antialias : true
         });
     } else {
         // TODO: Consider adding CanvasRenderer as a fallback, but maybe it's
         // better for people to upgrade their browsers.
         animateUpdateStatus("WebGL is not supported.");
-        renderer = null;
+        animateRenderer = null;
         // So it's not overwritten by the help message.
         _initHelpFlashed = true;
     }
@@ -476,19 +476,19 @@ function _initSetup() {
 
     animateSetCamera();
 
-    // Orbit controls (rotating the camera around the cube).
-    orbitControls = new THREE.OrbitControls(camera, renderer.domElement,
-            renderer.domElement);
+    // Orbit controls (rotating the animateCamera around the cube).
+    animateOrbitControls = new THREE.OrbitControls(animateCamera, animateRenderer.domElement,
+            animateRenderer.domElement);
 
     // Limit manipulation that is not helpful.
-    orbitControls.enabled = !rotationLock;
-    orbitControls.noKeys = true;
-    orbitControls.noPan = true;
-    orbitControls.noZoom = true;
-    orbitControls.useMinClient = true;
+    animateOrbitControls.enabled = !rotationLock;
+    animateOrbitControls.noKeys = true;
+    animateOrbitControls.noPan = true;
+    animateOrbitControls.noZoom = true;
+    animateOrbitControls.useMinClient = true;
 
-    // Add the renderer to the page.
-    initContainerEl.appendChild(renderer.domElement);
+    // Add the animateRenderer to the page.
+    initContainerEl.appendChild(animateRenderer.domElement);
 
     // Dynamically add buttons to the button bar.
     initAddUpdateButtons(initMainButtonList);

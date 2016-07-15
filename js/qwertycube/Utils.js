@@ -7,8 +7,8 @@ var mobileUserAgentREs = [/Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
 // Public methods
 
 function clearMoveQueue() {
-    moveQueue.length = 0;
-    rotationQueue.length = 0;
+    animateMoveQueue.length = 0;
+    animateRotationQueue.length = 0;
 }
 
 //Convert from a coordinate on the cube to an index into the layers. Note that
@@ -54,10 +54,10 @@ function elapsedMsecToStr(elapsedMsec) {
 }
 
 // Queues up a move along with it's corresponding rotation. Note that index to
-// index moveQueue and rotationQueue must be kept in sync.
+// index animateMoveQueue and animateRotationQueue must be kept in sync.
 function enqueueMove(move) {
-    moveQueue.push(move);
-    rotationQueue.push(getRotationFromMove(move));
+    animateMoveQueue.push(move);
+    animateRotationQueue.push(getRotationFromMove(move));
 }
 
 // Like enqueueMove except that the rotation may already be known (not null)
@@ -66,8 +66,8 @@ function enqueueMoveRotation(moveRot) {
     if (!moveRot[1]) {
         moveRot[1] = getRotationFromMove(moveRot[0]);
     }
-    moveQueue.push(moveRot[0]);
-    rotationQueue.push(moveRot[1]);
+    animateMoveQueue.push(moveRot[0]);
+    animateRotationQueue.push(moveRot[1]);
 }
 
 // Queues up multiple moves.  See enqueueMove().
@@ -592,24 +592,24 @@ function setGlobal(varName, varValueStr) {
 }
 
 // Wrap the next so that no line exceeds cols columns.
-function wrapWithComments(text, cols) {
+function wrapWithComments(animateText, cols) {
     if (!cols) {
         // Use a large value so it does not wrap.
         cols = 10000;
     }
     var result = "";
-    for (var idx = 0; idx < text.length; idx = end + 1) {
-        if ((idx + cols - 2) < text.length) {
-            var sp = text.substring(idx, idx + cols - 2).lastIndexOf(" ");
+    for (var idx = 0; idx < animateText.length; idx = end + 1) {
+        if ((idx + cols - 2) < animateText.length) {
+            var sp = animateText.substring(idx, idx + cols - 2).lastIndexOf(" ");
             if (sp === -1) {
-                console.log("Could not find a space in \"" + text + "\".");
+                console.log("Could not find a space in \"" + animateText + "\".");
                 return result;
             }
             var end = idx + sp;
         } else {
-            var end = text.length;
+            var end = animateText.length;
         }
-        var line = "# " + text.substring(idx, end);
+        var line = "# " + animateText.substring(idx, end);
         result += (result ? "\n" : "") + line;
     }
     return result;

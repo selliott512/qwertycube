@@ -11,31 +11,31 @@ var textSize = 35;
 
 // Public methods
 
-// Return an array of text items.
+// Return an array of animateText items.
 function textCreate() {
-    var text = [];
+    var animateText = [];
     for (var i = 0; i < faceInfos.length; i++) {
         var faceInfo = faceInfos[i];
-        text.push(textAllocate(faceInfo[0], textSize, textHeight, "helvetiker",
+        animateText.push(textAllocate(faceInfo[0], textSize, textHeight, "helvetiker",
                 "normal", "normal", faceInfo[1], faceInfo[2] * 2 * cubiesSize));
     }
-    return text;
+    return animateText;
 }
 
-// Set the visibility of the text items.
+// Set the visibility of the animateText items.
 function textSetVisible(visible) {
     if (visible) {
-        for (var i = 0; i < text.length; i++) {
+        for (var i = 0; i < animateText.length; i++) {
             if (!textVisible) {
-                scene.add(text[i]);
+                animateScene.add(animateText[i]);
             }
-            text[i].lookAt(camera.position);
+            animateText[i].lookAt(animateCamera.position);
         }
         textVisible = true;
     } else {
         if (textVisible) {
-            for (var i = 0; i < text.length; i++) {
-                scene.remove(text[i]);
+            for (var i = 0; i < animateText.length; i++) {
+                animateScene.remove(animateText[i]);
             }
         }
         textVisible = false;
@@ -45,7 +45,7 @@ function textSetVisible(visible) {
 // Private methods
 
 // Allocate a single text item.
-function textAllocate(text, s, h, f, w, st, axis, distance) {
+function textAllocate(animateText, s, h, f, w, st, axis, distance) {
     var textParams = {
         size : s,
         height : h,
@@ -55,7 +55,7 @@ function textAllocate(text, s, h, f, w, st, axis, distance) {
         bevelEnabled : false
     };
 
-    var textGeo = new THREE.TextGeometry(text, textParams);
+    var textGeo = new THREE.TextGeometry(animateText, textParams);
     var textMat = new THREE.MeshBasicMaterial({
         color : textColor
     });

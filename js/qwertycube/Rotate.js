@@ -49,38 +49,38 @@ var rotationToMove = {};
 function rotateBegin(move, rotation, discardPrevious) {
     // Discard the last move in the move history since it was consolidated.
     if (discardPrevious) {
-        if (moveHistory.length < 1) {
+        if (animateMoveHistory.length < 1) {
             // This should not happen.
-            console.log("WARNING: moveHistory length is " + moveHistory.length
+            console.log("WARNING: animateMoveHistory length is " + animateMoveHistory.length
                     + " so the previous move can't be discarded.");
         }
 
         // Remove them.
-        moveHistory.splice(moveHistory.length - 1, 1);
+        animateMoveHistory.splice(animateMoveHistory.length - 1, 1);
 
-        // Adjust pointers into moveHistory, if need be.
-        if (moveHistoryNext >= moveHistory.length) {
-            moveHistoryNext--;
+        // Adjust pointers into animateMoveHistory, if need be.
+        if (animateMoveHistoryNext >= animateMoveHistory.length) {
+            animateMoveHistoryNext--;
         }
-        if (moveHistoryNextLast >= moveHistoryNextLast.length) {
-            moveHistoryNextLast--;
+        if (animateMoveHistoryNextLast >= animateMoveHistoryNextLast.length) {
+            animateMoveHistoryNextLast--;
         }
     }
 
     // If true then moves are being replayed (ok button clicked) and the we've
     // reached the point where the user is.
-    var endOfReplay = (moveHistoryNextLast !== -1)
-            && (moveHistoryNext >= moveHistoryNextLast);
+    var endOfReplay = (animateMoveHistoryNextLast !== -1)
+            && (animateMoveHistoryNext >= animateMoveHistoryNextLast);
 
     if ((!rotation) || endOfReplay) {
         // Avoid actually doing the move in the following cases 1) It's a mark,
         // in which case there is no actual moving to do. 2) The user has
         // clicked ok in the settings dialog in which case we don't want to
-        // replay moves after and including moveHistoryNext.
-        moveHistory.push(move);
+        // replay moves after and including animateMoveHistoryNext.
+        animateMoveHistory.push(move);
         if (!endOfReplay) {
             // End reached.
-            moveHistoryNext++;
+            animateMoveHistoryNext++;
         }
         return;
     }
@@ -102,20 +102,20 @@ function rotateBegin(move, rotation, discardPrevious) {
     // True if this move is an undo - don't add it to the move history.
     var undo = move.indexOf("G") !== -1;
     if (!undo) {
-        if (moveHistoryNext < moveHistory.length) {
+        if (animateMoveHistoryNext < animateMoveHistory.length) {
             // Some moves have been undone. Discard the part of the move history
             // that is after this move - begin a new timeline.
             console.log("Discarding future move history.");
-            moveHistory = moveHistory.slice(0, moveHistoryNext);
+            animateMoveHistory = animateMoveHistory.slice(0, animateMoveHistoryNext);
         }
-        moveHistory.push(move);
-        moveHistoryNext++;
+        animateMoveHistory.push(move);
+        animateMoveHistoryNext++;
     }
 }
 
 function rotateEnd() {
     for (var i = 0; i < active.length; i++) {
-        THREE.SceneUtils.detach(active[i], pivot, scene);
+        THREE.SceneUtils.detach(active[i], pivot, animateScene);
     }
 
     active.length = 0;
@@ -138,7 +138,7 @@ function inRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
     }
 
     for (var i = 0; i < active.length; i++) {
-        THREE.SceneUtils.attach(active[i], scene, pivot);
+        THREE.SceneUtils.attach(active[i], animateScene, pivot);
     }
     animateCondReq(true);
 }

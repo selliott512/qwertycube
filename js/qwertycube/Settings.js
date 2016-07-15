@@ -13,13 +13,13 @@ var settingsInitialText =
 
 // Each entry is name, persist, description
 var settingsVarNameDescs = [
-    ["animationInst", true, "If true then moves happen instantaneously. \"A\" toggles."],
-    ["animationLimit", true, "Bypass animation when more than this number of moves are queued up."],
-    ["buttonHeightScale", true, "Scale the height of the buttons.  0 for no buttons."],
-    ["buttonStyle", true, "How the buttons are aranged at the button of the screen.  Choices are " +
+    ["animateAnimationInst", true, "If true then moves happen instantaneously. \"A\" toggles."],
+    ["animateAnimationLimit", true, "Bypass animation when more than this number of moves are queued up."],
+    ["animateButtonHeightScale", true, "Scale the height of the buttons.  0 for no buttons."],
+    ["animateButtonStyle", true, "How the buttons are aranged at the button of the screen.  Choices are " +
              "\"portrait\" (3 rows), \"landscape\" (1 row) or \"auto\" (3 rows for initMobile and 1 row for " +
               "non-initMobile)."],
-    ["cameraLocation", true, "Location of the camera."],
+    ["animateCameraLocation", true, "Location of the animateCamera."],
     ["cubiesColorBackground", true, "Background color to use.  Some color names work as well as 0xRRGGBB."],
     ["cubiesColorOverrides", true, "Color overrides.  Space separated list of color override items " +
             "where each item has the form <side>:<color>. For example, to map the right side to grey, the " +
@@ -28,10 +28,10 @@ var settingsVarNameDescs = [
             "\"std-black\" and \"std-white\".  \"hc\" is high contrast."],
     ["cubiesGap", true, "The size of the gaps between cubies."],
     ["cubiesInitFacelets", true, "Facelet pattern used for new cubes.  The pattern specified is " +
-            "considered to be solved (the timer will stop when it's reached). Order is URFDLB."],
+            "considered to be solved (the animateTimer will stop when it's reached). Order is URFDLB."],
     ["cubiesOrder", true, "The order of the cube.  The order of the usual 3x3x3 cube is 3."],
     ["cubiesSize", true, "The size of each cubie."],
-    ["dispOrientationLabels", true, "Display labels that to show the orientation \"O\" toggles)."],
+    ["animateDispOrientationLabels", true, "Display labels that to show the orientation \"O\" toggles)."],
     ["initFlashHelp", true, "If true then flash the Help button on load and inform the user to click it."],
     ["heise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
     ["keyMap", true, "Key map.  Space separated list of key mapping items where each item has the form " +
@@ -40,9 +40,9 @@ var settingsVarNameDescs = [
             "ASW:mR2 Q:kJ SX:mr"],
     ["keyPreventDefault", true, "If true prevent default behavior when a key is recognized by this " +
             "program.  This prevents the browser from reacting in addition to this program."],
-    ["moveHistory", false, "All moves made since loading the page."],
-    ["moveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
-    ["moveSec", true, "Number of moves per second when replaying."],
+    ["animateMoveHistory", false, "All moves made since loading the page."],
+    ["animateMoveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
+    ["animateMoveSec", true, "Number of moves per second when replaying."],
     ["moveThreshold", true, "Mouse movements must be at least this many pixels.  Less is interpreted" +
              "as a single click."],
     ["rotationLock", true, "If true then the cube is not rotated by clicking and moving on the grey " +
@@ -53,13 +53,13 @@ var settingsVarNameDescs = [
     ["scrambleCount", true, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
     ["scrambleMoves", false, "Moves used to scramble the cube."],
     ["scrambleType", true, "Type of scrambler used.  \"simple\" or \"jsss\"."],
-    ["statusSecs", true, "How long status is displayed at the top of the browser."],
+    ["animateStatusSecs", true, "How long status is displayed at the top of the browser."],
     ["testsRunAll", true, "Run all unit tests when Ok is clicked after applying the settings."],
-    ["timer", true, "Display the timer.  May result in high CPU usage."],
-    ["timerInspectionSecs", true, "The amount of inspection time before solving."],
+    ["animateTimer", true, "Display the animateTimer.  May result in high CPU usage."],
+    ["animateTimerInspectionSecs", true, "The amount of inspection time before solving."],
     ["toolTipTimeout", true, "Milliseconds of hovering over a button before a tooltip is displayed.  " +
             "0 for no delay.  -1 to disable tooltips."],
-    ["wireframeSphere", true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
+    ["animateWireframeSphere", true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
@@ -103,17 +103,17 @@ function settingsApply(okClicked) {
 
     initSetBackgroundColor();
     animateSetCamera();
-    animateWireframeSphere(wireframeSphere);
+    animateDrawWireframeSphere(animateWireframeSphere);
 
     // Apply the new move history to the cube.
     // TODO: If the cube is partially rewound then those moves after
-    // moveHistoryNext are lost upon restore.
+    // animateMoveHistoryNext are lost upon restore.
     clearMoveQueue();
-    enqueueMoves(moveHistory);
-    if (moveHistory.length) {
-        moveHistory.length = 0; // The moveQueue will be appended.
-        moveHistoryNextLast = moveHistoryNext;
-        moveHistoryNext = 0;
+    enqueueMoves(animateMoveHistory);
+    if (animateMoveHistory.length) {
+        animateMoveHistory.length = 0; // The animateMoveQueue will be appended.
+        animateMoveHistoryNextLast = animateMoveHistoryNext;
+        animateMoveHistoryNext = 0;
     }
     if (okClicked) {
         settingsHide();
@@ -128,7 +128,7 @@ function settingsCancel() {
 }
 
 function settingsHide() {
-    orbitControls.enabled = !rotationLock;
+    animateOrbitControls.enabled = !rotationLock;
 
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
@@ -185,7 +185,7 @@ function settingsResize() {
 
     initSettingsTextEl.style.left = "0px";
     initSettingsTextEl.style.top = "0px";
-    initSettingsTextEl.style.width = canvasWidth + "px";
+    initSettingsTextEl.style.width = animateCanvasWidth + "px";
     initSettingsTextEl.style.height = settingsHeight + "px";
 }
 
@@ -197,7 +197,7 @@ function settingsShow() {
     initHelpEl.style.top = "0px";
 
     // The orbit controls grab events that are needed.
-    orbitControls.enabled = false;
+    animateOrbitControls.enabled = false;
 
     initAddUpdateButtons(settingsButtonList);
 
@@ -207,9 +207,9 @@ function settingsShow() {
     initSettingsTextEl.value = wrapWithComments(settingsInitialText) + "\n";
 
     // Update variables that may need updating.
-    cameraLocation[0] = Math.round(camera.position.x);
-    cameraLocation[1] = Math.round(camera.position.y);
-    cameraLocation[2] = Math.round(camera.position.z);
+    animateCameraLocation[0] = Math.round(animateCamera.position.x);
+    animateCameraLocation[1] = Math.round(animateCamera.position.y);
+    animateCameraLocation[2] = Math.round(animateCamera.position.z);
 
     for (var i = 0; i < settingsVarNameDescs.length; i++) {
         var varNameDesc = settingsVarNameDescs[i];
@@ -258,8 +258,8 @@ function applyVariables() {
     }
 
     // Miscellaneous checks for variables.
-    if (moveHistoryNext > moveHistory.length) {
-        moveHistoryNext = moveHistory.length;
+    if (animateMoveHistoryNext > animateMoveHistory.length) {
+        animateMoveHistoryNext = animateMoveHistory.length;
     }
     // Standard upper case, no spaces, truncate if too long.
     cubiesInitFacelets = cubiesInitFacelets.replace(/ /g, "").toUpperCase().

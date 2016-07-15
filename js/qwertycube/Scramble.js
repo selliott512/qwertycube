@@ -135,7 +135,7 @@ function scramble() {
     // Add a savepoint after the scramble so that Alt-G rewinds to it.
     enqueueMove("|");
 
-    timerState = "scramble";
+    animateTimerState = "scramble";
     animateCondReq();
 
     console.log("Scramble length: " + scrambleMoves.length);

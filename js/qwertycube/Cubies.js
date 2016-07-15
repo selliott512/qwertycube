@@ -230,8 +230,8 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     // 0.5 is used because it's somewhere between the near and far clipping
     // planes.
     var worldCoord = new THREE.Vector3();
-    worldCoord.set((x / canvasWidth) * 2 - 1, -(y / canvasHeight) * 2 + 1, 0.5);
-    worldCoord.unproject(camera);
+    worldCoord.set((x / animateCanvasWidth) * 2 - 1, -(y / animateCanvasHeight) * 2 + 1, 0.5);
+    worldCoord.unproject(animateCamera);
 
     var bestMove = null;
     var bestMoveScore = rotationLockLimit;
@@ -240,24 +240,24 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     for (var i = 0; i < axes.length; i++) {
         var axis = axes[i];
         // Of the two sides for each axis we only need to consider the one
-        // closest to the camera.
-        var side = (camera.position[axis] >= 0) ? cubiesHalfSide
+        // closest to the animateCamera.
+        var side = (animateCamera.position[axis] >= 0) ? cubiesHalfSide
                 : -cubiesHalfSide;
 
-        // A unit normal vector that points from the camera toward the point
+        // A unit normal vector that points from the animateCamera toward the point
         // on the cube that we're trying to find.
-        var towardCube = worldCoord.clone().sub(camera.position).normalize();
+        var towardCube = worldCoord.clone().sub(animateCamera.position).normalize();
 
         if (!towardCube[axis]) {
             // Avoid division by zero.
             continue;
         }
 
-        // The distance from the camera to the side being considered.
-        var toCube = -(camera.position[axis] - side) / towardCube[axis];
+        // The distance from the animateCamera to the side being considered.
+        var toCube = -(animateCamera.position[axis] - side) / towardCube[axis];
 
         // The location clicked that may be in the cube.
-        var clicked = camera.position.clone().add(
+        var clicked = animateCamera.position.clone().add(
                 towardCube.multiplyScalar(toCube));
 
         // For the point clicked to be on the surface of the cube all three
@@ -371,7 +371,7 @@ function cubiesSolved() {
 }
 
 function cubiesToVector3(cubie) {
-    scene.updateMatrixWorld(true);
+    animateScene.updateMatrixWorld(true);
     var position = new THREE.Vector3();
     position.setFromMatrixPosition(cubie.matrixWorld);
     return position;
