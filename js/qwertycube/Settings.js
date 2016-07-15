@@ -17,8 +17,8 @@ var settingsVarNameDescs = [
     ["animationLimit", true, "Bypass animation when more than this number of moves are queued up."],
     ["buttonHeightScale", true, "Scale the height of the buttons.  0 for no buttons."],
     ["buttonStyle", true, "How the buttons are aranged at the button of the screen.  Choices are " +
-             "\"portrait\" (3 rows), \"landscape\" (1 row) or \"auto\" (3 rows for mobile and 1 row for " +
-              "non-mobile)."],
+             "\"portrait\" (3 rows), \"landscape\" (1 row) or \"auto\" (3 rows for initMobile and 1 row for " +
+              "non-initMobile)."],
     ["cameraLocation", true, "Location of the camera."],
     ["cubiesColorBackground", true, "Background color to use.  Some color names work as well as 0xRRGGBB."],
     ["cubiesColorOverrides", true, "Color overrides.  Space separated list of color override items " +
@@ -32,7 +32,7 @@ var settingsVarNameDescs = [
     ["cubiesOrder", true, "The order of the cube.  The order of the usual 3x3x3 cube is 3."],
     ["cubiesSize", true, "The size of each cubie."],
     ["dispOrientationLabels", true, "Display labels that to show the orientation \"O\" toggles)."],
-    ["flashHelp", true, "If true then flash the Help button on load and inform the user to click it."],
+    ["initFlashHelp", true, "If true then flash the Help button on load and inform the user to click it."],
     ["heise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
     ["keyMap", true, "Key map.  Space separated list of key mapping items where each item has the form " +
             "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
@@ -132,9 +132,9 @@ function settingsHide() {
 
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
-    settingsTextEl.style.visibility = "hidden";
+    initSettingsTextEl.style.visibility = "hidden";
 
-    initAddUpdateButtons(mainButtonList);
+    initAddUpdateButtons(initMainButtonList);
 
     settingsDisplayed = false;
 }
@@ -181,20 +181,20 @@ function settingsOnLoad() {
 
 function settingsResize() {
     console.log("settingsResize()");
-    var settingsHeight = primaryHeight;
+    var settingsHeight = initPrimaryHeight;
 
-    settingsTextEl.style.left = "0px";
-    settingsTextEl.style.top = "0px";
-    settingsTextEl.style.width = canvasWidth + "px";
-    settingsTextEl.style.height = settingsHeight + "px";
+    initSettingsTextEl.style.left = "0px";
+    initSettingsTextEl.style.top = "0px";
+    initSettingsTextEl.style.width = canvasWidth + "px";
+    initSettingsTextEl.style.height = settingsHeight + "px";
 }
 
 function settingsShow() {
     // Oddly this prevents a problem where the settings text does undesirable
     // horizontal scrolling when page-down is first pressed, at least on
     // Chrome.
-    helpEl.style.left = "0px";
-    helpEl.style.top = "0px";
+    initHelpEl.style.left = "0px";
+    initHelpEl.style.top = "0px";
 
     // The orbit controls grab events that are needed.
     orbitControls.enabled = false;
@@ -202,9 +202,9 @@ function settingsShow() {
     initAddUpdateButtons(settingsButtonList);
 
     settingsResize();
-    settingsTextEl.style.visibility = "visible";
+    initSettingsTextEl.style.visibility = "visible";
 
-    settingsTextEl.value = wrapWithComments(settingsInitialText) + "\n";
+    initSettingsTextEl.value = wrapWithComments(settingsInitialText) + "\n";
 
     // Update variables that may need updating.
     cameraLocation[0] = Math.round(camera.position.x);
@@ -216,7 +216,7 @@ function settingsShow() {
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         var varDesc = varNameDesc[2];
-        settingsTextEl.value += "\n" + wrapWithComments(varDesc  +
+        initSettingsTextEl.value += "\n" + wrapWithComments(varDesc  +
                 (varPersist ? " persist" : "")) + "\n";
         var varValue = window[varName];
         var line = varName + "=";
@@ -229,7 +229,7 @@ function settingsShow() {
         else {
             line += varValue;
         }
-        settingsTextEl.value += line + "\n";
+        initSettingsTextEl.value += line + "\n";
     }
 
     setCursorAfterInit();
@@ -243,7 +243,7 @@ function applyVariables() {
     var scrambleCountOld = scrambleCount;
 
     // Apply the variables in the text area.
-    var lines = settingsTextEl.value.split("\n");
+    var lines = initSettingsTextEl.value.split("\n");
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         // Strip off comments.
@@ -281,9 +281,9 @@ function applyVariables() {
 }
 
 function setCursorAfterInit() {
-    settingsTextEl.spellcheck = false;
-    settingsTextEl.focus();
+    initSettingsTextEl.spellcheck = false;
+    initSettingsTextEl.focus();
     var initLen = settingsInitialText.length;
-    settingsTextEl.setSelectionRange(initLen, initLen);
-    settingsTextEl.scrollTop = 0;
+    initSettingsTextEl.setSelectionRange(initLen, initLen);
+    initSettingsTextEl.scrollTop = 0;
 }

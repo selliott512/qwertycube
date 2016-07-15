@@ -55,8 +55,8 @@ var wireframeSphereMesh;
 
 function animateClearStatus() {
     if (statusDisplayed) {
-        statusEl.innerHTML = "";
-        statusEl.style.opacity = 0.0;
+        initStatusEl.innerHTML = "";
+        initStatusEl.style.opacity = 0.0;
         statusDisplayed = false;
     }
 }
@@ -103,16 +103,16 @@ function animateResize() {
     } else if (buttonStyle === "landscape") {
         var buttonBarHeightFraction = 0.03333;
     } else if (buttonStyle === "auto") {
-        var buttonBarHeightFraction = mobile ? 0.2 : 0.03333;
+        var buttonBarHeightFraction = initMobile ? 0.2 : 0.03333;
     }
     buttonBarHeight = buttonHeightScale
             * Math.floor(buttonBarHeightFraction * window.innerHeight);
     if (buttonHeightScale) {
         buttonBarHeight = Math.max(buttonBarHeight, 15);
     }
-    buttonBarEl.style.height = buttonBarHeight + "px";
-    containerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
-    canvasHeight = containerEl.clientHeight;
+    initButtonBarEl.style.height = buttonBarHeight + "px";
+    initContainerEl.style.height = (window.innerHeight - buttonBarHeight) + "px";
+    canvasHeight = initContainerEl.clientHeight;
     canvasMin = Math.min(canvasWidth, canvasHeight);
     renderer.setSize(canvasWidth, canvasHeight);
     aspectRatio = canvasWidth / canvasHeight;
@@ -137,19 +137,19 @@ function animateResize() {
     }
 
     // Position the help dialog.
-    var helpLeft = (canvasWidth - helpEl.clientWidth) / 2.0;
+    var helpLeft = (canvasWidth - initHelpEl.clientWidth) / 2.0;
     if (helpLeft < 0.0) {
         helpLeft = 0.0;
     }
-    helpEl.style.left = helpLeft + "px";
-    var helpTop = (canvasHeight - helpEl.clientHeight) / 2.0;
+    initHelpEl.style.left = helpLeft + "px";
+    var helpTop = (canvasHeight - initHelpEl.clientHeight) / 2.0;
     if (helpTop < 0.0) {
         helpTop = 0.0;
     }
-    helpEl.style.top = helpTop + "px";
+    initHelpEl.style.top = helpTop + "px";
 
     initAddUpdateButtons(settingsDisplayed ? settingsButtonList
-            : mainButtonList);
+            : initMainButtonList);
 
     settingsResize();
 
@@ -158,7 +158,7 @@ function animateResize() {
     }
 
     toolTipButtonEl = null;
-    tipEl.style.visibility = "hidden";
+    initTipEl.style.visibility = "hidden";
 }
 
 function animateNewCube(clearHistory) {
@@ -201,20 +201,20 @@ function animateUpdateStatus(message) {
 
         // Prevent wrapping prior to the message being displayed since it
         // messes up the centering.
-        statusEl.style.left = "0px";
+        initStatusEl.style.left = "0px";
 
         // A new message. Write it with full opacity.
-        statusEl.innerHTML = message;
+        initStatusEl.innerHTML = message;
         statusTimeMSec = Date.now();
-        statusEl.style.opacity = 1.0;
+        initStatusEl.style.opacity = 1.0;
 
         // Position the status dialog.
-        var statusLeft = (canvasWidth - statusEl.clientWidth) / 2.0;
+        var statusLeft = (canvasWidth - initStatusEl.clientWidth) / 2.0;
         if (statusLeft < 0.0) {
             statusLeft = 0.0;
         }
-        statusEl.style.left = statusLeft + "px";
-        statusEl.style.top = "0px";
+        initStatusEl.style.left = statusLeft + "px";
+        initStatusEl.style.top = "0px";
 
         statusDisplayed = true;
         animateCondReq(true);
@@ -222,12 +222,12 @@ function animateUpdateStatus(message) {
         // Fade the existing message.
         var opacity = 1.0
                 - (Date.now() - statusTimeMSec)
-                / (1000.0 * (statusSecs + statusEl.innerHTML.length
+                / (1000.0 * (statusSecs + initStatusEl.innerHTML.length
                         * statusSecsPerChar));
         if (opacity < 0.0) {
             animateClearStatus();
         } else {
-            statusEl.style.opacity = opacity;
+            initStatusEl.style.opacity = opacity;
         }
     }
 }
@@ -236,12 +236,12 @@ function animateUpdateTimer() {
     if (timer) {
         // Prevent wrapping prior to the message being displayed since it
         // messes up the centering.
-        timerEl.style.left = "0px";
-        timerEl.style.opacity = 1.0;
+        initTimerEl.style.left = "0px";
+        initTimerEl.style.opacity = 1.0;
 
         if (timerState === "inspect") {
             timerAnimated = true;
-            timerEl.style.backgroundColor = "#ff8080";
+            initTimerEl.style.backgroundColor = "#ff8080";
             var elapsedMsec = (1000 * timerInspectionSecs)
                     - (Date.now() - timerStart);
             if (elapsedMsec <= 0) {
@@ -253,34 +253,34 @@ function animateUpdateTimer() {
             }
         } else if (timerState === "scramble") {
             timerAnimated = false;
-            timerEl.style.backgroundColor = "#808080";
+            initTimerEl.style.backgroundColor = "#808080";
             var elapsedMsec = null;
         } else if (timerState === "solve") {
             timerAnimated = true;
-            timerEl.style.backgroundColor = "#80ff80";
+            initTimerEl.style.backgroundColor = "#80ff80";
             var elapsedMsec = Date.now() - timerStart;
         } else if (timerState === "solved") {
             timerAnimated = false;
-            timerEl.style.backgroundColor = "#ffff80";
+            initTimerEl.style.backgroundColor = "#ffff80";
             var elapsedMsec = timerSolved - timerStart;
         } else {
             timerAnimated = false;
-            timerEl.style.backgroundColor = "#ff80ff";
+            initTimerEl.style.backgroundColor = "#ff80ff";
             // Unknown timerState. This should not happen.
             animateUpdateStatus("Unknown timerState \"" + timerState + "\"");
             var elapsedMsec = -1;
         }
-        timerEl.innerHTML = elapsedMsecToStr(elapsedMsec)
+        initTimerEl.innerHTML = elapsedMsecToStr(elapsedMsec)
 
         // Position the timer dialog.
-        var timerLeft = canvasWidth - timerEl.clientWidth - 1;
+        var timerLeft = canvasWidth - initTimerEl.clientWidth - 1;
         if (timerLeft < 0) {
             timerLeft = 0;
         }
-        timerEl.style.left = timerLeft + "px";
-        timerEl.style.top = (canvasHeight - timerEl.offsetHeight) + "px";
+        initTimerEl.style.left = timerLeft + "px";
+        initTimerEl.style.top = (canvasHeight - initTimerEl.offsetHeight) + "px";
     } else {
-        timerEl.style.opacity = 0.0;
+        initTimerEl.style.opacity = 0.0;
     }
 }
 

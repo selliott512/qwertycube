@@ -105,24 +105,24 @@ function eventAdd() {
     // here before OrbitControls.
     console.log("Adding event listeners.");
     document.addEventListener("keydown", onKeyDown, true);
-    containerEl.addEventListener(mobile ? "touchstart" : "mousedown",
+    initContainerEl.addEventListener(initMobile ? "touchstart" : "mousedown",
             onMouseDown, true);
-    containerEl.addEventListener(mobile ? "touchend" : "mouseup", onMouseUp,
+    initContainerEl.addEventListener(initMobile ? "touchend" : "mouseup", onMouseUp,
             true);
-    if (mobile) {
-        containerEl.addEventListener("touchmove", onTouchMove);
+    if (initMobile) {
+        initContainerEl.addEventListener("touchmove", onTouchMove);
     }
 
     window.addEventListener("resize", onResize, true);
 
     // Make sure the button bar does not do anything with events other than
     // click buttons.
-    if (mobile) {
-        containerEl.addEventListener("touchmove", preventDefault);
+    if (initMobile) {
+        initContainerEl.addEventListener("touchmove", preventDefault);
     }
 
     // Get rid of the status message if the user clicks on it.
-    statusEl.addEventListener(mobile ? "touchstart" : "mousedown",
+    initStatusEl.addEventListener(initMobile ? "touchstart" : "mousedown",
             animateClearStatus);
 }
 
@@ -146,7 +146,7 @@ function eventUpdateKeyMap() {
 
 function getCoords(event) {
     var coords = [];
-    if (mobile) {
+    if (initMobile) {
         for (var i = 0; i < event.changedTouches.length; i++) {
             coords.push([event.changedTouches[0].pageX,
                     event.changedTouches[0].pageY]);
@@ -202,7 +202,7 @@ function onButtonClick(event, buttonEl, button) {
     initSetButtonColor(buttonEl, button, true);
 
     toolTipButtonEl = null;
-    tipEl.style.visibility = "hidden";
+    initTipEl.style.visibility = "hidden";
 }
 
 function onButtonOver(event, buttonEl, button) {
@@ -216,27 +216,27 @@ function onButtonOver(event, buttonEl, button) {
         console.log("Button " + button.label + " is missing a tool tip");
         return;
     }
-    tipEl.innerHTML = button.tip;
+    initTipEl.innerHTML = button.tip;
 
     // Now that the width is known the left side can be adjusted so that it's
     // centered over the button, but also entirely on the screen.
     var left = parseInt(buttonEl.style.left) +
-        (buttonEl.offsetWidth - tipEl.clientWidth) / 2;
+        (buttonEl.offsetWidth - initTipEl.clientWidth) / 2;
     left = Math.max(0, left);
-    left = Math.min(left, canvasWidth - tipEl.clientWidth);
+    left = Math.min(left, canvasWidth - initTipEl.clientWidth);
 
     // A bit above the button.
     var top = parseInt(buttonEl.style.top) -
-        1.4 * parseInt(tipEl.clientHeight);
+        1.4 * parseInt(initTipEl.clientHeight);
 
-    tipEl.style.left = left + "px";
-    tipEl.style.top = top + "px";
+    initTipEl.style.left = left + "px";
+    initTipEl.style.top = top + "px";
 
     toolTipButtonEl = buttonEl;
     setTimeout(function(elem) {
         return function() {
             if (elem === toolTipButtonEl) {
-                tipEl.style.visibility = "visible";
+                initTipEl.style.visibility = "visible";
             }
         };
     }(buttonEl), toolTipTimeout);
@@ -244,7 +244,7 @@ function onButtonOver(event, buttonEl, button) {
 
 function onButtonOut(event, buttonEl, button) {
     toolTipButtonEl = null;
-    tipEl.style.visibility = "hidden";
+    initTipEl.style.visibility = "hidden";
 }
 
 function onKeyDown(event) {
@@ -612,9 +612,9 @@ function onKeyDown(event) {
         if (validEventChar && !buttonBar) {
             // Flash the button if activated by a key.
             var prefix = (alt ? "A" : "") + (shift ? "S" : "");
-            var buttons = buttonKeyToElMap[prefix + eventChar];
+            var buttons = initButtonKeyToElMap[prefix + eventChar];
             if (!buttons) {
-                buttons = buttonKeyToElMap[eventChar];
+                buttons = initButtonKeyToElMap[eventChar];
             }
             if (buttons) {
                 initSetButtonColor(buttons[0], buttons[1], true);
@@ -640,8 +640,8 @@ function onMouseDown(event) {
     event.preventDefault();
 
     // Primary button - true for the left mouse button or any touch event.
-    var primaryButton = mobile || (event.button === 0);
-    if (primaryButton && ((!mobile) || event.changedTouches.length)) {
+    var primaryButton = initMobile || (event.button === 0);
+    if (primaryButton && ((!initMobile) || event.changedTouches.length)) {
         var beginCoords = getCoords(event);
         for (var i = 0; i < beginCoords.length; i++) {
             var beginCoord = beginCoords[i];
@@ -674,7 +674,7 @@ function onMouseUp(event) {
     event.preventDefault();
 
     // Primary button - true for the left mouse button or any touch event.
-    var primaryButton = mobile || (event.button === 0);
+    var primaryButton = initMobile || (event.button === 0);
     if (!primaryButton) {
         // Only handle the left mouse button and touch events.
         return;
@@ -770,7 +770,7 @@ function onMouseUp(event) {
                 }
             }
         }
-        if (!mobile || (mobile && !event.touches.length)) {
+        if (!initMobile || (initMobile && !event.touches.length)) {
             // If this was the last touch then the above must have processed
             // all of the moveBegins.
             moveBegins.length = 0;
@@ -798,24 +798,24 @@ function preventDefault(event) {
 }
 
 function showHelp(show) {
-    initAddUpdateButtons(show ? helpButtonList : mainButtonList);
+    initAddUpdateButtons(show ? helpButtonList : initMainButtonList);
 
     if (show) {
-        helpEl.style.left = "0px";
-        helpEl.style.top = "0px";
-        helpEl.style.width = canvasWidth + "px";
-        helpEl.style.height = primaryHeight + "px";
+        initHelpEl.style.left = "0px";
+        initHelpEl.style.top = "0px";
+        initHelpEl.style.width = canvasWidth + "px";
+        initHelpEl.style.height = initPrimaryHeight + "px";
 
         // It seems both the tabIndex and the delay is needed for the help to
         // gain focus.
-        helpEl.tabIndex = "1";
-        helpEl.scrollTop = 0;
+        initHelpEl.tabIndex = "1";
+        initHelpEl.scrollTop = 0;
         setTimeout(function() {
-            helpEl.focus();
+            initHelpEl.focus();
         }, 10);
     }
-    helpEl.style.visibility = show ? "visible" : "hidden";
-    timerEl.style.visibility = show ? "hidden" : "visible";
+    initHelpEl.style.visibility = show ? "visible" : "hidden";
+    initTimerEl.style.visibility = show ? "hidden" : "visible";
 
     helpDisplayed = show;
 }

@@ -1,9 +1,9 @@
 "use strict";
 
-// Globals
+// Public globals
 
 // Buttons that appear at the bottom. Row is zero based.
-var mainButtonList = [{
+var initMainButtonList = [{
     label : "Help",
     key : "H",
     tip : "Help with QWERTYcube"
@@ -87,58 +87,60 @@ var mainButtonList = [{
     tip : "Redo all move until savepoint or the end"
 }];
 
-var buttonKeyToElMap = {};
-var buttonRowsMax = 0;
+var initButtonKeyToElMap = {};
 
-var flashHelp = true;
-var helpFlashed = false;
+var initFlashHelp = true;
 
-var mobile = false;
+var initMobile = false;
 
 // Elements that are never recreated, so they're stored globally.
-var buttonBarEl;
-var containerEl;
-var helpEl;
-var settingsTextEl;
-var statusEl;
-var timerEl;
-var tipEl;
-
-// Strings that moves can be suffixed with.
-var moveSuffixes = ["", "'", "2"];
-
-// Prefix to apply to entries in localStorage.
-var presistentPrefix = "QC";
+var initButtonBarEl;
+var initContainerEl;
+var initHelpEl;
+var initSettingsTextEl;
+var initStatusEl;
+var initTimerEl;
+var initTipEl;
 
 // Height of the main object currently being displayed.
-var primaryHeight = 0;
+var initPrimaryHeight = 0;
 
-// Public methods
+// Private globals
+
+var _initButtonRowsMax = 0;
+var _initHelpFlashed = false;
+//Strings that moves can be suffixed with.
+var _initMoveSuffixes = ["", "'", "2"];
+
+// Prefix to apply to entries in localStorage.
+var _initPresistentPrefix = "QC";
+
+// Public functions
 
 function initAddUpdateButtons(buttonList) {
     // Delete any existing buttons.
-    while (buttonBarEl.childNodes.length) {
-        buttonBarEl.removeChild(buttonBarEl.lastChild);
+    while (initButtonBarEl.childNodes.length) {
+        initButtonBarEl.removeChild(initButtonBarEl.lastChild);
     }
 
     // Allow more rows on mobile by default.
     if (buttonStyle === "portrait") {
-        buttonRowsMax = 3;
+        _initButtonRowsMax = 3;
     } else if (buttonStyle === "landscape") {
-        buttonRowsMax = 1;
+        _initButtonRowsMax = 1;
     } else if (buttonStyle === "auto") {
-        buttonRowsMax = mobile ? 3 : 1;
+        _initButtonRowsMax = initMobile ? 3 : 1;
     }
 
     var rows = Math
-            .min(Math.floor(buttonList.length / 4 + 0.99), buttonRowsMax);
+            .min(Math.floor(buttonList.length / 4 + 0.99), _initButtonRowsMax);
     var cols = Math.floor(buttonList.length / rows + 0.99);
 
     // Calculate what the size of each mutton must be.
     var buttonWidth = canvasWidth / cols;
-    var buttonHeight = Math.floor(buttonBarHeight / buttonRowsMax);
-    var buttonTopOffset = (buttonRowsMax - rows) * buttonHeight;
-    primaryHeight = canvasHeight + buttonTopOffset;
+    var buttonHeight = Math.floor(buttonBarHeight / _initButtonRowsMax);
+    var buttonTopOffset = (_initButtonRowsMax - rows) * buttonHeight;
+    initPrimaryHeight = canvasHeight + buttonTopOffset;
 
     if (!buttonHeight) {
         // No need to add buttons that have no height.
@@ -164,7 +166,7 @@ function initAddUpdateButtons(buttonList) {
 
         // Set the size and location.
         buttonEl.style.left = Math.round(col * buttonWidth) + "px";
-        buttonEl.style.top = (row * buttonHeight + primaryHeight) + "px";
+        buttonEl.style.top = (row * buttonHeight + initPrimaryHeight) + "px";
         buttonEl.style.width = Math.round(buttonWidth) + "px";
         buttonEl.style.height = buttonHeight + "px";
 
@@ -174,8 +176,7 @@ function initAddUpdateButtons(buttonList) {
 
         // Make the literal reasonably large.
         buttonEl.style.fontSize = Math.floor(buttonHeight
-                / (mobile ? 2.4 : 1.6))
-                + "px";
+                / (initMobile ? 2.4 : 1.6)) + "px";
 
         // Make it handle the click event as if it was a key event.
         buttonEl.onclick = (function(elem, butt) {
@@ -185,7 +186,7 @@ function initAddUpdateButtons(buttonList) {
         })(buttonEl, button);
 
         // Tool tip help for non-mobile only.
-        if (!mobile) {
+        if (!initMobile) {
             buttonEl.onmouseover = (function(elem, butt) {
                 return function(event) {
                     onButtonOver(event, elem, butt)
@@ -200,7 +201,7 @@ function initAddUpdateButtons(buttonList) {
         }
 
         // Don't respond to attempts to move the buttons.
-        if (mobile) {
+        if (initMobile) {
             buttonEl.addEventListener("touchmove", preventDefault);
         }
 
@@ -214,24 +215,24 @@ function initAddUpdateButtons(buttonList) {
         buttonEl.style.visibility = "visible";
 
         // Add it to the button bar.
-        buttonBarEl.appendChild(buttonEl);
+        initButtonBarEl.appendChild(buttonEl);
 
         // Keep a reference the button variables.
-        buttonKeyToElMap[button.key] = [buttonEl, button];
+        initButtonKeyToElMap[button.key] = [buttonEl, button];
 
         col++;
     }
 }
 
 function initLoad() {
-    getElements();
-    initLoadStorage();
+    _initGetElements();
+    _initLoadStorage();
     settingsOnLoad();
     initVars();
-    fillMoveToRotation();
+    _initFillMoveToRotation();
     eventAdd();
-    setup();
-    fillScene();
+    _initSetup();
+    _initFillScene();
     animateCondReq(true);
 }
 
@@ -243,35 +244,13 @@ function initClearStorage() {
         if (!varPersist) {
             continue;
         }
-        localStorage.removeItem(presistentPrefix + varName);
-    }
-}
-
-function initLoadStorage() {
-    var queryParams = getQueryParameters();
-
-    for (var i = 0; i < settingsVarNameDescs.length; i++) {
-        var varNameDesc = settingsVarNameDescs[i];
-        var varName = varNameDesc[0];
-        var varPersist = varNameDesc[1];
-        // Persistent storage takes precedence over HTTP query parameters.
-        var varValueStr = varPersist ?
-                localStorage.getItem(presistentPrefix + varName) : null;
-        if (varValueStr === null) {
-            var values = queryParams[varName];
-            if (values) {
-                varValueStr = values.join(" ");
-            }
-        }
-        if (varValueStr !== null) {
-            setGlobal(varName, varValueStr);
-        }
+        localStorage.removeItem(_initPresistentPrefix + varName);
     }
 }
 
 function initSetButtonColor(buttonEl, button, flash) {
     var toggle = button.toggle;
-    var fh = (button.label === "Help") && flashHelp && !helpFlashed;
+    var fh = (button.label === "Help") && initFlashHelp && !_initHelpFlashed;
     if (toggle) {
         var val = window[toggle];
         buttonEl.style.backgroundColor = (val ? buttonColorHighlight
@@ -313,7 +292,7 @@ function initSaveStorage() {
         } else {
             varValue = window[varName];
         }
-        localStorage.setItem(presistentPrefix + varName, varValue);
+        localStorage.setItem(_initPresistentPrefix + varName, varValue);
     }
 }
 
@@ -324,8 +303,8 @@ function initVars() {
 
     // Don't display the help dialog for mobile devices. Leave it be for
     // non-mobile.
-    mobile = isMobile();
-    console.log("Mobile: " + mobile);
+    initMobile = isMobile();
+    console.log("Mobile: " + initMobile);
 
     // Scale the cubies based on the current order so that the overall cube has
     // the same size as a 3x3. A 3x3, which is the default, consists of 3
@@ -373,15 +352,15 @@ function initSetBackgroundColor() {
     renderer.setClearColor(normalizeColor(cubiesColorBackground));
 }
 
-// Private methods
+// Private functions
 
 // Fill moveToRotation as well as it's conjugate rotationToMove.
-function fillMoveToRotation() {
+function _initFillMoveToRotation() {
     var count = 0;
     for ( var face in faceToRotation) {
         var faceRot = faceToRotation[face];
-        for ( var s = 0; s < moveSuffixes.length; s++) {
-            var suffix = moveSuffixes[s];
+        for ( var s = 0; s < _initMoveSuffixes.length; s++) {
+            var suffix = _initMoveSuffixes[s];
             var move = face + suffix;
             var moveRot = faceRot.slice();
             if (suffix === "'") {
@@ -420,10 +399,10 @@ function fillMoveToRotation() {
             }
         }
     }
-    console.log("fillMoveToRotation: Added " + count + " moves.");
+    console.log("_initFillMoveToRotation: Added " + count + " moves.");
 }
 
-function fillScene() {
+function _initFillScene() {
     scene = new THREE.Scene();
     cubiesCreate(null);
     text = new textCreate();
@@ -442,18 +421,40 @@ function fillScene() {
     }
 }
 
-function getElements() {
-    buttonBarEl = document.getElementById("button-bar");
-    containerEl = document.getElementById("container");
-    helpEl = document.getElementById("help");
-    settingsTextEl = document.getElementById("settings-text");
-    statusEl = document.getElementById("status");
-    timerEl = document.getElementById("timer");
-    tipEl = document.getElementById("tip");
+function _initGetElements() {
+    initButtonBarEl = document.getElementById("button-bar");
+    initContainerEl = document.getElementById("container");
+    initHelpEl = document.getElementById("help");
+    initSettingsTextEl = document.getElementById("settings-text");
+    initStatusEl = document.getElementById("status");
+    initTimerEl = document.getElementById("timer");
+    initTipEl = document.getElementById("tip");
+}
+
+function _initLoadStorage() {
+    var queryParams = getQueryParameters();
+
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varNameDesc = settingsVarNameDescs[i];
+        var varName = varNameDesc[0];
+        var varPersist = varNameDesc[1];
+        // Persistent storage takes precedence over HTTP query parameters.
+        var varValueStr = varPersist ?
+                localStorage.getItem(_initPresistentPrefix + varName) : null;
+        if (varValueStr === null) {
+            var values = queryParams[varName];
+            if (values) {
+                varValueStr = values.join(" ");
+            }
+        }
+        if (varValueStr !== null) {
+            setGlobal(varName, varValueStr);
+        }
+    }
 }
 
 // Scene initialization code:
-function setup() {
+function _initSetup() {
     // Renderer:
     if (Detector.webgl) {
         renderer = new THREE.WebGLRenderer({
@@ -465,7 +466,7 @@ function setup() {
         animateUpdateStatus("WebGL is not supported.");
         renderer = null;
         // So it's not overwritten by the help message.
-        helpFlashed = true;
+        _initHelpFlashed = true;
     }
 
     initSetBackgroundColor();
@@ -487,12 +488,12 @@ function setup() {
     orbitControls.useMinClient = true;
 
     // Add the renderer to the page.
-    containerEl.appendChild(renderer.domElement);
+    initContainerEl.appendChild(renderer.domElement);
 
     // Dynamically add buttons to the button bar.
-    initAddUpdateButtons(mainButtonList);
-    if (flashHelp) {
+    initAddUpdateButtons(initMainButtonList);
+    if (initFlashHelp) {
         animateUpdateStatus("To get started press the Help button.");
-        helpFlashed = true;
+        _initHelpFlashed = true;
     }
 }
