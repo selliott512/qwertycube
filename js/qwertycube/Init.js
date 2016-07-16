@@ -354,11 +354,11 @@ function initSetBackgroundColor() {
 
 // Private functions
 
-// Fill moveToRotation as well as it's conjugate rotationToMove.
+// Fill rotateMoveToRotation as well as it's conjugate rotateRotationToMove.
 function _initFillMoveToRotation() {
     var count = 0;
-    for ( var face in faceToRotation) {
-        var faceRot = faceToRotation[face];
+    for ( var face in rotateFaceToRotation) {
+        var faceRot = rotateFaceToRotation[face];
         for ( var s = 0; s < _initMoveSuffixes.length; s++) {
             var suffix = _initMoveSuffixes[s];
             var move = face + suffix;
@@ -394,8 +394,8 @@ function _initFillMoveToRotation() {
                     }
                 }
                 count++;
-                moveToRotation[move] = moveRot;
-                rotationToMove[moveRot] = move;
+                rotateMoveToRotation[move] = moveRot;
+                rotateRotationToMove[moveRot] = move;
             }
         }
     }
@@ -407,8 +407,8 @@ function _initFillScene() {
     cubiesCreate(null);
     animateText = new textCreate();
 
-    pivot = new THREE.Object3D();
-    animateScene.add(pivot);
+    rotatePivot = new THREE.Object3D();
+    animateScene.add(rotatePivot);
 
     // Add cubies (Child cubes) to animateScene
     for (var i = 0; i < cubies.length; i++) {

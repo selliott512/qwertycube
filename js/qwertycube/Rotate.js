@@ -1,11 +1,6 @@
 "use strict";
 
-// Globals
-
-var active = [];
-var pivot = new THREE.Object3D(); // The origin by default.
-var rotateMoveSign = 0;
-var rotateTwoLayer = false;
+// Public globals
 
 // The following lookup table should be kept in sync and in alphabetical order
 // by key.  The five values for each face have the following meanings:
@@ -22,7 +17,7 @@ var rotateTwoLayer = false;
 //                cube along the axis.  Range is [0, cubiesOrder - 1].  This
 //                is set dynamically as the move is analyzed
 //   6 limHiIdx   - Like limLoIdx, but for the upper bound.
-var faceToRotation = {
+var rotateFaceToRotation = {
     B : [1, "z", -1, -1, 1, -1, -1],
     D : [1, "y", -1, -1, 1, -1, -1],
     E : [1, "y", 0, 0, 1, -1, -1],
@@ -39,12 +34,20 @@ var faceToRotation = {
 
 // Like the above, but for all moves. This is populated dynamically on
 // startup. The columns have the same meaning as the above.
-var moveToRotation = {};
+var rotateMoveToRotation = {};
+
+var rotatePivot = new THREE.Object3D(); // The origin by default.
 
 // Inverse of the above.
-var rotationToMove = {};
+var rotateRotationToMove = {};
 
-// Public methods
+// Private globals
+
+var _rotateActive = [];
+var _rotateMoveSign = 0;
+var _rotateTwoLayer = false;
+
+// Public functions
 
 function rotateBegin(move, rotation, discardPrevious) {
     // Discard the last move in the move history since it was consolidated.
@@ -97,7 +100,7 @@ function rotateBegin(move, rotation, discardPrevious) {
         console.log("Rotation indexes not set for move \"" + move + "\"");
         return;
     }
-    inRangeRotate.apply(this, rotation);
+    _rotateInRangeRotate.apply(this, rotation);
 
     // True if this move is an undo - don't add it to the move history.
     var undo = move.indexOf("G") !== -1;
@@ -114,33 +117,31 @@ function rotateBegin(move, rotation, discardPrevious) {
 }
 
 function rotateEnd() {
-    for (var i = 0; i < active.length; i++) {
-        THREE.SceneUtils.detach(active[i], pivot, animateScene);
+    for (var i = 0; i < _rotateActive.length; i++) {
+        THREE.SceneUtils.detach(_rotateActive[i], rotatePivot, animateScene);
     }
 
-    active.length = 0;
+    _rotateActive.length = 0;
 
-    pivot.rotation.x = 0;
-    pivot.rotation.y = 0;
-    pivot.rotation.z = 0;
+    rotatePivot.rotation.x = 0;
+    rotatePivot.rotation.y = 0;
+    rotatePivot.rotation.z = 0;
 }
 
 // Private methods
 
-function inRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
+function _rotateInRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
     for (var i = 0; i < cubies.length; i++) {
         var position = cubiesToVector3(cubies[i]);
         // The position coordinate being considered.
         var posCoord = position[axisOfRot];
         if (posCoord >= limLo && posCoord <= limHi) {
-            active.push(cubies[i]);
+            _rotateActive.push(cubies[i]);
         }
     }
 
-    for (var i = 0; i < active.length; i++) {
-        THREE.SceneUtils.attach(active[i], animateScene, pivot);
+    for (var i = 0; i < _rotateActive.length; i++) {
+        THREE.SceneUtils.attach(_rotateActive[i], animateScene, rotatePivot);
     }
     animateCondReq(true);
 }
-
-// TODO: Move these functions to utils and rename.

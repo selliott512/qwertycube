@@ -154,7 +154,7 @@ function cubiesCreate(oldCubies) {
                         continue;
                     }
 
-                    var rotation = faceToRotation[face];
+                    var rotation = rotateFaceToRotation[face];
                     // The meaning of sign is the opposite here - it's positive if
                     // the face is on the positive side of the axis.
                     var sign = -rotation[0];

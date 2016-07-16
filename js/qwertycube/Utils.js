@@ -127,7 +127,7 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
         return null;
     }
 
-    // First attempt to find an entry in moveToRotation that matches layers.
+    // First attempt to find an entry in rotateMoveToRotation that matches layers.
     var lo = -1;
     var hi = -1;
     var amount = 0;
@@ -170,7 +170,7 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
     if ((lo === hi) && ((lo === 0) || (lo == (cubiesOrder - 1))) ||
             (lo <= 1) && (hi >= (cubiesOrder - 2))) {
         // There is no prefix.  It should be possible to match an existing
-        // entry in rotationToMove.
+        // entry in rotateRotationToMove.
         var prefix = false;
 
         if (lo === 0) {
@@ -460,7 +460,7 @@ function utilsWrapWithComments(animateText, cols) {
 
 // Converts a rotation to a move.
 function _utilsGetMoveFromRotation(rotation) {
-    return rotationToMove[rotation];
+    return rotateRotationToMove[rotation];
 }
 
 // Converts a move to a rotation. Returns undefined for savepoints.
@@ -547,7 +547,7 @@ function _utilsGetRotationFromMove(move) {
     }
 
     // The prefix is not part of the table.
-    var rotation = moveToRotation[move.substr(i, j - i + 1)];
+    var rotation = rotateMoveToRotation[move.substr(i, j - i + 1)];
     if (!rotation) {
         // Probably a savepoint.
         return null;

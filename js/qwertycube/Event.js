@@ -354,7 +354,7 @@ function onKeyDown(event) {
 
     // For Heise all possible moves should have been specified by the map(s),
     // so no need to look for the rotation here.
-    var rotation = heise ? null : faceToRotation[eventChar];
+    var rotation = heise ? null : rotateFaceToRotation[eventChar];
     if (event.keyCode === 27) {
         if (helpDisplayed) {
             showHelp(false);
@@ -722,7 +722,7 @@ function onMouseUp(event) {
             if (moveEnd) {
                 // Assuming cube was touched at moveBegin and moveBegin to
                 // moveEnd is the direction force was applied calculate the
-                // torque given the center of the cube as a pivot.
+                // torque given the center of the cube as a rotatePivot.
                 var force = moveEnd.pos.clone();
                 force.sub(moveBegin.pos);
                 var torque = new THREE.Vector3();

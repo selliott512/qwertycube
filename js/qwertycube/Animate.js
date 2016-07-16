@@ -401,7 +401,7 @@ function _animateDoAnimate() {
                 // Consolidate now if a new move is waiting.
                 if ((animateMoveQueue.length !== _animateMoveQueueLen) && _animateConsolidateMoves()) {
                     // Rotate the current move back to where it started.
-                    pivot.rotation[_animateRotationCurrent[1]] = 0.0;
+                    rotatePivot.rotation[_animateRotationCurrent[1]] = 0.0;
                     animateRenderer.render(animateScene, animateCamera);
 
                     // End the current rotation and then begin a new one with
@@ -427,7 +427,7 @@ function _animateDoAnimate() {
                     var angleGoal = angleMax;
                     endMove = true;
                 }
-                pivot.rotation[_animateRotationCurrent[1]] = _animateRotationCurrent[0]
+                rotatePivot.rotation[_animateRotationCurrent[1]] = _animateRotationCurrent[0]
                         * angleGoal;
             } else {
                 animateMoveCurrent = null;
