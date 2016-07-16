@@ -1,25 +1,28 @@
 "use strict";
 
-// Globals
-var mobileUserAgentREs = [/Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
+// Public globals
+
+// Private globals
+
+var _utilsMobileUserAgentREs = [/Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
         /iPod/i, /webOS/i, /Windows, Phone/i];
 
-// Public methods
+// Public functions
 
-function clearMoveQueue() {
+function utilsClearMoveQueue() {
     animateMoveQueue.length = 0;
     animateRotationQueue.length = 0;
 }
 
 //Convert from a coordinate on the cube to an index into the layers. Note that
-//this should be the inverse of indexToCoord.
-function coordToIndex(coord) {
+//this should be the inverse of utilsIndexToCoord.
+function utilsCoordToIndex(coord) {
      return Math.floor((coord + (cubiesHalfSide + (cubiesGapScaled / 2))) /
              cubiesOffsetScaled);
 }
 
 // Copy a map. Note that this is not a deep/recursive copy.
-function copyMap(oldMap) {
+function utilsCopyMap(oldMap) {
     var newMap = {};
     for ( var item in oldMap) {
         newMap[item] = oldMap[item];
@@ -28,7 +31,7 @@ function copyMap(oldMap) {
 }
 
 // Convert an elapsed amount of time to mm:ss.x format.
-function elapsedMsecToStr(elapsedMsec) {
+function utilsElapsedMsecToStr(elapsedMsec) {
     if (elapsedMsec === null) {
         return "";
     }
@@ -55,30 +58,30 @@ function elapsedMsecToStr(elapsedMsec) {
 
 // Queues up a move along with it's corresponding rotation. Note that index to
 // index animateMoveQueue and animateRotationQueue must be kept in sync.
-function enqueueMove(move) {
+function utilsEnqueueMove(move) {
     animateMoveQueue.push(move);
-    animateRotationQueue.push(getRotationFromMove(move));
+    animateRotationQueue.push(_utilsGetRotationFromMove(move));
 }
 
-// Like enqueueMove except that the rotation may already be known (not null)
+// Like utilsEnqueueMove except that the rotation may already be known (not null)
 // in which case we don't want to calculate it again.
-function enqueueMoveRotation(moveRot) {
+function utilsEnqueueMoveRotation(moveRot) {
     if (!moveRot[1]) {
-        moveRot[1] = getRotationFromMove(moveRot[0]);
+        moveRot[1] = _utilsGetRotationFromMove(moveRot[0]);
     }
     animateMoveQueue.push(moveRot[0]);
     animateRotationQueue.push(moveRot[1]);
 }
 
-// Queues up multiple moves.  See enqueueMove().
-function enqueueMoves(moves) {
+// Queues up multiple moves.  See utilsEnqueueMove().
+function utilsEnqueueMoves(moves) {
     for ( var i = 0; i < moves.length; i++) {
-        enqueueMove(moves[i]);
+        utilsEnqueueMove(moves[i]);
     }
 }
 
 // For a given move return the inverse move that will undo it.
-function getInverseMove(move) {
+function utilsGetInverseMove(move) {
     for (var i = 0; i < move.length; i++) {
         var c = move[i];
         if (!(((c >= "0") && (c <= "9")) || (c === "-"))) {
@@ -105,7 +108,7 @@ function getInverseMove(move) {
 }
 
 // Given a sign, limLoIdx and limHiIdx produce an array of layers.
-function getLayersFromIndexes(sign, limLoIdx, limHiIdx) {
+function utilsGetLayersFromIndexes(sign, limLoIdx, limHiIdx) {
     var layers = [];
     for (var i = 0; i < cubiesOrder; i++) {
         layers[i] = ((i >= limLoIdx) && (i <= limHiIdx)) ? sign : 0;
@@ -116,7 +119,7 @@ function getLayersFromIndexes(sign, limLoIdx, limHiIdx) {
 // Given the axis about which layers are rotated and how much each layer is
 // rotated return a move if possible. Positive rotation is in the vector sense
 // with 1 for each 90 degrees counterclockwise.
-function getMoveRotationFromLayers(axis, layers) {
+function utilsGetMoveRotationFromLayers(axis, layers) {
     if (layers.length !== cubiesOrder) {
         // This should not happen.
         console.log("Layers has length " + layers.length + " instead of " +
@@ -161,7 +164,7 @@ function getMoveRotationFromLayers(axis, layers) {
         return null;
     }
 
-    var sign = getSign(amount);
+    var sign = _utilsGetSign(amount);
     amount = Math.abs(amount);
 
     if ((lo === hi) && ((lo === 0) || (lo == (cubiesOrder - 1))) ||
@@ -221,7 +224,7 @@ function getMoveRotationFromLayers(axis, layers) {
     rotation[5] = -1;
     rotation[6] = -1;
 
-    var move = getMoveFromRotation(rotation);
+    var move = _utilsGetMoveFromRotation(rotation);
 
     // Now that the lookup has been done setting the following makes the
     // rotation fully valid and ready for use.
@@ -260,13 +263,13 @@ function getMoveRotationFromLayers(axis, layers) {
 }
 
 // Converts a rotation to a move.
-function getMoveFromRotation(rotation) {
+function _utilsGetMoveFromRotation(rotation) {
     return rotationToMove[rotation];
 }
 
 // Simple function to parse the HTTP query parameters that should be good
 // enough.  The values are arrays to allow for duplicate keys.
-function getQueryParameters() {
+function utilsGetQueryParameters() {
     var href = window.location.href;
     var qParams = {};
     var begin = href.indexOf("?");
@@ -303,7 +306,7 @@ function getQueryParameters() {
 }
 
 // Converts a move to rotation. Returns undefined for savepoints.
-function getRotationFromMove(move) {
+function _utilsGetRotationFromMove(move) {
     // There is no rotation for savepoints.
     if (move === "|") {
         return null;
@@ -449,7 +452,7 @@ function getRotationFromMove(move) {
 }
 
 // Like the "seq" CLI except it starts at 0.  Returns an arary of size num.
-function getSeq(num) {
+function utilsGetSeq(num) {
     var nums = [];
     for (var i = 0; i < num; i++) {
         nums.push(i);
@@ -458,7 +461,7 @@ function getSeq(num) {
 }
 
 // Like Math.sign(), which is not supported everywhere.
-function getSign(num) {
+function _utilsGetSign(num) {
     if (num < 0) {
         return - 1;
     } else if (num === 0) {
@@ -469,13 +472,13 @@ function getSign(num) {
 }
 
 //Convert from a index into the layers to a coordinate on the cube.
-function indexToCoord(limit) {
+function utilsIndexToCoord(limit) {
  return (cubiesSizeScaled + cubiesGapScaled) * limit -
      cubiesHalfSide - cubiesGapScaled / 2;
 }
 
 // Return the name of the coordinate that has the largest absolute value.
-function largestAbsoluteAxis(vector) {
+function utilsLargestAbsoluteAxis(vector) {
     var axes = ["x", "y", "z"];
     var axisMax = -1;
     var axisName;
@@ -491,7 +494,7 @@ function largestAbsoluteAxis(vector) {
 }
 
 // Convert a map to a space separated key:value list.
-function mapToString(map) {
+function utilsMapToString(map) {
     var first = true;
     var str = "";
     for ( var item in map) {
@@ -502,7 +505,7 @@ function mapToString(map) {
 }
 
 // Normalize the color.
-function normalizeColor(color) {
+function utilsNormalizeColor(color) {
     if (color.constructor === Number) {
         return color;
     } else {
@@ -513,9 +516,9 @@ function normalizeColor(color) {
 
 // Return true if the device is mobile. Inspired by:
 // http://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
-function isMobile() {
-    for (var i = 0; i < mobileUserAgentREs.length; i++) {
-        var re = mobileUserAgentREs[i];
+function utilsIsMobile() {
+    for (var i = 0; i < _utilsMobileUserAgentREs.length; i++) {
+        var re = _utilsMobileUserAgentREs[i];
         if (navigator.userAgent.match(re)) {
             return true;
         }
@@ -526,7 +529,7 @@ function isMobile() {
 // Shuffle a subset of an array beginning and index begin (inclusive) and
 // ending at index end (exclusive).  The shuffled portion of the arary will be
 // end - begin entries long.
-function shuffleArray(nums, begin, end) {
+function utilsShuffleArray(nums, begin, end) {
     for (var i = begin; i < end; i++) {
         var j = Math.floor(Math.random() * (end - i)) + i;
         var buff  = nums[i];
@@ -536,7 +539,7 @@ function shuffleArray(nums, begin, end) {
 }
 
 // Set a global variable by name while preserving the type of the global.
-function setGlobal(varName, varValueStr) {
+function utilsSetGlobal(varName, varValueStr) {
     console.log("setting global " + varName + " to " + varValueStr);
     var varValue;
     var varType = window[varName].constructor;
@@ -592,7 +595,7 @@ function setGlobal(varName, varValueStr) {
 }
 
 // Wrap the next so that no line exceeds cols columns.
-function wrapWithComments(animateText, cols) {
+function utilsWrapWithComments(animateText, cols) {
     if (!cols) {
         // Use a large value so it does not wrap.
         cols = 10000;
@@ -614,3 +617,5 @@ function wrapWithComments(animateText, cols) {
     }
     return result;
 }
+
+// Private functions

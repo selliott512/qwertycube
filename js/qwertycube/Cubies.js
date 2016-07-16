@@ -49,7 +49,7 @@ var _cubesHcBlackColors = {
 };
 
 // High contrast white. Each color should be distinct on all monitors.
-var _cubesHcWhiteColors = copyMap(_cubesHcBlackColors);
+var _cubesHcWhiteColors = utilsCopyMap(_cubesHcBlackColors);
 _cubesHcWhiteColors.I = _cubesHcBlackColors.D;
 
 // A black cube with standard colors.
@@ -64,7 +64,7 @@ var _cubesStdBlackColors = {
 };
 
 // A white cube with standard colors.
-var _cubesStdWhiteColors = copyMap(_cubesStdBlackColors);
+var _cubesStdWhiteColors = utilsCopyMap(_cubesStdBlackColors);
 _cubesStdWhiteColors.I = _cubesStdWhiteColors.D;
 
 var _cubesColorTable = {
@@ -195,10 +195,10 @@ function cubiesCreate(oldCubies) {
     // mapping the reference cubie, which is special.
     if ((!_cubiesIndexesShuffled) ||
             (_cubiesIndexesShuffled.length !== cubies.length)) {
-        _cubiesIndexesShuffled = getSeq(cubies.length);
-        shuffleArray(_cubiesIndexesShuffled, 1, _cubiesEdgesIndex);
-        shuffleArray(_cubiesIndexesShuffled, _cubiesEdgesIndex, _cubiesMiddlesIndex);
-        shuffleArray(_cubiesIndexesShuffled, _cubiesMiddlesIndex, cubies.length);
+        _cubiesIndexesShuffled = utilsGetSeq(cubies.length);
+        utilsShuffleArray(_cubiesIndexesShuffled, 1, _cubiesEdgesIndex);
+        utilsShuffleArray(_cubiesIndexesShuffled, _cubiesEdgesIndex, _cubiesMiddlesIndex);
+        utilsShuffleArray(_cubiesIndexesShuffled, _cubiesMiddlesIndex, cubies.length);
     }
 
     if (oldCubies) {
@@ -341,7 +341,7 @@ function cubiesSolved() {
         var cornerIndex = (i === 2) ? 2 : 1;
         var refToCorner = ref.position.clone().sub(
                 cubies[i + cornerIndex].position);
-        var currentAxis = largestAbsoluteAxis(refToCorner);
+        var currentAxis = utilsLargestAbsoluteAxis(refToCorner);
         axisToAxis[axis] = currentAxis;
     }
 
@@ -436,7 +436,7 @@ function _cubesInitMaterials() {
         if (colorOverride) {
             color = colorOverride;
         }
-        color = normalizeColor(color);
+        color = utilsNormalizeColor(color);
         _cubesColorMatts[side] = new THREE.MeshBasicMaterial({
             color : color,
         });

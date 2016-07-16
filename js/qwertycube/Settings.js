@@ -108,8 +108,8 @@ function settingsApply(okClicked) {
     // Apply the new move history to the cube.
     // TODO: If the cube is partially rewound then those moves after
     // animateMoveHistoryNext are lost upon restore.
-    clearMoveQueue();
-    enqueueMoves(animateMoveHistory);
+    utilsClearMoveQueue();
+    utilsEnqueueMoves(animateMoveHistory);
     if (animateMoveHistory.length) {
         animateMoveHistory.length = 0; // The animateMoveQueue will be appended.
         animateMoveHistoryNextLast = animateMoveHistoryNext;
@@ -204,7 +204,7 @@ function settingsShow() {
     settingsResize();
     initSettingsTextEl.style.visibility = "visible";
 
-    initSettingsTextEl.value = wrapWithComments(settingsInitialText) + "\n";
+    initSettingsTextEl.value = utilsWrapWithComments(settingsInitialText) + "\n";
 
     // Update variables that may need updating.
     animateCameraLocation[0] = Math.round(animateCamera.position.x);
@@ -216,7 +216,7 @@ function settingsShow() {
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         var varDesc = varNameDesc[2];
-        initSettingsTextEl.value += "\n" + wrapWithComments(varDesc  +
+        initSettingsTextEl.value += "\n" + utilsWrapWithComments(varDesc  +
                 (varPersist ? " persist" : "")) + "\n";
         var varValue = window[varName];
         var line = varName + "=";
@@ -224,7 +224,7 @@ function settingsShow() {
             line += varValue.join(" ");
         }
         else if (varValue.constructor === Object) {
-            line += mapToString(varValue);
+            line += utilsMapToString(varValue);
         }
         else {
             line += varValue;
@@ -254,7 +254,7 @@ function applyVariables() {
         }
         var varName = line.substr(0, eqIndex).trim();
         var varValueStr = line.substr(eqIndex + 1).trim();
-        setGlobal(varName, varValueStr);
+        utilsSetGlobal(varName, varValueStr);
     }
 
     // Miscellaneous checks for variables.

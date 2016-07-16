@@ -134,7 +134,7 @@ function eventUpdateKeyMap() {
     }
 
     // If there is both Heise and keyMap keyMap should take precedence.
-    keyMapTotal = copyMap(heise ? heiseMap : keyMap);
+    keyMapTotal = utilsCopyMap(heise ? heiseMap : keyMap);
     if (heise) {
         for ( var item in keyMap) {
             keyMapTotal[item] = keyMap[item];
@@ -304,7 +304,7 @@ function onKeyDown(event) {
             } else if (keyMapValue[0] === "m") {
                 // Map directly to a move and return.
                 var move = keyMapValue.substring(1);
-                enqueueMove(numericPrefix + move);
+                utilsEnqueueMove(numericPrefix + move);
                 numericPrefix = "";
                 animateCondReq(true);
                 escLast = false;
@@ -371,7 +371,7 @@ function onKeyDown(event) {
         if (alt) {
             move = move.toLowerCase();
         }
-        enqueueMove(numericPrefix + move);
+        utilsEnqueueMove(numericPrefix + move);
         numericPrefix = "";
         animateCondReq(true);
         escLast = false;
@@ -473,7 +473,7 @@ function onKeyDown(event) {
                     // undo
                     if (animateMoveHistoryNext > 0) {
                         move = animateMoveHistory[--animateMoveHistoryNext];
-                        moveG = getInverseMove(move);
+                        moveG = utilsGetInverseMove(move);
                     }
                 }
                 // If at a savepoint to start step past it.
@@ -493,7 +493,7 @@ function onKeyDown(event) {
                                 + (shift ? "redo" : "undo")));
                 if (moveG) {
                     // "G" indicates it's an undo.
-                    enqueueMove(moveG + "G");
+                    utilsEnqueueMove(moveG + "G");
                     animateCondReq(true);
                 }
                 if (!moveG || !alt) {
@@ -732,13 +732,13 @@ function onMouseUp(event) {
                 // move is to be around. The sign is in the vector rotation
                 // sense (counter clockwise positive) and not the cube sense
                 // (clockwise positive).
-                var axis = largestAbsoluteAxis(torque);
+                var axis = utilsLargestAbsoluteAxis(torque);
                 var sign = torque[axis] >= 0 ? 1 : -1;
 
                 // Get the indexes into the layers along axis.
-                var limLoIdx = coordToIndex(moveBegin.pos[axis]);
+                var limLoIdx = utilsCoordToIndex(moveBegin.pos[axis]);
                 if (mouseMoved) {
-                    var limHiIdx = coordToIndex(moveEnd.pos[axis]);
+                    var limHiIdx = utilsCoordToIndex(moveEnd.pos[axis]);
                     if (limLoIdx > limHiIdx) {
                         var buf = limLoIdx;
                         limLoIdx = limHiIdx;
@@ -758,11 +758,11 @@ function onMouseUp(event) {
                     }
                 }
 
-                var layers = getLayersFromIndexes(sign, limLoIdx, limHiIdx);
-                var moveRot = getMoveRotationFromLayers(axis, layers);
+                var layers = utilsGetLayersFromIndexes(sign, limLoIdx, limHiIdx);
+                var moveRot = utilsGetMoveRotationFromLayers(axis, layers);
                 if (moveRot) {
                     // Queue the move and rotation up.
-                    enqueueMoveRotation(moveRot);
+                    utilsEnqueueMoveRotation(moveRot);
 
                     // If the user made a move they probably don't care
                     // about the message.

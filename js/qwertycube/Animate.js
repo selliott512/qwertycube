@@ -99,7 +99,7 @@ function animateNewCube(clearHistory) {
         return false;
     }
     animateMoveCurrent = null;
-    clearMoveQueue();
+    utilsClearMoveQueue();
     if (clearHistory) {
         animateMoveHistory.length = 0;
         animateMoveHistoryNext = 0;
@@ -300,7 +300,7 @@ function _animateConsolidateMoves() {
             continue;
         }
 
-        var moveRotNew = getMoveRotationFromLayers(axis, layers);
+        var moveRotNew = utilsGetMoveRotationFromLayers(axis, layers);
         if (moveRotNew) {
             bestI = i;
             bestMove = moveRotNew[0];
@@ -526,7 +526,7 @@ function _animateUpdateTimer() {
             animateUpdateStatus("Unknown animateTimerState \"" + animateTimerState + "\"");
             var elapsedMsec = -1;
         }
-        initTimerEl.innerHTML = elapsedMsecToStr(elapsedMsec)
+        initTimerEl.innerHTML = utilsElapsedMsecToStr(elapsedMsec)
 
         // Position the animateTimer dialog.
         var timerLeft = animateCanvasWidth - initTimerEl.clientWidth - 1;

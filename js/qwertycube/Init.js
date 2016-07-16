@@ -288,7 +288,7 @@ function initSaveStorage() {
             }
         } else if (window[varName].constructor === Object) {
             // Write maps space separated key:value list.
-            varValue = mapToString(window[varName]);
+            varValue = utilsMapToString(window[varName]);
         } else {
             varValue = window[varName];
         }
@@ -303,7 +303,7 @@ function initVars() {
 
     // Don't display the help dialog for mobile devices. Leave it be for
     // non-mobile.
-    initMobile = isMobile();
+    initMobile = utilsIsMobile();
     console.log("Mobile: " + initMobile);
 
     // Scale the cubies based on the current order so that the overall cube has
@@ -349,7 +349,7 @@ function initVars() {
 }
 
 function initSetBackgroundColor() {
-    animateRenderer.setClearColor(normalizeColor(cubiesColorBackground));
+    animateRenderer.setClearColor(utilsNormalizeColor(cubiesColorBackground));
 }
 
 // Private functions
@@ -432,7 +432,7 @@ function _initGetElements() {
 }
 
 function _initLoadStorage() {
-    var queryParams = getQueryParameters();
+    var queryParams = utilsGetQueryParameters();
 
     for (var i = 0; i < settingsVarNameDescs.length; i++) {
         var varNameDesc = settingsVarNameDescs[i];
@@ -448,7 +448,7 @@ function _initLoadStorage() {
             }
         }
         if (varValueStr !== null) {
-            setGlobal(varName, varValueStr);
+            utilsSetGlobal(varName, varValueStr);
         }
     }
 }
