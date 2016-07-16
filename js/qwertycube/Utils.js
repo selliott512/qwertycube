@@ -262,11 +262,6 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
     return [move, rotation];
 }
 
-// Converts a rotation to a move.
-function _utilsGetMoveFromRotation(rotation) {
-    return rotationToMove[rotation];
-}
-
 // Simple function to parse the HTTP query parameters that should be good
 // enough.  The values are arrays to allow for duplicate keys.
 function utilsGetQueryParameters() {
@@ -305,152 +300,6 @@ function utilsGetQueryParameters() {
     return qParams;
 }
 
-// Converts a move to rotation. Returns undefined for savepoints.
-function _utilsGetRotationFromMove(move) {
-    // There is no rotation for savepoints.
-    if (move === "|") {
-        return null;
-    }
-
-    // Iterate through and parse the possible lo[-hi] prefix.
-    var buf = "";
-    var dash = false;
-    var lo = 1; // Layer 1 is implied if prefix is missing.
-    var hi = 1;
-    for (var i = 0; i < move.length; i++) {
-        var c = move[i];
-        if ((c >= "0") && (c <= "9")) {
-            buf += c;
-        } else if (c === "-") {
-            if (!buf) {
-                // This should not happen.
-                console.log("Invalid prefix for move \"" + move + "\".");
-                return null;
-            }
-            lo = parseInt(buf);
-            if (!(lo > 0)) {
-                // This should not happen.  "if" constructed to allow for NaN.
-                console.log("Invalid prefix (lo) for move \"" + move + "\".");
-                return null;
-            }
-            buf = "";
-            dash = true;
-        } else {
-            // i points to the first non-prefix character.
-            if (i) {
-                if (!buf) {
-                    // This should not happen.
-                    console.log("Invalid prefix for move \"" + move + "\".");
-                    return null;
-                }
-                if (dash) {
-                    hi = parseInt(buf);
-                } else {
-                    lo = hi = parseInt(buf);
-                }
-                if (!(hi > 0)) {
-                    // This should not happen.  "if" constructed to allow for NaN.
-                    console.log("Invalid prefix (hi) for move \"" + move +
-                            "\".");
-                    return null;
-                }
-            }
-            break;
-        }
-    }
-
-    if (lo > hi) {
-        // This should only happen if an invalid prefix was explicitly entered.
-        console.log("Prefix with incorrect order for move \"" + move + "\"");
-        return null;
-    }
-
-    // Limit lo and hi to valid ranges, but only if the the range overlaps
-    // with some portion of the cube.  The goal is gracefully apply moves
-    // that were valid for a higher order cube to the current cube.
-    if ((lo < 1) && (hi >= 1)) {
-        lo = 1;
-    }
-    if ((lo <= cubiesOrder) && (hi > cubiesOrder)) {
-        hi = cubiesOrder;
-    }
-
-    if ((lo < 1) || (hi > cubiesOrder)) {
-        // Nothing to do for this move for the current order.
-        console.log("Prefix entirely out of range for move \"" + move + "\"");
-        return null;
-    }
-
-    // "G" for undo is not part of the table.
-    for (var j = move.length - 1; j >= 0; j--) {
-        if (move[j] !== "G") {
-            break;
-        }
-    }
-
-    // The prefix is not part of the table.
-    var rotation = moveToRotation[move.substr(i, j - i + 1)];
-    if (!rotation) {
-        // Probably a savepoint.
-        return null;
-    }
-
-    // There was a range prefix.
-    rotation = rotation.slice();
-    var limLo = rotation[2];
-    var limHi = rotation[3];
-    var diff = limHi - limLo;
-    if (diff === 1) {
-        // Two layer.
-        hi++;
-    } else if (diff === 2) {
-        // Full cube rotation.
-        if (i) {
-            console.log("Whole cube rotation should not have a prefix for " +
-            		"move \"" + move);
-            return null;
-        }
-
-        // No need for any further analysis for full cube rotations.
-        rotation[5] = 0;
-        rotation[6] = cubiesOrder - 1;
-        return rotation;
-    }
-    var sum = limLo + limHi;
-    if (sum < 0) {
-        // Layers starts at one from the low side from the cube.
-        var limLoIdx = lo - 1;
-        var limHiIdx = hi - 1;
-    } else if (sum > 0) {
-        // Layers starts at one from the high side from the cube.  Notice that
-        // lo and hi as swapped.
-        var limLoIdx = cubiesOrder - hi;
-        var limHiIdx = cubiesOrder - lo;
-    } else {
-        if (i) {
-            // Prefix applied to a middle move.
-            console.log("Middle moves can not have a prefix for move \"" + move +
-            "\"");
-            return null;
-        }
-        // For middle moves every layer other than the outer ones.
-        var limLoIdx = 1;
-        var limHiIdx = cubiesOrder - 2;
-    }
-
-    // Final sanity check.
-    if ((limLoIdx < 0) || (limLoIdx > limHiIdx) || (limHiIdx > (cubiesOrder - 1))) {
-        // This should not happen.
-        console.log("Unexpected ranges limLoIdx=" + limLoIdx + " limHiIdx=" +
-                limHiIdx + " for move \"" + move + "\"");
-        return null;
-    }
-    rotation[5] = limLoIdx;
-    rotation[6] = limHiIdx;
-
-    return rotation;
-}
-
 // Like the "seq" CLI except it starts at 0.  Returns an arary of size num.
 function utilsGetSeq(num) {
     var nums = [];
@@ -458,17 +307,6 @@ function utilsGetSeq(num) {
         nums.push(i);
     }
     return nums;
-}
-
-// Like Math.sign(), which is not supported everywhere.
-function _utilsGetSign(num) {
-    if (num < 0) {
-        return - 1;
-    } else if (num === 0) {
-        return 0;
-    } else {
-        return 1;
-    }
 }
 
 //Convert from a index into the layers to a coordinate on the cube.
@@ -619,3 +457,165 @@ function utilsWrapWithComments(animateText, cols) {
 }
 
 // Private functions
+
+// Converts a rotation to a move.
+function _utilsGetMoveFromRotation(rotation) {
+    return rotationToMove[rotation];
+}
+
+// Converts a move to a rotation. Returns undefined for savepoints.
+function _utilsGetRotationFromMove(move) {
+    // There is no rotation for savepoints.
+    if (move === "|") {
+        return null;
+    }
+
+    // Iterate through and parse the possible lo[-hi] prefix.
+    var buf = "";
+    var dash = false;
+    var lo = 1; // Layer 1 is implied if prefix is missing.
+    var hi = 1;
+    for (var i = 0; i < move.length; i++) {
+        var c = move[i];
+        if ((c >= "0") && (c <= "9")) {
+            buf += c;
+        } else if (c === "-") {
+            if (!buf) {
+                // This should not happen.
+                console.log("Invalid prefix for move \"" + move + "\".");
+                return null;
+            }
+            lo = parseInt(buf);
+            if (!(lo > 0)) {
+                // This should not happen.  "if" constructed to allow for NaN.
+                console.log("Invalid prefix (lo) for move \"" + move + "\".");
+                return null;
+            }
+            buf = "";
+            dash = true;
+        } else {
+            // i points to the first non-prefix character.
+            if (i) {
+                if (!buf) {
+                    // This should not happen.
+                    console.log("Invalid prefix for move \"" + move + "\".");
+                    return null;
+                }
+                if (dash) {
+                    hi = parseInt(buf);
+                } else {
+                    lo = hi = parseInt(buf);
+                }
+                if (!(hi > 0)) {
+                    // This should not happen.  "if" constructed to allow for NaN.
+                    console.log("Invalid prefix (hi) for move \"" + move +
+                            "\".");
+                    return null;
+                }
+            }
+            break;
+        }
+    }
+
+    if (lo > hi) {
+        // This should only happen if an invalid prefix was explicitly entered.
+        console.log("Prefix with incorrect order for move \"" + move + "\"");
+        return null;
+    }
+
+    // Limit lo and hi to valid ranges, but only if the the range overlaps
+    // with some portion of the cube.  The goal is gracefully apply moves
+    // that were valid for a higher order cube to the current cube.
+    if ((lo < 1) && (hi >= 1)) {
+        lo = 1;
+    }
+    if ((lo <= cubiesOrder) && (hi > cubiesOrder)) {
+        hi = cubiesOrder;
+    }
+
+    if ((lo < 1) || (hi > cubiesOrder)) {
+        // Nothing to do for this move for the current order.
+        console.log("Prefix entirely out of range for move \"" + move + "\"");
+        return null;
+    }
+
+    // "G" for undo is not part of the table.
+    for (var j = move.length - 1; j >= 0; j--) {
+        if (move[j] !== "G") {
+            break;
+        }
+    }
+
+    // The prefix is not part of the table.
+    var rotation = moveToRotation[move.substr(i, j - i + 1)];
+    if (!rotation) {
+        // Probably a savepoint.
+        return null;
+    }
+
+    // There was a range prefix.
+    rotation = rotation.slice();
+    var limLo = rotation[2];
+    var limHi = rotation[3];
+    var diff = limHi - limLo;
+    if (diff === 1) {
+        // Two layer.
+        hi++;
+    } else if (diff === 2) {
+        // Full cube rotation.
+        if (i) {
+            console.log("Whole cube rotation should not have a prefix for " +
+                    "move \"" + move);
+            return null;
+        }
+
+        // No need for any further analysis for full cube rotations.
+        rotation[5] = 0;
+        rotation[6] = cubiesOrder - 1;
+        return rotation;
+    }
+    var sum = limLo + limHi;
+    if (sum < 0) {
+        // Layers starts at one from the low side from the cube.
+        var limLoIdx = lo - 1;
+        var limHiIdx = hi - 1;
+    } else if (sum > 0) {
+        // Layers starts at one from the high side from the cube.  Notice that
+        // lo and hi as swapped.
+        var limLoIdx = cubiesOrder - hi;
+        var limHiIdx = cubiesOrder - lo;
+    } else {
+        if (i) {
+            // Prefix applied to a middle move.
+            console.log("Middle moves can not have a prefix for move \"" + move +
+            "\"");
+            return null;
+        }
+        // For middle moves every layer other than the outer ones.
+        var limLoIdx = 1;
+        var limHiIdx = cubiesOrder - 2;
+    }
+
+    // Final sanity check.
+    if ((limLoIdx < 0) || (limLoIdx > limHiIdx) || (limHiIdx > (cubiesOrder - 1))) {
+        // This should not happen.
+        console.log("Unexpected ranges limLoIdx=" + limLoIdx + " limHiIdx=" +
+                limHiIdx + " for move \"" + move + "\"");
+        return null;
+    }
+    rotation[5] = limLoIdx;
+    rotation[6] = limHiIdx;
+
+    return rotation;
+}
+
+// Like Math.sign(), which is not supported everywhere.
+function _utilsGetSign(num) {
+    if (num < 0) {
+        return - 1;
+    } else if (num === 0) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
