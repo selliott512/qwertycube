@@ -1,15 +1,8 @@
 "use strict";
 
+// Public globals
+
 var settingsDisplayed = false;
-var settingsExtraLen = " persist new-cube".length;
-var settingsInitialText =
-    "This settings dialog can be used to view and modify various " +
-    "variables in QWERTYcube.  Edit variables below, if need be, and click " +
-    "the Ok button (or Ctrl-Enter) to apply the changes, or click the Cancel " +
-    "button (or Esc) to abandon the changes.  They're in alphabetical order. " +
-    "You may have to scroll to see some. Variables marked with \"persist\" are " +
-    "stored in local storage so that they'll have that value the next time " +
-    "QWERTYcube is loaded.";
 
 // Each entry is name, persist, description
 var settingsVarNameDescs = [
@@ -65,21 +58,33 @@ var settingsVarNameDescs = [
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
 var settingsButtonList = [ {
     label : "Cancel",
-    func : settingsCancel,
+    func : _settingsCancel,
     tip : "Discard changes"
 }, {
     label : "Ok",
-    func : settingsOk,
+    func : _settingsOk,
     tip : "Save changes to persistent storage"
 } ];
 
-// Public methods
+// Private globals
+
+var _settingsExtraLen = " persist new-cube".length;
+var _settingsInitialText =
+    "This settings dialog can be used to view and modify various " +
+    "variables in QWERTYcube.  Edit variables below, if need be, and click " +
+    "the Ok button (or Ctrl-Enter) to apply the changes, or click the Cancel " +
+    "button (or Esc) to abandon the changes.  They're in alphabetical order. " +
+    "You may have to scroll to see some. Variables marked with \"persist\" are " +
+    "stored in local storage so that they'll have that value the next time " +
+    "QWERTYcube is loaded.";
+
+// Public functions
 
 function settingsApply(okClicked) {
     // This is done twice since creating a new cube depends on some of the
     // varaibles.
     if (okClicked) {
-        applyVariables();
+        _settingsApplyVariables();
     }
     initVars();
 
@@ -92,7 +97,7 @@ function settingsApply(okClicked) {
 
     // Do this again to re-set variables set by creating a new cube.
     if (okClicked) {
-        applyVariables();
+        _settingsApplyVariables();
     }
 
     // Now that the globals have been updated save to persistent storage.
@@ -116,56 +121,21 @@ function settingsApply(okClicked) {
         animateMoveHistoryNext = 0;
     }
     if (okClicked) {
-        settingsHide();
+        _settingsHide();
     }
     animateResize();
     animateCondReq(true);
-}
-
-function settingsCancel() {
-    console.log("Cancel clicked")
-    settingsHide();
-}
-
-function settingsHide() {
-    animateOrbitControls.enabled = !rotationLock;
-
-    // Hidden is better than just opacity: 0. See
-    // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
-    initSettingsTextEl.style.visibility = "hidden";
-
-    initAddUpdateButtons(initMainButtonList);
-
-    settingsDisplayed = false;
-}
-
-function settingsOk() {
-    console.log("Ok clicked");
-    settingsApply(true);
-    if (testsRunAll) {
-        try {
-            testsRun();
-            console.log("All unit tests passed.")
-        } catch (e) {
-            var msg = "One or more unit tests failed";
-            console.log(msg + ": " + e);
-            if (e.stack) {
-                console.log("Call stack: " + e.stack);
-            }
-            alert(msg + ".  See console log for details.");
-        }
-    }
 }
 
 function settingsOnKeyDown(event) {
     var settingsEvent = false;
     if (event.keyCode === 27) {
         // Escape
-        settingsCancel();
+        _settingsCancel();
         settingsEvent = true;
     } else if (event.ctrlKey && (event.keyCode === 13)) {
         // Ctrl-Enter
-        settingsOk();
+        _settingsOk();
         settingsEvent = true;
     }
     if (settingsEvent) {
@@ -176,7 +146,7 @@ function settingsOnKeyDown(event) {
 function settingsOnLoad() {
     console.log("onLoad()");
     settingsResize();
-    setCursorAfterInit();
+    _settingsSetCursorAfterInit();
 }
 
 function settingsResize() {
@@ -204,7 +174,7 @@ function settingsShow() {
     settingsResize();
     initSettingsTextEl.style.visibility = "visible";
 
-    initSettingsTextEl.value = utilsWrapWithComments(settingsInitialText) + "\n";
+    initSettingsTextEl.value = utilsWrapWithComments(_settingsInitialText) + "\n";
 
     // Update variables that may need updating.
     animateCameraLocation[0] = Math.round(animateCamera.position.x);
@@ -232,13 +202,13 @@ function settingsShow() {
         initSettingsTextEl.value += line + "\n";
     }
 
-    setCursorAfterInit();
+    _settingsSetCursorAfterInit();
     settingsDisplayed = true;
 }
 
 // Private methods
 
-function applyVariables() {
+function _settingsApplyVariables() {
     // Save variables where special action needs to be taken when they change.
     var scrambleCountOld = scrambleCount;
 
@@ -280,10 +250,47 @@ function applyVariables() {
     }
 }
 
-function setCursorAfterInit() {
+// Private functions
+
+function _settingsCancel() {
+    console.log("Cancel clicked")
+    _settingsHide();
+}
+
+function _settingsHide() {
+    animateOrbitControls.enabled = !rotationLock;
+
+    // Hidden is better than just opacity: 0. See
+    // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
+    initSettingsTextEl.style.visibility = "hidden";
+
+    initAddUpdateButtons(initMainButtonList);
+
+    settingsDisplayed = false;
+}
+
+function _settingsOk() {
+    console.log("Ok clicked");
+    settingsApply(true);
+    if (testsRunAll) {
+        try {
+            testsRun();
+            console.log("All unit tests passed.")
+        } catch (e) {
+            var msg = "One or more unit tests failed";
+            console.log(msg + ": " + e);
+            if (e.stack) {
+                console.log("Call stack: " + e.stack);
+            }
+            alert(msg + ".  See console log for details.");
+        }
+    }
+}
+
+function _settingsSetCursorAfterInit() {
     initSettingsTextEl.spellcheck = false;
     initSettingsTextEl.focus();
-    var initLen = settingsInitialText.length;
+    var initLen = _settingsInitialText.length;
     initSettingsTextEl.setSelectionRange(initLen, initLen);
     initSettingsTextEl.scrollTop = 0;
 }
