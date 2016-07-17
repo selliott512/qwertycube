@@ -5,39 +5,34 @@
 // The size of the cubies.
 var cubies = [];
 var cubiesColorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
-var cubiesSize = 100;
-var cubiesSizeScaled;
+var cubiesColorBackground = "0x808080";
+var cubiesColorOverrides = {};
+var cubiesColorScheme = "std-black";
+var cubiesCubeSize = 100;
+var cubiesGapSize = cubiesCubeSize / 10;
 var cubiesExtendedMiddle;
-var cubiesGap = cubiesSize / 10;
 var cubiesGapScaled;
 var cubiesHalfSide;
+var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 var cubiesOffset;
 var cubiesOffsetScaled;
 var cubiesOrder = 3;
 var cubiesRadius;
 var cubiesScale;
 var cubiesSep;
-var cubiesColorBackground = "0x808080";
-var cubiesColorOverrides = {};
-var cubiesColorScheme = "std-black";
-var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
+var cubiesSizeScaled;
 
 // Private globals
 
-var _cubiesIndexesShuffled;
-var _cubiesSmallDist = 0.1;
-var _cubiesSmallValue = 0.001;
-var _cubiesEdgesIndex;
-var _cubiesMiddlesIndex;
-var _cubiesMiddlesInfo;
-var _cubiesCornerRange;
+// Cubie side to material table.
+var _cubiesColorMatts = {};
 
 // Other than the first color the colors are ordered in the same was as it is
 // for MeshFaceMaterial. I is interior (the color of the gaps). The remaining
 // letters are named after the faces.
 
 // High contrast black. Each color should be distinct on all monitors.
-var _cubiesHcBlackColors = {
+var _cubiesColorSetHcBlack = {
     I : 0x000000,
     R : 0xFF0000,
     L : 0xFF00FF,
@@ -48,11 +43,11 @@ var _cubiesHcBlackColors = {
 };
 
 // High contrast white. Each color should be distinct on all monitors.
-var _cubiesHcWhiteColors = utilsCopyMap(_cubiesHcBlackColors);
-_cubiesHcWhiteColors.I = _cubiesHcBlackColors.D;
+var _cubiesColorSetHcWhite = utilsCopyMap(_cubiesColorSetHcBlack);
+_cubiesColorSetHcWhite.I = _cubiesColorSetHcBlack.D;
 
 // A black cube with standard colors.
-var _cubiesStdBlackColors = {
+var _cubiesColorSetStdBlack = {
     I : 0x000000,
     R : 0x9B1516,
     L : 0xFF6020,
@@ -63,22 +58,27 @@ var _cubiesStdBlackColors = {
 };
 
 // A white cube with standard colors.
-var _cubiesStdWhiteColors = utilsCopyMap(_cubiesStdBlackColors);
-_cubiesStdWhiteColors.I = _cubiesStdWhiteColors.D;
+var _cubiesColorSetStdWhite = utilsCopyMap(_cubiesColorSetStdBlack);
+_cubiesColorSetStdWhite.I = _cubiesColorSetStdWhite.D;
 
 var _cubiesColorTable = {
-    "hc-black" : _cubiesHcBlackColors,
-    "hc-white" : _cubiesHcWhiteColors,
-    "std-black" : _cubiesStdBlackColors,
-    "std-white" : _cubiesStdWhiteColors
+    "hc-black" : _cubiesColorSetHcBlack,
+    "hc-white" : _cubiesColorSetHcWhite,
+    "std-black" : _cubiesColorSetStdBlack,
+    "std-white" : _cubiesColorSetStdWhite
 };
 
 
-// The above, but in to material instead of number.
-var _cubiesColorMatts = {};
-
 // Points to one of the color tables after _cubiesInitMaterials is called.
 var _cubiesColorValues;
+
+var _cubiesCornerRange;
+var _cubiesEdgesIndex;
+var _cubiesIndexesShuffled;
+var _cubiesMiddlesIndex;
+var _cubiesMiddlesInfo;
+var _cubiesSmallDist = 0.1;
+var _cubiesSmallValue = 0.001;
 
 // How axis relate to the offset in standard facelets order.
 var _cubiesFaceletAxisMults = {

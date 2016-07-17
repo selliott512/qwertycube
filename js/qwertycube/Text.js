@@ -19,7 +19,7 @@ function textCreate() {
     for (var i = 0; i < _textFaceInfos.length; i++) {
         var faceInfo = _textFaceInfos[i];
         animateText.push(_textAllocate(faceInfo[0], _textSize, _textHeight, "helvetiker",
-                "normal", "normal", faceInfo[1], faceInfo[2] * 2 * cubiesSize));
+                "normal", "normal", faceInfo[1], faceInfo[2] * 2 * cubiesCubeSize));
     }
     return animateText;
 }

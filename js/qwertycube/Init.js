@@ -301,18 +301,18 @@ function initVars() {
         cubiesScale = 1;
     }
     else {
-        cubiesScale = (3 * cubiesSize + 2 * cubiesGap) / (
-                cubiesOrder * cubiesSize + (cubiesOrder - 1) * cubiesGap);
+        cubiesScale = (3 * cubiesCubeSize + 2 * cubiesGapSize) / (
+                cubiesOrder * cubiesCubeSize + (cubiesOrder - 1) * cubiesGapSize);
     }
 
-    cubiesSizeScaled = cubiesScaleDist(cubiesSize);
-    cubiesGapScaled = cubiesScaleDist(cubiesGap);
+    cubiesSizeScaled = cubiesScaleDist(cubiesCubeSize);
+    cubiesGapScaled = cubiesScaleDist(cubiesGapSize);
 
     // Used to find the position of each cubie.
-    cubiesOffset = cubiesSize + cubiesGap;
+    cubiesOffset = cubiesCubeSize + cubiesGapSize;
     cubiesOffsetScaled = cubiesScaleDist(cubiesOffset);
-    cubiesHalfSide = Math.round(cubiesSize / 2 + cubiesOffset);
-    cubiesSep = Math.round((cubiesSize + cubiesGap) / 2);
+    cubiesHalfSide = Math.round(cubiesCubeSize / 2 + cubiesOffset);
+    cubiesSep = Math.round((cubiesCubeSize + cubiesGapSize) / 2);
     cubiesExtendedMiddle = cubiesHalfSide - cubiesSizeScaled -
         (cubiesGapScaled / 2);
 

@@ -19,11 +19,11 @@ var settingsVarNameDescs = [
             "left side to magenta and the interior to 0x224466: R:grey L:magenta I:0x224466"],
     ["cubiesColorScheme", true, "Cube color scheme.  Valid values are \"hc-black\", \"hc-white\", " +
             "\"std-black\" and \"std-white\".  \"hc\" is high contrast."],
-    ["cubiesGap", true, "The size of the gaps between cubies."],
+    ["cubiesGapSize", true, "The size of the gaps between cubies."],
     ["cubiesInitFacelets", true, "Facelet pattern used for new cubes.  The pattern specified is " +
             "considered to be solved (the animateTimer will stop when it's reached). Order is URFDLB."],
     ["cubiesOrder", true, "The order of the cube.  The order of the usual 3x3x3 cube is 3."],
-    ["cubiesSize", true, "The size of each cubie."],
+    ["cubiesCubeSize", true, "The size of each cubie."],
     ["animateDispOrientationLabels", true, "Display labels that to show the orientation \"O\" toggles)."],
     ["initFlashHelp", true, "If true then flash the Help button on load and inform the user to click it."],
     ["eventHeise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
