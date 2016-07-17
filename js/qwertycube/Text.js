@@ -1,5 +1,7 @@
 "use strict";
 
+// Public globals
+
 // Private globals
 
 var _textColor = 0x000000;

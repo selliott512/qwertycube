@@ -126,7 +126,7 @@ function rotateEnd() {
     rotatePivot.rotation.z = 0;
 }
 
-// Private methods
+// Private functions
 
 function _rotateInRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
     for (var i = 0; i < cubies.length; i++) {

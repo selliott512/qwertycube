@@ -205,7 +205,7 @@ function settingsShow() {
     settingsDisplayed = true;
 }
 
-// Private methods
+// Private functions
 
 function _settingsApplyVariables() {
     // Save variables where special action needs to be taken when they change.
@@ -248,8 +248,6 @@ function _settingsApplyVariables() {
         }
     }
 }
-
-// Private functions
 
 function _settingsCancel() {
     console.log("Cancel clicked")
