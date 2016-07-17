@@ -50,14 +50,14 @@ var _eventHeiseMap = {
     "." : "mM'",
     "/" : "md'",
 };
-var _eventKeyAllowedModifiersMap = {
-    G : ["A", "S", "AS"],
-    J : ["AS"],
-    N : ["AS"],
-    P : ["AS"],
-};
-var _eventKeyMapSize = 0;
-var _eventKeyMapTotal = {};
+
+// Buttons that appear at the bottom for the settings dialog. Row is zero based.
+var _eventHelpButtonList = [{
+    label : "Close",
+    func : _eventHelpClose,
+    tip : "Close this help dialog"
+}];
+
 var _eventKeyAdditionalMap = {
     "0" : "A",
     "1" : "C",
@@ -73,6 +73,14 @@ var _eventKeyAdditionalMap = {
     "7" : "T",
     "8" : "V"
 };
+var _eventKeyAllowedModifiersMap = {
+    G : ["A", "S", "AS"],
+    J : ["AS"],
+    N : ["AS"],
+    P : ["AS"],
+};
+var _eventKeyMapSize = 0;
+var _eventKeyMapTotal = {};
 // Incomplete.  Added to as needed.
 var _eventKeyPunctuationMap = {
      50 : "@",
@@ -92,13 +100,6 @@ var _eventKeyPunctuationMap = {
 var _eventMoveBegins = [];
 var _eventNumericPrefix = "";
 var _eventScramblerInitialized = false;
-
-// Buttons that appear at the bottom for the settings dialog. Row is zero based.
-var _eventHelpButtonList = [{
-    label : "Close",
-    func : _eventHelpClose,
-    tip : "Close this help dialog"
-}];
 
 // Public functions
 

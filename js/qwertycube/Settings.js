@@ -2,6 +2,17 @@
 
 // Public globals
 
+// Buttons that appear at the bottom for the settings dialog. Row is zero based.
+var settingsButtonList = [ {
+    label : "Cancel",
+    func : _settingsCancel,
+    tip : "Discard changes"
+}, {
+    label : "Ok",
+    func : _settingsOk,
+    tip : "Save changes to persistent storage"
+} ];
+
 var settingsDisplayed = false;
 
 // Each entry is name, persist, description
@@ -54,17 +65,6 @@ var settingsVarNameDescs = [
             "0 for no delay.  -1 to disable tooltips."],
     ["animateWireframeSphere", true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
-
-// Buttons that appear at the bottom for the settings dialog. Row is zero based.
-var settingsButtonList = [ {
-    label : "Cancel",
-    func : _settingsCancel,
-    tip : "Discard changes"
-}, {
-    label : "Ok",
-    func : _settingsOk,
-    tip : "Save changes to persistent storage"
-} ];
 
 // Private globals
 
