@@ -75,7 +75,7 @@ var initMainButtonList = [{
     tip : "Factory reset"
 
 }, {
-    label : "UndoA",
+    label : "Undos",
     key : "AG",
     tip : "Undo all move until savepoint or the beginning"
 }, {
@@ -95,7 +95,7 @@ var initMainButtonList = [{
     key : "SG",
     tip : "Redo one move"
 }, {
-    label : "RedoA",
+    label : "Redos",
     key : "ASG",
     tip : "Redo all move until savepoint or the end"
 }];
