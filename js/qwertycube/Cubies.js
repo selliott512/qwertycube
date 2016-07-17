@@ -4,6 +4,7 @@
 
 // The size of the cubies.
 var cubies = [];
+var cubiesColorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
 var cubiesSize = 100;
 var cubiesSizeScaled;
 var cubiesExtendedMiddle;
@@ -38,7 +39,7 @@ var _cubiesSmall = 0.1;
 // letters are named after the faces.
 
 // High contrast black. Each color should be distinct on all monitors.
-var _cubesHcBlackColors = {
+var _cubiesHcBlackColors = {
     I : 0x000000,
     R : 0xFF0000,
     L : 0xFF00FF,
@@ -49,11 +50,11 @@ var _cubesHcBlackColors = {
 };
 
 // High contrast white. Each color should be distinct on all monitors.
-var _cubesHcWhiteColors = utilsCopyMap(_cubesHcBlackColors);
-_cubesHcWhiteColors.I = _cubesHcBlackColors.D;
+var _cubiesHcWhiteColors = utilsCopyMap(_cubiesHcBlackColors);
+_cubiesHcWhiteColors.I = _cubiesHcBlackColors.D;
 
 // A black cube with standard colors.
-var _cubesStdBlackColors = {
+var _cubiesStdBlackColors = {
     I : 0x000000,
     R : 0x9B1516,
     L : 0xFF6020,
@@ -64,26 +65,25 @@ var _cubesStdBlackColors = {
 };
 
 // A white cube with standard colors.
-var _cubesStdWhiteColors = utilsCopyMap(_cubesStdBlackColors);
-_cubesStdWhiteColors.I = _cubesStdWhiteColors.D;
+var _cubiesStdWhiteColors = utilsCopyMap(_cubiesStdBlackColors);
+_cubiesStdWhiteColors.I = _cubiesStdWhiteColors.D;
 
-var _cubesColorTable = {
-    "hc-black" : _cubesHcBlackColors,
-    "hc-white" : _cubesHcWhiteColors,
-    "std-black" : _cubesStdBlackColors,
-    "std-white" : _cubesStdWhiteColors
+var _cubiesColorTable = {
+    "hc-black" : _cubiesHcBlackColors,
+    "hc-white" : _cubiesHcWhiteColors,
+    "std-black" : _cubiesStdBlackColors,
+    "std-white" : _cubiesStdWhiteColors
 };
 
-var _cubesColorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
 
 // The above, but in to material instead of number.
-var _cubesColorMatts = {};
+var _cubiesColorMatts = {};
 
-// Points to one of the color tables after _cubesInitMaterials is called.
-var _cubesColorValues;
+// Points to one of the color tables after _cubiesInitMaterials is called.
+var _cubiesColorValues;
 
 // How axis relate to the offset in standard facelets order.
-var _cubesFaceletAxisMults = {
+var _cubiesFaceletAxisMults = {
     U : [1, 0, 3],
     R : [0, -3, -1],
     F : [1, -3, 0],
@@ -93,7 +93,7 @@ var _cubesFaceletAxisMults = {
 }
 
 // Used to index into cubiesInitFacelets
-var _cubesFaceletOrder = "URFDLB";
+var _cubiesFaceletOrder = "URFDLB";
 
 // Public functions
 
@@ -107,7 +107,7 @@ function cubiesCreate(oldCubies) {
             cubiesSizeScaled, cubiesSizeScaled);
 
     _cubiesMiddlesInfo = [];
-    _cubesInitMaterials();
+    _cubiesInitMaterials();
 
     for (var zi = 0; zi < cubiesOrder; zi++) {
         for (var yi = 0; yi < cubiesOrder; yi++) {
@@ -149,7 +149,7 @@ function cubiesCreate(oldCubies) {
                     _cubiesCornerRange = 2 * cornerOffset;
                 }
                 var sideMaterial = [];
-                for ( var face in _cubesColorValues) {
+                for ( var face in _cubiesColorValues) {
                     if (face === "I") {
                         continue;
                     }
@@ -160,7 +160,7 @@ function cubiesCreate(oldCubies) {
                     var sign = -rotation[0];
                     var axis = rotation[1];
                     sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < _cubiesSmallDist ?
-                            _cubesColorMatts[_cubesFaceVectorToFacelet(face, vec)]: _cubesColorMatts.I);
+                            _cubiesColorMatts[_cubiesFaceVectorToFacelet(face, vec)]: _cubiesColorMatts.I);
                 }
                 var cubieMesh = new THREE.Mesh(cubieGeometry,
                         new THREE.MeshFaceMaterial(sideMaterial));
@@ -287,7 +287,7 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
         } else if (eventRotationLock) {
             // For eventRotationLock find the best axis to use for the move begin
             // even if it's not on the cube.
-            var moveScore = _cubesGetMoveScore(move);
+            var moveScore = _cubiesGetMoveScore(move);
             if (moveScore < bestMoveScore) {
                 bestMove = move;
                 bestMoveScore = moveScore;
@@ -321,9 +321,9 @@ function cubiesSolved() {
         // location if and only if it has the same rotation as the reference
         // cubie.
         var cubie = cubies[num];
-        if (_cubesAngleIsLarge(cubie.rotation.x - ref.rotation.x)
-                || _cubesAngleIsLarge(cubie.rotation.y - ref.rotation.y)
-                || _cubesAngleIsLarge(cubie.rotation.z - ref.rotation.z)) {
+        if (_cubiesAngleIsLarge(cubie.rotation.x - ref.rotation.x)
+                || _cubiesAngleIsLarge(cubie.rotation.y - ref.rotation.y)
+                || _cubiesAngleIsLarge(cubie.rotation.z - ref.rotation.z)) {
             return false;
         }
     }
@@ -380,13 +380,13 @@ function cubiesToVector3(cubie) {
 // Private functions
 
 // True if the angle is not close to some multiple of 2*PI.
-function _cubesAngleIsLarge(angle) {
+function _cubiesAngleIsLarge(angle) {
     return ((Math.abs(angle) + _cubiesSmallDist) % (2 * Math.PI)) > 0.2;
 }
 
 // Given a face and a vector return the facelet (sticker).
-function _cubesFaceVectorToFacelet(face, vec) {
-    var base = 9 * _cubesFaceletOrder.indexOf(face);
+function _cubiesFaceVectorToFacelet(face, vec) {
+    var base = 9 * _cubiesFaceletOrder.indexOf(face);
     if (base < 0) {
         console.log("Unable to find face \"" + face + "\".");
     }
@@ -397,7 +397,7 @@ function _cubesFaceVectorToFacelet(face, vec) {
     vecOne.y = Math.round(vecOne.y / cubiesHalfSide);
     vecOne.z = Math.round(vecOne.z / cubiesHalfSide);
 
-    var mults = _cubesFaceletAxisMults[face];
+    var mults = _cubiesFaceletAxisMults[face];
     // The center has offset 4 in each face section in the sequence of
     // facelets. Relative to that apply the multipliers to the vecOne to
     // find the offset.
@@ -409,7 +409,7 @@ function _cubesFaceVectorToFacelet(face, vec) {
 
 // Determine which side a given click is closest to. Note that "move" is not the
 // simple rotation letter type of move it is elsewhere.
-function _cubesGetMoveScore(move) {
+function _cubiesGetMoveScore(move) {
     var score = 0;
     var axes = ["x", "y", "z"];
     for (var i = 0; i <= axes.length; i++) {
@@ -427,17 +427,17 @@ function _cubesGetMoveScore(move) {
     return score;
 }
 
-// Initialize _cubesColorMatts based on _cubesColorValues.
-function _cubesInitMaterials() {
-    _cubesColorValues = _cubesColorTable[cubiesColorScheme];
-    for ( var side in _cubesColorValues) {
-        var color = _cubesColorValues[side];
+// Initialize _cubiesColorMatts based on _cubiesColorValues.
+function _cubiesInitMaterials() {
+    _cubiesColorValues = _cubiesColorTable[cubiesColorScheme];
+    for ( var side in _cubiesColorValues) {
+        var color = _cubiesColorValues[side];
         var colorOverride = cubiesColorOverrides[side];
         if (colorOverride) {
             color = colorOverride;
         }
         color = utilsNormalizeColor(color);
-        _cubesColorMatts[side] = new THREE.MeshBasicMaterial({
+        _cubiesColorMatts[side] = new THREE.MeshBasicMaterial({
             color : color,
         });
     }

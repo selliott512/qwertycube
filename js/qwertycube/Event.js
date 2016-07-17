@@ -612,10 +612,10 @@ function _eventOnKeyDown(event) {
             break;
         case "Q": // Color (Q)uality cycle.
             // Find the current color scheme.
-            var i = _cubesColorTableKeys.indexOf(cubiesColorScheme);
+            var i = cubiesColorTableKeys.indexOf(cubiesColorScheme);
             if (i !== -1) {
-                i = (++i) % _cubesColorTableKeys.length;
-                cubiesColorScheme = _cubesColorTableKeys[i];
+                i = (++i) % cubiesColorTableKeys.length;
+                cubiesColorScheme = cubiesColorTableKeys[i];
                 animateUpdateStatus("Color scheme " + cubiesColorScheme);
             } else {
                 // This should not happen
