@@ -1,21 +1,21 @@
 "use strict";
 
-// Globals
+// Public globals
 
 var scrambleMoves = [];
 var scrambleCount = 0; // 0 to let the scrambler decide.
 var scrambleJSSMax = 21; // Observed maximum for JSS.
 var scrambleType = "jsss";
 
-var simpleCount = 0; // Simple scrambler.
+// Private globals
 
 // Discard moves that produce the same cube a second time, which seems to be
 // rare.
-var dupCubeCheck = false;
+var _scrambleDupCubeCheck = false;
 
 // TODO: Perhaps this "simple" scrambler should be removed as I'm not sure why
 // anyone would want use it in place of the official WCA derived scramblers.
-var cube = {
+var _scrambleScrCube = {
     // Define the six faces of the cube
     faces : "DLBURF",
     // This will contain a history of all the states to make sure we don't
@@ -33,11 +33,11 @@ var cube = {
     },
     // Sets the cube to the solved state
     reset : function() {
-        cube.states = [ "yyyyyyyyoooooooobbbbbbbbwwwwwwwwrrrrrrrrgggggggg" ];
+        _scrambleScrCube.states = [ "yyyyyyyyoooooooobbbbbbbbwwwwwwwwrrrrrrrrgggggggg" ];
     },
     // Twist the cube according to a move in WCA notation
     twist : function(state, move) {
-        var i, k, prevState, face = move.charAt(0), faceIndex = cube.faces
+        var i, k, prevState, face = move.charAt(0), faceIndex = _scrambleScrCube.faces
                 .indexOf(move.charAt(0)), turns = move.length > 1 ? (move
                 .charAt(1) === "2" ? 2 : 3) : 1;
         state = state.split("");
@@ -50,18 +50,18 @@ var cube = {
             }
             // Rotate the adjacent stickers that are part of the same layer
             for (k = 0; k < 12; k++) {
-                state[cube.edges[face][k]] = prevState[cube.edges[face][(k + 9) % 12]];
+                state[_scrambleScrCube.edges[face][k]] = prevState[_scrambleScrCube.edges[face][(k + 9) % 12]];
             }
         }
         return state.join("");
     },
     // Scramble the cube
     scramble : function() {
-        var count = 0, total = simpleCount, state, prevState = cube.states[cube.states.length - 1], move, moves = [], modifiers = [
+        var count = 0, total = _scrambleSimpleCount, state, prevState = _scrambleScrCube.states[_scrambleScrCube.states.length - 1], move, moves = [], modifiers = [
                 "", "'", "2" ];
         while (count < total) {
             // Generate a random move
-            move = cube.faces[Math.floor(Math.random() * 6)]
+            move = _scrambleScrCube.faces[Math.floor(Math.random() * 6)]
                     + modifiers[Math.floor(Math.random() * 3)];
             // Don't move the same face twice in a row
             if (count > 0 && move.charAt(0) === moves[count - 1].charAt(0)) {
@@ -70,18 +70,18 @@ var cube = {
             // Avoid move sequences like "R L R", which is the same as "R2 L"
             if (count > 1
                     && move.charAt(0) === moves[count - 2].charAt(0)
-                    && moves[count - 1].charAt(0) === cube.faces
-                            .charAt((cube.faces.indexOf(move.charAt(0)) + 3) % 6)) {
+                    && moves[count - 1].charAt(0) === _scrambleScrCube.faces
+                            .charAt((_scrambleScrCube.faces.indexOf(move.charAt(0)) + 3) % 6)) {
                 continue;
             }
-            if (dupCubeCheck) {
-                state = cube.twist(prevState, move);
-                if (cube.states.indexOf(state) === -1) {
+            if (_scrambleDupCubeCheck) {
+                state = _scrambleScrCube.twist(prevState, move);
+                if (_scrambleScrCube.states.indexOf(state) === -1) {
                     // If this state hasn't yet been encountered, save it and
                     // move
                     // on
                     moves[count] = move;
-                    cube.states[count] = state;
+                    _scrambleScrCube.states[count] = state;
                     count++;
                     prevState = state;
                 }
@@ -94,14 +94,16 @@ var cube = {
     }
 };
 
-// Public methods
+var _scrambleSimpleCount = 0; // Simple scrambler.
+
+// Public functions
 
 function scramble() {
-    cube.reset();
+    _scrambleScrCube.reset();
     if (scrambleType === "simple") {
         // 30 is the default for the simple scrambler.
-        simpleCount = scrambleCount ? scrambleCount : 30;
-        scrambleMoves = cube.scramble();
+        _scrambleSimpleCount = scrambleCount ? scrambleCount : 30;
+        scrambleMoves = _scrambleScrCube.scramble();
     } else if (scrambleType === "jsss") {
         var name = String(cubiesOrder) + String(cubiesOrder) + String(cubiesOrder);
         var scrambler = scramblers[name];
@@ -141,3 +143,5 @@ function scramble() {
     console.log("Scramble length: " + scrambleMoves.length);
     console.log("Scramble: " + scrambleMoves.join(" "));
 }
+
+// Private functions
