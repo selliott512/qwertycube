@@ -139,7 +139,7 @@ function settingsOnKeyDown(event) {
         settingsEvent = true;
     }
     if (settingsEvent) {
-        event.eventPreventDefault();
+        event.preventDefault();
     }
 }
 
