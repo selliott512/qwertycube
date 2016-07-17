@@ -194,11 +194,11 @@ function animateResize() {
 
     settingsResize();
 
-    if (helpDisplayed) {
-        showHelp(true);
+    if (eventHelpDisplayed) {
+        eventShowHelp(true);
     }
 
-    toolTipButtonEl = null;
+    eventToolTipButtonEl = null;
     initTipEl.style.visibility = "hidden";
 }
 

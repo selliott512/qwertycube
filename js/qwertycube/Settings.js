@@ -26,22 +26,22 @@ var settingsVarNameDescs = [
     ["cubiesSize", true, "The size of each cubie."],
     ["animateDispOrientationLabels", true, "Display labels that to show the orientation \"O\" toggles)."],
     ["initFlashHelp", true, "If true then flash the Help button on load and inform the user to click it."],
-    ["heise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
-    ["keyMap", true, "Key map.  Space separated list of key mapping items where each item has the form " +
+    ["eventHeise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
+    ["eventKeyMap", true, "Key map.  Space separated list of key mapping items where each item has the form " +
             "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
             "before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
             "ASW:mR2 Q:kJ SX:mr"],
-    ["keyPreventDefault", true, "If true prevent default behavior when a key is recognized by this " +
+    ["eventKeyPreventDefault", true, "If true prevent default behavior when a key is recognized by this " +
             "program.  This prevents the browser from reacting in addition to this program."],
     ["animateMoveHistory", false, "All moves made since loading the page."],
     ["animateMoveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
     ["animateMoveSec", true, "Number of moves per second when replaying."],
-    ["moveThreshold", true, "Mouse movements must be at least this many pixels.  Less is interpreted" +
+    ["eventMoveThreshold", true, "Mouse movements must be at least this many pixels.  Less is interpreted" +
              "as a single click."],
-    ["rotationLock", true, "If true then the cube is not rotated by clicking and moving on the grey " +
+    ["eventRotationLock", true, "If true then the cube is not rotated by clicking and moving on the grey " +
             "background.  Instead, those clicks are interpreted as cube moves.  This both prevents accidental" +
             "rotations and it makes it possible to have less precise mouse/touch movements for cube moves."],
-    ["rotationLockLimit", true, "When rotationLock is true interpret clicks that are this close to " +
+    ["eventRotationLockLimit", true, "When eventRotationLock is true interpret clicks that are this close to " +
             "the cube as a move."],
     ["scrambleCount", true, "Number of random moves used to scramble the cube for the \"simple\" scrambler."],
     ["scrambleMoves", false, "Moves used to scramble the cube."],
@@ -50,7 +50,7 @@ var settingsVarNameDescs = [
     ["testsRunAll", true, "Run all unit tests when Ok is clicked after applying the settings."],
     ["animateTimer", true, "Display the animateTimer.  May result in high CPU usage."],
     ["animateTimerInspectionSecs", true, "The amount of inspection time before solving."],
-    ["toolTipTimeout", true, "Milliseconds of hovering over a button before a tooltip is displayed.  " +
+    ["eventToolTipTimeout", true, "Milliseconds of hovering over a button before a tooltip is displayed.  " +
             "0 for no delay.  -1 to disable tooltips."],
     ["animateWireframeSphere", true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."]];
@@ -139,7 +139,7 @@ function settingsOnKeyDown(event) {
         settingsEvent = true;
     }
     if (settingsEvent) {
-        event.preventDefault();
+        event.eventPreventDefault();
     }
 }
 
@@ -258,7 +258,7 @@ function _settingsCancel() {
 }
 
 function _settingsHide() {
-    animateOrbitControls.enabled = !rotationLock;
+    animateOrbitControls.enabled = !eventRotationLock;
 
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden

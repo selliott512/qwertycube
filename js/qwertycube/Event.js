@@ -1,11 +1,24 @@
 "use strict";
 
-// Globals
+// Public globals
 
-var escLast = false;
-var helpDisplayed = false;
-var heise = false;
-var heiseMap = {
+var eventButtonColorHighlight = "rgb(255, 255, 128)";
+var eventButtonColorOrig;
+var eventButtonFlashDelay = 300;
+var eventHelpDisplayed = false;
+var eventHeise = false;
+var eventKeyMap = {};
+var eventKeyPreventDefault = true;
+var eventMoveThreshold = 30;
+var eventRotationLock = false;
+var eventRotationLockLimit = 100;
+var eventToolTipButtonEl;
+var eventToolTipTimeout = 700;
+
+// Private globals
+
+var _eventEscLast = false;
+var _eventHeiseMap = {
     A : "mY'",
     B : "mX'",
     C : "mu'",
@@ -37,16 +50,15 @@ var heiseMap = {
     "." : "mM'",
     "/" : "md'",
 };
-var keyAllowedModifiersMap = {
+var _eventKeyAllowedModifiersMap = {
     G : ["A", "S", "AS"],
     J : ["AS"],
     N : ["AS"],
     P : ["AS"],
 };
-var keyMap = {};
-var keyMapSize = 0;
-var keyMapTotal = {};
-var keyAdditionalMap = {
+var _eventKeyMapSize = 0;
+var _eventKeyMapTotal = {};
+var _eventKeyAdditionalMap = {
     "0" : "A",
     "1" : "C",
     "'" : "G",
@@ -61,9 +73,8 @@ var keyAdditionalMap = {
     "7" : "T",
     "8" : "V"
 };
-var keyPreventDefault = true;
 // Incomplete.  Added to as needed.
-var keyPunctuationMap = {
+var _eventKeyPunctuationMap = {
      50 : "@",
      51 : "#",
      52 : "$",
@@ -78,47 +89,39 @@ var keyPunctuationMap = {
     221 : "]",
     222 : "'"
 };
-var moveBegins = [];
-var moveThreshold = 30;
-var numericPrefix = "";
-var rotationLock = false;
-var rotationLockLimit = 100;
-var buttonColorOrig;
-var buttonColorHighlight = "rgb(255, 255, 128)";
-var buttonFlashDelay = 300;
-var scramblerInitialized = false;
-var toolTipButtonEl;
-var toolTipTimeout = 700;
+var _eventMoveBegins = [];
+var _eventNumericPrefix = "";
+var _eventScramblerInitialized = false;
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
-var helpButtonList = [{
+var _eventHelpButtonList = [{
     label : "Close",
-    func : helpClose,
+    func : _eventHelpClose,
     tip : "Close this help dialog"
 }];
 
-// Public methods
+// Public functions
 
 function eventAdd() {
     // Register event listeners that are needed by this program. Note that
     // bubbling ("true" argument) is used so that these events are processed
     // here before OrbitControls.
     console.log("Adding event listeners.");
-    document.addEventListener("keydown", onKeyDown, true);
+    document.addEventListener("keydown", _eventOnKeyDown, true);
     initContainerEl.addEventListener(initMobile ? "touchstart" : "mousedown",
-            onMouseDown, true);
-    initContainerEl.addEventListener(initMobile ? "touchend" : "mouseup", onMouseUp,
+            _eventOnMouseDown, true);
+    initContainerEl.addEventListener(initMobile ? "touchend" : "mouseup", _eventOnMouseUp,
             true);
     if (initMobile) {
-        initContainerEl.addEventListener("touchmove", onTouchMove);
+        initContainerEl.addEventListener("touchmove", _eventOnTouchMove);
     }
 
-    window.addEventListener("resize", onResize, true);
+    window.addEventListener("resize", _eventOnResize, true);
 
     // Make sure the button bar does not do anything with events other than
     // click buttons.
     if (initMobile) {
-        initContainerEl.addEventListener("touchmove", preventDefault);
+        initContainerEl.addEventListener("touchmove", eventPreventDefault);
     }
 
     // Get rid of the status message if the user clicks on it.
@@ -126,42 +129,7 @@ function eventAdd() {
             animateClearStatus);
 }
 
-function eventUpdateKeyMap() {
-    // Save the size of the key map to speed things up.
-    keyMapSize = 0;
-    for ( var key in keyMap) {
-        keyMapSize++;
-    }
-
-    // If there is both Heise and keyMap keyMap should take precedence.
-    keyMapTotal = utilsCopyMap(heise ? heiseMap : keyMap);
-    if (heise) {
-        for ( var item in keyMap) {
-            keyMapTotal[item] = keyMap[item];
-        }
-    }
-}
-
-// Private methods
-
-function getCoords(event) {
-    var coords = [];
-    if (initMobile) {
-        for (var i = 0; i < event.changedTouches.length; i++) {
-            coords.push([event.changedTouches[0].pageX,
-                    event.changedTouches[0].pageY]);
-        }
-    } else {
-        coords.push([event.clientX, event.clientY]);
-    }
-    return coords;
-}
-
-function helpClose() {
-    showHelp(false);
-}
-
-function onButtonClick(event, buttonEl, button) {
+function eventOnButtonClick(event, buttonEl, button) {
     var func = button.func;
     var key = button.key;
     var label = button.label;
@@ -190,7 +158,7 @@ function onButtonClick(event, buttonEl, button) {
             }
         }
         event.buttonBarChar = key;
-        onKeyDown(event);
+        _eventOnKeyDown(event);
     } else if (func) {
         // Just call the function for the button.
         func();
@@ -201,12 +169,17 @@ function onButtonClick(event, buttonEl, button) {
 
     initSetButtonColor(buttonEl, button, true);
 
-    toolTipButtonEl = null;
+    eventToolTipButtonEl = null;
     initTipEl.style.visibility = "hidden";
 }
 
-function onButtonOver(event, buttonEl, button) {
-    if (toolTipTimeout === -1) {
+function eventOnButtonOut(event, buttonEl, button) {
+    eventToolTipButtonEl = null;
+    initTipEl.style.visibility = "hidden";
+}
+
+function eventOnButtonOver(event, buttonEl, button) {
+    if (eventToolTipTimeout === -1) {
         // Tool tips have been disabled.
         return;
     }
@@ -232,31 +205,88 @@ function onButtonOver(event, buttonEl, button) {
     initTipEl.style.left = left + "px";
     initTipEl.style.top = top + "px";
 
-    toolTipButtonEl = buttonEl;
+    eventToolTipButtonEl = buttonEl;
     setTimeout(function(elem) {
         return function() {
-            if (elem === toolTipButtonEl) {
+            if (elem === eventToolTipButtonEl) {
                 initTipEl.style.visibility = "visible";
             }
         };
-    }(buttonEl), toolTipTimeout);
+    }(buttonEl), eventToolTipTimeout);
 }
 
-function onButtonOut(event, buttonEl, button) {
-    toolTipButtonEl = null;
-    initTipEl.style.visibility = "hidden";
+function eventPreventDefault(event) {
+    event.preventDefault();
 }
 
-function onKeyDown(event) {
+function eventShowHelp(show) {
+    initAddUpdateButtons(show ? _eventHelpButtonList : initMainButtonList);
+
+    if (show) {
+        initHelpEl.style.left = "0px";
+        initHelpEl.style.top = "0px";
+        initHelpEl.style.width = animateCanvasWidth + "px";
+        initHelpEl.style.height = initPrimaryHeight + "px";
+
+        // It seems both the tabIndex and the delay is needed for the help to
+        // gain focus.
+        initHelpEl.tabIndex = "1";
+        initHelpEl.scrollTop = 0;
+        setTimeout(function() {
+            initHelpEl.focus();
+        }, 10);
+    }
+    initHelpEl.style.visibility = show ? "visible" : "hidden";
+    initTimerEl.style.visibility = show ? "hidden" : "visible";
+
+    eventHelpDisplayed = show;
+}
+
+function eventUpdateKeyMap() {
+    // Save the size of the key map to speed things up.
+    _eventKeyMapSize = 0;
+    for ( var key in eventKeyMap) {
+        _eventKeyMapSize++;
+    }
+
+    // If there is both Heise and eventKeyMap eventKeyMap should take precedence.
+    _eventKeyMapTotal = utilsCopyMap(eventHeise ? _eventHeiseMap : eventKeyMap);
+    if (eventHeise) {
+        for ( var item in eventKeyMap) {
+            _eventKeyMapTotal[item] = eventKeyMap[item];
+        }
+    }
+}
+
+// Private functions
+
+function _eventGetCoords(event) {
+    var coords = [];
+    if (initMobile) {
+        for (var i = 0; i < event.changedTouches.length; i++) {
+            coords.push([event.changedTouches[0].pageX,
+                    event.changedTouches[0].pageY]);
+        }
+    } else {
+        coords.push([event.clientX, event.clientY]);
+    }
+    return coords;
+}
+
+function _eventHelpClose() {
+    eventShowHelp(false);
+}
+
+function _eventOnKeyDown(event) {
     var keyCode = event.keyCode;
     var punctuation = false;
     if ((keyCode === 16) || (keyCode === 18)) {
         // Ignore shift and alt being pressed by themselves.
         return;
-    } else if ((!helpDisplayed) && (!settingsDisplayed) && (keyCode >= 0x80)) {
+    } else if ((!eventHelpDisplayed) && (!settingsDisplayed) && (keyCode >= 0x80)) {
         // A special punctuation character.  This just used by Heise and
         // custom maps.
-        var eventChar = keyPunctuationMap[keyCode];
+        var eventChar = _eventKeyPunctuationMap[keyCode];
         if (eventChar) {
             punctuation = true;
         } else {
@@ -271,7 +301,7 @@ function onKeyDown(event) {
                 .fromCharCode(keyCode);
     }
     var buttonBar = event.buttonBar;
-    var alt = escLast || event.altKey;
+    var alt = _eventEscLast || event.altKey;
     var shift = event.shiftKey;
     if (settingsDisplayed) {
         // The settings dialog has it's own event handler.
@@ -286,14 +316,14 @@ function onKeyDown(event) {
 
     // Apply a keymap, if any. If it came from the button bar interpret as is
     // without mapping.
-    if ((heise || keyMapSize) && !buttonBar) {
+    if ((eventHeise || _eventKeyMapSize) && !buttonBar) {
         // Look for the keystroke in the keymap.
         // Order matters here.
         var prefix = (alt ? "A" : "") + (shift ? "S" : "");
-        var keyMapValue = keyMapTotal[prefix + eventChar];
+        var keyMapValue = _eventKeyMapTotal[prefix + eventChar];
         if (!keyMapValue) {
             // If the character could not be found try the key code.
-            keyMapValue = keyMapTotal[prefix + event.keyCode];
+            keyMapValue = _eventKeyMapTotal[prefix + event.keyCode];
         }
         if (keyMapValue) {
             if (keyMapValue[0] === "k") {
@@ -304,17 +334,17 @@ function onKeyDown(event) {
             } else if (keyMapValue[0] === "m") {
                 // Map directly to a move and return.
                 var move = keyMapValue.substring(1);
-                utilsEnqueueMove(numericPrefix + move);
-                numericPrefix = "";
+                utilsEnqueueMove(_eventNumericPrefix + move);
+                _eventNumericPrefix = "";
                 animateCondReq(true);
-                escLast = false;
+                _eventEscLast = false;
 
                 // If the user made a move they probably don't care about the
                 // message.
                 animateClearStatus();
                 return;
             } else {
-                console.log("Unknown keyMapTotal value \"" + keyMapValue
+                console.log("Unknown _eventKeyMapTotal value \"" + keyMapValue
                         + "\".");
             }
         }
@@ -324,7 +354,7 @@ function onKeyDown(event) {
     if ((alt && shift && numeric) || (punctuation && (eventChar !== "-"))) {
         // Convert the alternate numeric or punctuation key to a command key.
         var eventCharOld = eventChar;
-        eventChar = keyAdditionalMap[eventChar];
+        eventChar = _eventKeyAdditionalMap[eventChar];
         if (!eventChar) {
             // Should not happen.
             console.log("Could not find additional key \"" + eventChar + "\".");
@@ -333,16 +363,16 @@ function onKeyDown(event) {
     } else if (numeric || (eventChar === "-")) {
         if (shift) {
             var eventCharOld = eventChar;
-            eventChar = keyPunctuationMap[keyCode];
+            eventChar = _eventKeyPunctuationMap[keyCode];
             if (!eventChar) {
                 eventChar = eventCharOld;
             }
         } else {
             // The key typed is probably meant to be a numeric prefix for a higher
             // order cube.
-            numericPrefix += eventChar;
+            _eventNumericPrefix += eventChar;
             animateCondReq(true);
-            escLast = false;
+            _eventEscLast = false;
             animateClearStatus();
             return;
         }
@@ -354,14 +384,14 @@ function onKeyDown(event) {
 
     // For Heise all possible moves should have been specified by the map(s),
     // so no need to look for the rotation here.
-    var rotation = heise ? null : rotateFaceToRotation[eventChar];
+    var rotation = eventHeise ? null : rotateFaceToRotation[eventChar];
     if (event.keyCode === 27) {
-        if (helpDisplayed) {
-            showHelp(false);
-            escLast = false;
+        if (eventHelpDisplayed) {
+            eventShowHelp(false);
+            _eventEscLast = false;
             return;
         }
-        escLast = true;
+        _eventEscLast = true;
     } else if (rotation) {
         // Regular movement
         var move = eventChar;
@@ -371,14 +401,14 @@ function onKeyDown(event) {
         if (alt) {
             move = move.toLowerCase();
         }
-        utilsEnqueueMove(numericPrefix + move);
-        numericPrefix = "";
+        utilsEnqueueMove(_eventNumericPrefix + move);
+        _eventNumericPrefix = "";
         animateCondReq(true);
-        escLast = false;
-        if (keyPreventDefault) {
+        _eventEscLast = false;
+        if (eventKeyPreventDefault) {
             event.preventDefault();
         }
-    } else if (!helpDisplayed) {
+    } else if (!eventHelpDisplayed) {
         // Special keys
 
         // Make sure we don't process key combinations this program does not
@@ -392,7 +422,7 @@ function onKeyDown(event) {
             if (numeric) {
                 var alloweds = ["AS"];
             } else {
-                var alloweds = keyAllowedModifiersMap[eventChar];
+                var alloweds = _eventKeyAllowedModifiersMap[eventChar];
             }
             if (alloweds) {
                 for (i = 0; i < alloweds.length; i++) {
@@ -510,7 +540,7 @@ function onKeyDown(event) {
             }
             break;
         case "H": // (H)help
-            showHelp(!helpDisplayed);
+            eventShowHelp(!eventHelpDisplayed);
             break;
         case "I": // (I)nformation
             settingsShow();
@@ -534,9 +564,9 @@ function onKeyDown(event) {
             // not displayed until this function returns, so the setTimeout
             // was needed. 10 msec is used so that the first status has
             // a chance to be displayed before the blocking scrambler.
-            if (!scramblerInitialized) {
+            if (!_eventScramblerInitialized) {
                 animateUpdateStatus("Initializing scrambler");
-                scramblerInitialized = true;
+                _eventScramblerInitialized = true;
             }
             setTimeout(function() {
                 scramble();
@@ -545,9 +575,9 @@ function onKeyDown(event) {
             }, 10);
             break;
         case "K": // Toggle rotation lock.
-            rotationLock = !rotationLock;
+            eventRotationLock = !eventRotationLock;
             animateUpdateStatus("Rotation lock "
-                    + (rotationLock ? "enabled" : "disabled"))
+                    + (eventRotationLock ? "enabled" : "disabled"))
             animateCondReq(true);
             break;
         case "N": // (N)new cube
@@ -600,9 +630,9 @@ function onKeyDown(event) {
             animateCondReq(true);
             break;
         case "V": // Heise
-            heise = !heise;
+            eventHeise = !eventHeise;
             eventUpdateKeyMap();
-            animateUpdateStatus((heise ? "Heise" : "RLUDFB") + " key mapping");
+            animateUpdateStatus((eventHeise ? "Heise" : "RLUDFB") + " key mapping");
             break;
         default:
             console.log("Ignoring unknown key \"" + eventChar + "\".");
@@ -619,15 +649,15 @@ function onKeyDown(event) {
             if (buttons) {
                 initSetButtonColor(buttons[0], buttons[1], true);
             }
-            if (keyPreventDefault) {
+            if (eventKeyPreventDefault) {
                 event.preventDefault();
             }
         }
-        escLast = false;
+        _eventEscLast = false;
     }
 }
 
-function onMouseDown(event) {
+function _eventOnMouseDown(event) {
     if (settingsDisplayed) {
         return;
     }
@@ -642,18 +672,18 @@ function onMouseDown(event) {
     // Primary button - true for the left mouse button or any touch event.
     var primaryButton = initMobile || (event.button === 0);
     if (primaryButton && ((!initMobile) || event.changedTouches.length)) {
-        var beginCoords = getCoords(event);
+        var beginCoords = _eventGetCoords(event);
         for (var i = 0; i < beginCoords.length; i++) {
             var beginCoord = beginCoords[i];
             // Left mouse button was clicked.
             var moveBegin = cubiesEventToCubeCoord(beginCoord[0],
                     beginCoord[1], null);
             if (moveBegin) {
-                moveBegins.push([beginCoord, moveBegin]);
+                _eventMoveBegins.push([beginCoord, moveBegin]);
             }
         }
         // Don't rotate the cube if the user clicked on it.
-        animateOrbitControls.enabled = moveBegins.length ? false : !rotationLock;
+        animateOrbitControls.enabled = _eventMoveBegins.length ? false : !eventRotationLock;
     }
 
     // The user may be adjusting the animateCamera if a mouse button is done. When
@@ -664,7 +694,7 @@ function onMouseDown(event) {
     }
 }
 
-function onMouseUp(event) {
+function _eventOnMouseUp(event) {
     if (settingsDisplayed) {
         return;
     }
@@ -680,15 +710,15 @@ function onMouseUp(event) {
         return;
     }
 
-    if (primaryButton && moveBegins.length) {
-        var endCoords = getCoords(event);
+    if (primaryButton && _eventMoveBegins.length) {
+        var endCoords = _eventGetCoords(event);
         for (var i = 0; i < endCoords.length; i++) {
             var endCoord = endCoords[i];
             // For the current endCoord find the closest matching begin
             // coordinate.
             var bestDist = 1000000;
-            for (var j = 0; j < moveBegins.length; j++) {
-                var entry = moveBegins[j];
+            for (var j = 0; j < _eventMoveBegins.length; j++) {
+                var entry = _eventMoveBegins[j];
                 var beginCoord = entry[0];
                 var moveBegin = entry[1];
                 var dist = Math.abs(beginCoord[0] - endCoord[0])
@@ -701,7 +731,7 @@ function onMouseUp(event) {
             dist = bestDist;
             moveBegin = bestMoveBegin;
 
-            var mouseMoved = dist >= moveThreshold;
+            var mouseMoved = dist >= eventMoveThreshold;
             if (mouseMoved) {
                 // The mouse was moved significantly since mouseDown.
                 var moveEnd = cubiesEventToCubeCoord(endCoord[0], endCoord[1],
@@ -772,50 +802,23 @@ function onMouseUp(event) {
         }
         if (!initMobile || (initMobile && !event.touches.length)) {
             // If this was the last touch then the above must have processed
-            // all of the moveBegins.
-            moveBegins.length = 0;
+            // all of the _eventMoveBegins.
+            _eventMoveBegins.length = 0;
         }
         animateCondReq(true);
     }
 
-    animateOrbitControls.enabled = !rotationLock;
+    animateOrbitControls.enabled = !eventRotationLock;
     animateCameraAdjusting = false;
 }
 
-function onResize(event) {
+function _eventOnResize(event) {
     animateResize();
     animateCondReq(true);
 }
 
-function onTouchMove(event) {
+function _eventOnTouchMove(event) {
     // Prevent the browser from scrolling or otherwise attempting to respond
     // to the event.
     event.preventDefault();
-}
-
-function preventDefault(event) {
-    event.preventDefault();
-}
-
-function showHelp(show) {
-    initAddUpdateButtons(show ? helpButtonList : initMainButtonList);
-
-    if (show) {
-        initHelpEl.style.left = "0px";
-        initHelpEl.style.top = "0px";
-        initHelpEl.style.width = animateCanvasWidth + "px";
-        initHelpEl.style.height = initPrimaryHeight + "px";
-
-        // It seems both the tabIndex and the delay is needed for the help to
-        // gain focus.
-        initHelpEl.tabIndex = "1";
-        initHelpEl.scrollTop = 0;
-        setTimeout(function() {
-            initHelpEl.focus();
-        }, 10);
-    }
-    initHelpEl.style.visibility = show ? "visible" : "hidden";
-    initTimerEl.style.visibility = show ? "hidden" : "visible";
-
-    helpDisplayed = show;
 }

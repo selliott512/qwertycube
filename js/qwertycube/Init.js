@@ -16,7 +16,7 @@ var initMainButtonList = [{
 }, {
     label : "Heise",
     key : "V",
-    toggle : "heise",
+    toggle : "eventHeise",
     tip : "Use Heise keymap"
 
 }, {
@@ -41,7 +41,7 @@ var initMainButtonList = [{
 }, {
     label : "Lock",
     key : "K",
-    toggle : "rotationLock",
+    toggle : "eventRotationLock",
     tip : "Lock the cube so it does not rotate"
 }, {
     label : "Inst",
@@ -181,7 +181,7 @@ function initAddUpdateButtons(buttonList) {
         // Make it handle the click event as if it was a key event.
         buttonEl.onclick = (function(elem, butt) {
             return function(event) {
-                onButtonClick(event, elem, butt)
+                eventOnButtonClick(event, elem, butt)
             };
         })(buttonEl, button);
 
@@ -189,24 +189,24 @@ function initAddUpdateButtons(buttonList) {
         if (!initMobile) {
             buttonEl.onmouseover = (function(elem, butt) {
                 return function(event) {
-                    onButtonOver(event, elem, butt)
+                    eventOnButtonOver(event, elem, butt)
                 };
             })(buttonEl, button);
 
             buttonEl.onmouseout = (function(elem, butt) {
                 return function(event) {
-                    onButtonOut(event, elem, butt)
+                    eventOnButtonOut(event, elem, butt)
                 };
             })(buttonEl, button);
         }
 
         // Don't respond to attempts to move the buttons.
         if (initMobile) {
-            buttonEl.addEventListener("touchmove", preventDefault);
+            buttonEl.addEventListener("touchmove", eventPreventDefault);
         }
 
-        if (!buttonColorOrig) {
-            buttonColorOrig = window.getComputedStyle(buttonEl).backgroundColor;
+        if (!eventButtonColorOrig) {
+            eventButtonColorOrig = window.getComputedStyle(buttonEl).backgroundColor;
         }
 
         initSetButtonColor(buttonEl, button, false);
@@ -253,8 +253,8 @@ function initSetButtonColor(buttonEl, button, flash) {
     var fh = (button.label === "Help") && initFlashHelp && !_initHelpFlashed;
     if (toggle) {
         var val = window[toggle];
-        buttonEl.style.backgroundColor = (val ? buttonColorHighlight
-                : buttonColorOrig);
+        buttonEl.style.backgroundColor = (val ? eventButtonColorHighlight
+                : eventButtonColorOrig);
     } else if (flash || fh) {
         // The help button is a special case. Flash it when the page if first
         // loaded so the user knows to click it for instructions.
@@ -264,10 +264,10 @@ function initSetButtonColor(buttonEl, button, flash) {
             // evaluated now instead of later.
             setTimeout(function(elem, j) {
                 return function() {
-                    elem.style.backgroundColor = (j % 2) ? buttonColorOrig
-                            : buttonColorHighlight;
+                    elem.style.backgroundColor = (j % 2) ? eventButtonColorOrig
+                            : eventButtonColorHighlight;
                 }
-            }(buttonEl, i), i * buttonFlashDelay);
+            }(buttonEl, i), i * eventButtonFlashDelay);
         }
     }
 }
@@ -339,9 +339,9 @@ function initVars() {
     }
     animateCameraRadius = Math.sqrt(animateCameraRadius);
 
-    // Don't allow any rotation if rotationLock.
+    // Don't allow any rotation if eventRotationLock.
     if (animateOrbitControls) {
-        animateOrbitControls.enabled = !rotationLock;
+        animateOrbitControls.enabled = !eventRotationLock;
     }
 
     // Update the key map.
@@ -481,7 +481,7 @@ function _initSetup() {
             animateRenderer.domElement);
 
     // Limit manipulation that is not helpful.
-    animateOrbitControls.enabled = !rotationLock;
+    animateOrbitControls.enabled = !eventRotationLock;
     animateOrbitControls.noKeys = true;
     animateOrbitControls.noPan = true;
     animateOrbitControls.noZoom = true;

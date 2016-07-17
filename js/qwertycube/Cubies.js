@@ -234,7 +234,7 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
     worldCoord.unproject(animateCamera);
 
     var bestMove = null;
-    var bestMoveScore = rotationLockLimit;
+    var bestMoveScore = eventRotationLockLimit;
 
     var axes = onAxis ? [onAxis] : ["x", "y", "z"];
     for (var i = 0; i < axes.length; i++) {
@@ -284,8 +284,8 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
             // The location found was on the cube, so no need to search
             // further.
             return move;
-        } else if (rotationLock) {
-            // For rotationLock find the best axis to use for the move begin
+        } else if (eventRotationLock) {
+            // For eventRotationLock find the best axis to use for the move begin
             // even if it's not on the cube.
             var moveScore = _cubesGetMoveScore(move);
             if (moveScore < bestMoveScore) {
@@ -295,9 +295,9 @@ function cubiesEventToCubeCoord(x, y, onAxis) {
         }
     }
 
-    // Either location clicked was not on the cube, or rotationLock is on in
+    // Either location clicked was not on the cube, or eventRotationLock is on in
     // which case we return our best guess.
-    return rotationLock ? bestMove : null;
+    return eventRotationLock ? bestMove : null;
 }
 
 // Scale a distance based on the order so that he overall size of the cube
