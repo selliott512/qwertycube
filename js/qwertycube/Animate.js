@@ -522,7 +522,7 @@ function _animateUpdateTimer() {
             _animateTimerAnimated = false;
             initElTimer.style.backgroundColor = "#ff80ff";
             // Unknown animateTimerState. This should not happen.
-            animateUpdateStatus("Unknown animateTimerState \"" + animateTimerState + "\"");
+            utilsFatalError("Unknown animateTimerState \"" + animateTimerState + "\"");
             var elapsedMsec = -1;
         }
         initElTimer.innerHTML = utilsElapsedMsecToStr(elapsedMsec)

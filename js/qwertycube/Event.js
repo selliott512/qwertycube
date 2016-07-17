@@ -165,7 +165,7 @@ function eventOnButtonClick(event, buttonEl, button) {
         func();
     } else {
         // This should not happen.
-        console.log("Button must have either key or func.")
+        utilsFatalError("Button must have either key or func.")
     }
 
     initSetButtonColor(buttonEl, button, true);

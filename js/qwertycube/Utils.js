@@ -128,7 +128,7 @@ function utilsGetLayersFromIndexes(sign, limLoIdx, limHiIdx) {
 function utilsGetMoveRotationFromLayers(axis, layers) {
     if (layers.length !== cubiesOrder) {
         // This should not happen.
-        console.log("Layers has length " + layers.length + " instead of " +
+        utilsFatalError("Layers has length " + layers.length + " instead of " +
                 cubiesOrder);
         return null;
     }
