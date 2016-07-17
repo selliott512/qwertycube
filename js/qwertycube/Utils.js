@@ -315,6 +315,18 @@ function utilsIndexToCoord(limit) {
      cubiesHalfSide - cubiesGapScaled / 2;
 }
 
+//Return true if the device is mobile. Inspired by:
+//http://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
+function utilsIsMobile() {
+ for (var i = 0; i < _utilsMobileUserAgentREs.length; i++) {
+     var re = _utilsMobileUserAgentREs[i];
+     if (navigator.userAgent.match(re)) {
+         return true;
+     }
+ }
+ return false;
+}
+
 // Return the name of the coordinate that has the largest absolute value.
 function utilsLargestAbsoluteAxis(vector) {
     var axes = ["x", "y", "z"];
@@ -350,18 +362,6 @@ function utilsNormalizeColor(color) {
         return color.toLowerCase().indexOf("0x") === -1 ? color
                 : parseInt(color)
     }
-}
-
-// Return true if the device is mobile. Inspired by:
-// http://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
-function utilsIsMobile() {
-    for (var i = 0; i < _utilsMobileUserAgentREs.length; i++) {
-        var re = _utilsMobileUserAgentREs[i];
-        if (navigator.userAgent.match(re)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 // Shuffle a subset of an array beginning and index begin (inclusive) and

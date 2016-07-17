@@ -152,18 +152,18 @@ function settingsResize() {
     console.log("settingsResize()");
     var settingsHeight = initPrimaryHeight;
 
-    initSettingsTextEl.style.left = "0px";
-    initSettingsTextEl.style.top = "0px";
-    initSettingsTextEl.style.width = animateCanvasWidth + "px";
-    initSettingsTextEl.style.height = settingsHeight + "px";
+    initElSettingsText.style.left = "0px";
+    initElSettingsText.style.top = "0px";
+    initElSettingsText.style.width = animateCanvasWidth + "px";
+    initElSettingsText.style.height = settingsHeight + "px";
 }
 
 function settingsShow() {
     // Oddly this prevents a problem where the settings text does undesirable
     // horizontal scrolling when page-down is first pressed, at least on
     // Chrome.
-    initHelpEl.style.left = "0px";
-    initHelpEl.style.top = "0px";
+    initElHelp.style.left = "0px";
+    initElHelp.style.top = "0px";
 
     // The orbit controls grab events that are needed.
     animateOrbitControls.enabled = false;
@@ -171,9 +171,9 @@ function settingsShow() {
     initAddUpdateButtons(settingsButtonList);
 
     settingsResize();
-    initSettingsTextEl.style.visibility = "visible";
+    initElSettingsText.style.visibility = "visible";
 
-    initSettingsTextEl.value = utilsWrapWithComments(_settingsInitialText) + "\n";
+    initElSettingsText.value = utilsWrapWithComments(_settingsInitialText) + "\n";
 
     // Update variables that may need updating.
     animateCameraLocation[0] = Math.round(animateCamera.position.x);
@@ -185,7 +185,7 @@ function settingsShow() {
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
         var varDesc = varNameDesc[2];
-        initSettingsTextEl.value += "\n" + utilsWrapWithComments(varDesc  +
+        initElSettingsText.value += "\n" + utilsWrapWithComments(varDesc  +
                 (varPersist ? " persist" : "")) + "\n";
         var varValue = window[varName];
         var line = varName + "=";
@@ -198,7 +198,7 @@ function settingsShow() {
         else {
             line += varValue;
         }
-        initSettingsTextEl.value += line + "\n";
+        initElSettingsText.value += line + "\n";
     }
 
     _settingsSetCursorAfterInit();
@@ -212,7 +212,7 @@ function _settingsApplyVariables() {
     var scrambleCountOld = scrambleCount;
 
     // Apply the variables in the text area.
-    var lines = initSettingsTextEl.value.split("\n");
+    var lines = initElSettingsText.value.split("\n");
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         // Strip off comments.
@@ -259,7 +259,7 @@ function _settingsHide() {
 
     // Hidden is better than just opacity: 0. See
     // http://stackoverflow.com/questions/272360/does-opacity0-have-exactly-the-same-effect-as-visibilityhidden
-    initSettingsTextEl.style.visibility = "hidden";
+    initElSettingsText.style.visibility = "hidden";
 
     initAddUpdateButtons(initMainButtonList);
 
@@ -285,9 +285,9 @@ function _settingsOk() {
 }
 
 function _settingsSetCursorAfterInit() {
-    initSettingsTextEl.spellcheck = false;
-    initSettingsTextEl.focus();
+    initElSettingsText.spellcheck = false;
+    initElSettingsText.focus();
     var initLen = _settingsInitialText.length;
-    initSettingsTextEl.setSelectionRange(initLen, initLen);
-    initSettingsTextEl.scrollTop = 0;
+    initElSettingsText.setSelectionRange(initLen, initLen);
+    initElSettingsText.scrollTop = 0;
 }

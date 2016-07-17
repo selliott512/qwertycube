@@ -2,6 +2,19 @@
 
 // Public globals
 
+var initButtonKeyToElMap = {};
+
+//Elements that are never recreated, so they're stored globally.
+var initElButtonBar;
+var initElContainer;
+var initElHelp;
+var initElSettingsText;
+var initElStatus;
+var initElTimer;
+var initElTip;
+
+var initFlashHelp = true;
+
 // Buttons that appear at the bottom. Row is zero based.
 var initMainButtonList = [{
     label : "Help",
@@ -87,20 +100,7 @@ var initMainButtonList = [{
     tip : "Redo all move until savepoint or the end"
 }];
 
-var initButtonKeyToElMap = {};
-
-var initFlashHelp = true;
-
 var initMobile = false;
-
-// Elements that are never recreated, so they're stored globally.
-var initButtonBarEl;
-var initContainerEl;
-var initHelpEl;
-var initSettingsTextEl;
-var initStatusEl;
-var initTimerEl;
-var initTipEl;
 
 // Height of the main object currently being displayed.
 var initPrimaryHeight = 0;
@@ -119,8 +119,8 @@ var _initPresistentPrefix = "QC";
 
 function initAddUpdateButtons(buttonList) {
     // Delete any existing buttons.
-    while (initButtonBarEl.childNodes.length) {
-        initButtonBarEl.removeChild(initButtonBarEl.lastChild);
+    while (initElButtonBar.childNodes.length) {
+        initElButtonBar.removeChild(initElButtonBar.lastChild);
     }
 
     // Allow more rows on mobile by default.
@@ -215,7 +215,7 @@ function initAddUpdateButtons(buttonList) {
         buttonEl.style.visibility = "visible";
 
         // Add it to the button bar.
-        initButtonBarEl.appendChild(buttonEl);
+        initElButtonBar.appendChild(buttonEl);
 
         // Keep a reference the button variables.
         initButtonKeyToElMap[button.key] = [buttonEl, button];
@@ -410,13 +410,13 @@ function _initFillScene() {
 }
 
 function _initGetElements() {
-    initButtonBarEl = document.getElementById("button-bar");
-    initContainerEl = document.getElementById("container");
-    initHelpEl = document.getElementById("help");
-    initSettingsTextEl = document.getElementById("settings-text");
-    initStatusEl = document.getElementById("status");
-    initTimerEl = document.getElementById("timer");
-    initTipEl = document.getElementById("tip");
+    initElButtonBar = document.getElementById("button-bar");
+    initElContainer = document.getElementById("container");
+    initElHelp = document.getElementById("help");
+    initElSettingsText = document.getElementById("settings-text");
+    initElStatus = document.getElementById("status");
+    initElTimer = document.getElementById("timer");
+    initElTip = document.getElementById("tip");
 }
 
 function _initLoadStorage() {
@@ -489,7 +489,7 @@ function _initSetup() {
     animateOrbitControls.useMinClient = true;
 
     // Add the animateRenderer to the page.
-    initContainerEl.appendChild(animateRenderer.domElement);
+    initElContainer.appendChild(animateRenderer.domElement);
 
     // Dynamically add buttons to the button bar.
     initAddUpdateButtons(initMainButtonList);

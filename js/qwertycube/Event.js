@@ -108,12 +108,12 @@ function eventAdd() {
     // here before OrbitControls.
     console.log("Adding event listeners.");
     document.addEventListener("keydown", _eventOnKeyDown, true);
-    initContainerEl.addEventListener(initMobile ? "touchstart" : "mousedown",
+    initElContainer.addEventListener(initMobile ? "touchstart" : "mousedown",
             _eventOnMouseDown, true);
-    initContainerEl.addEventListener(initMobile ? "touchend" : "mouseup", _eventOnMouseUp,
+    initElContainer.addEventListener(initMobile ? "touchend" : "mouseup", _eventOnMouseUp,
             true);
     if (initMobile) {
-        initContainerEl.addEventListener("touchmove", _eventOnTouchMove);
+        initElContainer.addEventListener("touchmove", _eventOnTouchMove);
     }
 
     window.addEventListener("resize", _eventOnResize, true);
@@ -121,11 +121,11 @@ function eventAdd() {
     // Make sure the button bar does not do anything with events other than
     // click buttons.
     if (initMobile) {
-        initContainerEl.addEventListener("touchmove", eventPreventDefault);
+        initElContainer.addEventListener("touchmove", eventPreventDefault);
     }
 
     // Get rid of the status message if the user clicks on it.
-    initStatusEl.addEventListener(initMobile ? "touchstart" : "mousedown",
+    initElStatus.addEventListener(initMobile ? "touchstart" : "mousedown",
             animateClearStatus);
 }
 
@@ -170,12 +170,12 @@ function eventOnButtonClick(event, buttonEl, button) {
     initSetButtonColor(buttonEl, button, true);
 
     eventToolTipButtonEl = null;
-    initTipEl.style.visibility = "hidden";
+    initElTip.style.visibility = "hidden";
 }
 
 function eventOnButtonOut(event, buttonEl, button) {
     eventToolTipButtonEl = null;
-    initTipEl.style.visibility = "hidden";
+    initElTip.style.visibility = "hidden";
 }
 
 function eventOnButtonOver(event, buttonEl, button) {
@@ -189,27 +189,27 @@ function eventOnButtonOver(event, buttonEl, button) {
         console.log("Button " + button.label + " is missing a tool tip");
         return;
     }
-    initTipEl.innerHTML = button.tip;
+    initElTip.innerHTML = button.tip;
 
     // Now that the width is known the left side can be adjusted so that it's
     // centered over the button, but also entirely on the screen.
     var left = parseInt(buttonEl.style.left) +
-        (buttonEl.offsetWidth - initTipEl.clientWidth) / 2;
+        (buttonEl.offsetWidth - initElTip.clientWidth) / 2;
     left = Math.max(0, left);
-    left = Math.min(left, animateCanvasWidth - initTipEl.clientWidth);
+    left = Math.min(left, animateCanvasWidth - initElTip.clientWidth);
 
     // A bit above the button.
     var top = parseInt(buttonEl.style.top) -
-        1.4 * parseInt(initTipEl.clientHeight);
+        1.4 * parseInt(initElTip.clientHeight);
 
-    initTipEl.style.left = left + "px";
-    initTipEl.style.top = top + "px";
+    initElTip.style.left = left + "px";
+    initElTip.style.top = top + "px";
 
     eventToolTipButtonEl = buttonEl;
     setTimeout(function(elem) {
         return function() {
             if (elem === eventToolTipButtonEl) {
-                initTipEl.style.visibility = "visible";
+                initElTip.style.visibility = "visible";
             }
         };
     }(buttonEl), eventToolTipTimeout);
@@ -223,21 +223,21 @@ function eventShowHelp(show) {
     initAddUpdateButtons(show ? _eventHelpButtonList : initMainButtonList);
 
     if (show) {
-        initHelpEl.style.left = "0px";
-        initHelpEl.style.top = "0px";
-        initHelpEl.style.width = animateCanvasWidth + "px";
-        initHelpEl.style.height = initPrimaryHeight + "px";
+        initElHelp.style.left = "0px";
+        initElHelp.style.top = "0px";
+        initElHelp.style.width = animateCanvasWidth + "px";
+        initElHelp.style.height = initPrimaryHeight + "px";
 
         // It seems both the tabIndex and the delay is needed for the help to
         // gain focus.
-        initHelpEl.tabIndex = "1";
-        initHelpEl.scrollTop = 0;
+        initElHelp.tabIndex = "1";
+        initElHelp.scrollTop = 0;
         setTimeout(function() {
-            initHelpEl.focus();
+            initElHelp.focus();
         }, 10);
     }
-    initHelpEl.style.visibility = show ? "visible" : "hidden";
-    initTimerEl.style.visibility = show ? "hidden" : "visible";
+    initElHelp.style.visibility = show ? "visible" : "hidden";
+    initElTimer.style.visibility = show ? "hidden" : "visible";
 
     eventHelpDisplayed = show;
 }
