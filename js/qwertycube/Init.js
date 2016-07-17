@@ -224,18 +224,6 @@ function initAddUpdateButtons(buttonList) {
     }
 }
 
-function initLoad() {
-    _initGetElements();
-    _initLoadStorage();
-    settingsOnLoad();
-    initVars();
-    _initFillMoveToRotation();
-    eventAdd();
-    _initSetup();
-    _initFillScene();
-    animateCondReq(true);
-}
-
 function initClearStorage() {
     for (var i = 0; i < settingsVarNameDescs.length; i++) {
         var varNameDesc = settingsVarNameDescs[i];
@@ -451,6 +439,19 @@ function _initLoadStorage() {
             utilsSetGlobal(varName, varValueStr);
         }
     }
+}
+
+// Main entry point. Referenced by index.html, but not by any other JS code.
+function _initLoad() {
+    _initGetElements();
+    _initLoadStorage();
+    settingsOnLoad();
+    initVars();
+    _initFillMoveToRotation();
+    eventAdd();
+    _initSetup();
+    _initFillScene();
+    animateCondReq(true);
 }
 
 // Scene initialization code:

@@ -141,7 +141,7 @@ function cubiesCreate(oldCubies) {
                     // cube and we don't need to render it.
                     continue;
                 }
-                var vec = cubiesIndexesToInitVector3(xi, yi, zi);
+                var vec = _cubiesIndexesToInitVector3(xi, yi, zi);
                 if (!cornerOffset) {
                     // The offset of the first or reference corner, which should
                     // be the largest offset.
@@ -210,17 +210,6 @@ function cubiesCreate(oldCubies) {
             cubie.rotation.copy(oldCubies[i].rotation);
         }
     }
-}
-
-// Convert cubie indexes (zero based set of three integers) to a vector that
-// describes the initial solved location of that cubie.
-function cubiesIndexesToInitVector3(xi, yi, zi) {
-    var mid = (cubiesOrder - 1) / 2;
-    var x = cubiesOffsetScaled * (xi - mid);
-    var y = cubiesOffsetScaled * (yi - mid);
-    var z = cubiesOffsetScaled * (zi - mid);
-
-    return new THREE.Vector3(x, y, z);
 }
 
 // Figure out where on the surface of the cube the user clicked, or return null
@@ -425,6 +414,17 @@ function _cubiesGetMoveScore(move) {
         }
     }
     return score;
+}
+
+//Convert cubie indexes (zero based set of three integers) to a vector that
+//describes the initial solved location of that cubie.
+function _cubiesIndexesToInitVector3(xi, yi, zi) {
+ var mid = (cubiesOrder - 1) / 2;
+ var x = cubiesOffsetScaled * (xi - mid);
+ var y = cubiesOffsetScaled * (yi - mid);
+ var z = cubiesOffsetScaled * (zi - mid);
+
+ return new THREE.Vector3(x, y, z);
 }
 
 // Initialize _cubiesColorMatts based on _cubiesColorValues.
