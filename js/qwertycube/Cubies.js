@@ -24,7 +24,6 @@ var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB
 
 // Private globals
 
-var _cubiesCenter;
 var _cubiesIndexesShuffled;
 var _cubiesSmallDist = 0.1;
 var _cubiesSmallValue = 0.001;
@@ -32,7 +31,6 @@ var _cubiesEdgesIndex;
 var _cubiesMiddlesIndex;
 var _cubiesMiddlesInfo;
 var _cubiesCornerRange;
-var _cubiesSmall = 0.1;
 
 // Other than the first color the colors are ordered in the same was as it is
 // for MeshFaceMaterial. I is interior (the color of the gaps). The remaining

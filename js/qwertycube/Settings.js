@@ -68,7 +68,6 @@ var settingsButtonList = [ {
 
 // Private globals
 
-var _settingsExtraLen = " persist new-cube".length;
 var _settingsInitialText =
     "This settings dialog can be used to view and modify various " +
     "variables in QWERTYcube.  Edit variables below, if need be, and click " +

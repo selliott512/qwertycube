@@ -37,7 +37,6 @@ var animateWireframeSphere = false;
 var _animateAnimationRequested = false;
 var _animateAspectRatio = 0.0;
 var _animateCanvasMin = 0;
-var _animateDispHelp = false;
 var _animateFov = 0.0;
 var _animateMoveQueueLen = -1;
 var _animateMoveStartMsec = 0;

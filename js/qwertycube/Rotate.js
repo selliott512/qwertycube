@@ -44,8 +44,6 @@ var rotateRotationToMove = {};
 // Private globals
 
 var _rotateActive = [];
-var _rotateMoveSign = 0;
-var _rotateTwoLayer = false;
 
 // Public functions
 
