@@ -27,13 +27,13 @@ function testsRun() {
 
 function _testsAssert(condition, message) {
     if (!condition) {
-        throw new Error(message);
+        utilsFatalError(message);
     }
 }
 
 function _testsAssertEquals(expected, actual, message) {
     if (expected !== actual) {
-        throw new Error(message + " expected=" + expected +
+        utilsFatalError(message + " expected=" + expected +
                 " actual=" + actual);
     }
 }

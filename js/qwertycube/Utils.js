@@ -80,6 +80,12 @@ function utilsEnqueueMoves(moves) {
     }
 }
 
+// Wrapper for throwing an exception.  Maybe this should display a dialog
+// as well.
+function utilsFatalError(message) {
+    throw new Error(message);
+}
+
 // For a given move return the inverse move that will undo it.
 function utilsGetInverseMove(move) {
     for (var i = 0; i < move.length; i++) {
