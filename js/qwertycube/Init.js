@@ -16,85 +16,94 @@ var initElTip;
 var initFlashHelp = true;
 
 // Buttons that appear at the bottom. Row is zero based.
-var initMainButtonList = [{
+var initMainButtonList = [{ // 0
     label : "Help",
     key : "H",
     tip : "Help with QWERTYcube"
-}, {
+}, { // 1
     label : "Timer",
     key : "T",
     toggle : "animateTimer",
-    tip : "Time solves with an inspection period"
-
-}, {
+    tip : "Time solves with an inspection period",
+    index : 9
+}, { // 2
     label : "Heise",
     key : "V",
     toggle : "eventHeise",
-    tip : "Use Heise keymap"
-
-}, {
+    tip : "Use Heise keymap",
+    index : 6
+}, { // 3
     label : "N·N·N",
     key : "$",
-    tip : "Increase the cube order by one"
-}, {
+    tip : "Increase the cube order by one",
+    index : 12
+}, { // 4
     label : "Jumble",
     key : "J",
-    tip : "Jumble/scramble the cube"
-
-}, {
+    tip : "Jumble/scramble the cube",
+    index : 1
+}, { // 5
     label : "New",
     key : "N",
-    tip : "Switch to a new solved cube"
-
-}, {
+    tip : "Switch to a new solved cube",
+    index : 2
+}, { // 6
     label : "Config",
     key : "I",
-    tip : "Display the configuration/settings dialog"
-
-}, {
+    tip : "Display the configuration/settings dialog",
+    index : 4
+}, { // 7
     label : "Lock",
     key : "K",
     toggle : "eventRotationLock",
-    tip : "Lock the cube so it does not rotate"
-}, {
+    tip : "Lock the cube so it does not rotate",
+    index : 8
+}, { // 8
     label : "Inst",
     key : "A",
     toggle : "animateAnimationInst",
-    tip : "Make moves instantly instead of animating"
-}, {
+    tip : "Make moves instantly instead of animating",
+    index : 7
+}, { // 9
     label : "3·3·3",
     key : "#",
-    tip : "Set the cube order to 3"
-}, {
+    tip : "Set the cube order to 3",
+    index : 11
+}, { // 10
     label : "Save",
     key : "C",
-    tip : "Set a savepoint at the current state"
-}, {
+    tip : "Set a savepoint at the current state",
+    index : 15
+}, { // 11
     label : "Reset",
     key : "P",
-    tip : "Factory reset"
-
-}, {
+    tip : "Factory reset",
+    index : 3
+}, { // 12
     label : "Undos",
     key : "AG",
-    tip : "Undo all move until savepoint or the beginning"
-}, {
+    tip : "Undo all move until savepoint or the beginning",
+    index : 13
+}, { // 13
     label : "Undo",
     key : "G",
-    tip : "Undo one move"
-}, {
+    tip : "Undo one move",
+    index : 14
+}, { // 14
     label : "Color",
     key : "Q",
-    tip : "Change the color"
-}, {
+    tip : "Change the color",
+    index : 5
+}, { // 15
     label : "n·n·n",
     key : "@",
-    tip : "Decrease the cube order by one"
-}, {
+    tip : "Decrease the cube order by one",
+    index : 10
+}, { // 16
     label : "Redo",
     key : "SG",
     tip : "Redo one move"
-}, {
+}, { // 17
     label : "Redos",
     key : "ASG",
     tip : "Redo all move until savepoint or the end"
@@ -109,6 +118,7 @@ var initPrimaryHeight = 0;
 
 var _initButtonRowsMax = 0;
 var _initHelpFlashed = false;
+
 //Strings that moves can be suffixed with.
 var _initMoveSuffixes = ["", "'", "2"];
 
@@ -132,9 +142,39 @@ function initAddUpdateButtons(buttonList) {
         _initButtonRowsMax = initMobile ? 3 : 1;
     }
 
+    // The indexes only apply to landscape/non-mobile mode.  That is, the
+    // button arrays are ordered so they are correct on mobile and then
+    // further ordered by the indexes, if need be, so they are correct on
+    // non-mobile.
+    if (_initButtonRowsMax === 1) {
+        var bList = [];
+        for (var i = 0; i < buttonList.length; i++) {
+            var index = buttonList[i].index;
+            if (index !== undefined) {
+                if ((index < 0) || (index >= buttonList.length)) {
+                    // This should not happen.
+                    utilsFatalError("Target index " + index +
+                        " is out of range.");
+                }
+                var target = index;
+            } else {
+                // Default to the same place it would go anyway.
+                var target = i;
+            }
+            if (bList[target]) {
+                // This should not happen.
+                utilsFatalError("Target index " + target +
+                    " already has a button.");
+            }
+            bList[target] = buttonList[i];
+        }
+    } else {
+        var bList = buttonList;
+    }
+
     var rows = Math
-            .min(Math.floor(buttonList.length / 4 + 0.99), _initButtonRowsMax);
-    var cols = Math.floor(buttonList.length / rows + 0.99);
+            .min(Math.floor(bList.length / 4 + 0.99), _initButtonRowsMax);
+    var cols = Math.floor(bList.length / rows + 0.99);
 
     // Calculate what the size of each mutton must be.
     var buttonWidth = animateCanvasWidth / cols;
@@ -150,13 +190,13 @@ function initAddUpdateButtons(buttonList) {
     // Zero based rows and columns.
     var row = 0;
     var col = 0;
-    for (var i = 0; i < buttonList.length; i++) {
+    for (var i = 0; i < bList.length; i++) {
         if (col >= cols) {
             col = 0;
             row++;
         }
 
-        var button = buttonList[i];
+        var button = bList[i];
         var buttonEl = document.createElement("button");
 
         var row = Math.floor(i / cols);
