@@ -457,6 +457,12 @@ function _initGetElements() {
     initElStatus = document.getElementById("status");
     initElTimer = document.getElementById("timer");
     initElTip = document.getElementById("tip");
+
+    if (!(initElButtonBar && initElContainer && initElHelp &&
+          initElSettingsText && initElStatus && initElTimer && initElTip)) {
+        // This should not happen, but it might if someone edits index.html.
+        utilsFatalError("One or more elements could not be found in index.html");
+    }
 }
 
 function _initLoadStorage() {
