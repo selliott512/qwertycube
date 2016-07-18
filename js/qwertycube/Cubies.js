@@ -315,9 +315,14 @@ function cubiesSolved() {
         }
     }
 
-    // From the reference cubie to the first corner cubie, which was along the X
-    // axis for the original solved cube. It may have been rotated, so look for
-    // an axis that has a siginifcant value and that becomes refToXAxis.
+    // The goal of the following is to determine how the original axes can be
+    // mapped to the rotated axes of the currently possibly solved cube.  We
+    // do this by considering the three vectors that lead from the reference
+    // cubie to each of the three closest cubies.  Each of the three vectors is
+    // parallel to one of the three axes.  For the original solved cube the axes
+    // found would be X, Y and Z, in that order.
+    // TODO: It seems like using the rotation information would be faster and
+    // more efficient, but it's not obvious to me how that works.
     var axisToAxis = {};
     var axes = ["x", "y", "z"];
     for (var i = 0; i < axes.length; i++) {
@@ -339,6 +344,8 @@ function cubiesSolved() {
         var surfInfo = _cubiesMiddlesInfo[num - _cubiesMiddlesIndex];
         var axis = surfInfo.axis;
         var move = surfInfo.move;
+        // The middle cubie must be at one extreme or the other along
+        // currentAxis in order for it to be in the solved position.
         var currentAxis = axisToAxis[axis];
         var dist = Math.abs(cubie.position[currentAxis] -
                 ref.position[currentAxis]);
