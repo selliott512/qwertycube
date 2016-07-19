@@ -71,7 +71,7 @@ function animateClearStatus() {
 }
 
 // Determined of an animation frame is needed.  If "needed" is passed then it
-// an animation frame will definately be requested.
+// an animation frame will definitely be requested.
 function animateCondReq(needed) {
     _animateNeeded = needed;
 
@@ -323,7 +323,7 @@ function _animateConsolidateMoves() {
             bestMove = moveRotNew[0];
             bestRotation = moveRotNew[1];
         } else {
-            // The moves were not comptaible.
+            // The moves were not compatible.
             console.log("Unable to find consolidated move for rotation "
                     + rotation);
         }

@@ -87,7 +87,7 @@ var _settingsInitialText =
 // is clicked.
 function settingsApply(okClicked) {
     // This is done twice since creating a new cube depends on some of the
-    // varaibles.
+    // variables.
     if (okClicked) {
         _settingsApplyVariables();
     }
@@ -156,7 +156,7 @@ function settingsOnLoad() {
     _settingsSetCursorAfterInit();
 }
 
-// Resize the settings dialog so that it takes up whe whole screen other than
+// Resize the settings dialog so that it takes up the whole screen other than
 // the buttons at the bottom.
 function settingsResize() {
     console.log("settingsResize()");

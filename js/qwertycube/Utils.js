@@ -308,7 +308,7 @@ function utilsGetQueryParameters() {
     return qParams;
 }
 
-// Like the "seq" CLI except it starts at 0.  Returns an arary of size num.
+// Like the "seq" CLI except it starts at 0.  Returns an array of size num.
 function utilsGetSeq(num) {
     var nums = [];
     for (var i = 0; i < num; i++) {
@@ -373,7 +373,7 @@ function utilsNormalizeColor(color) {
 }
 
 // Shuffle a subset of an array beginning and index begin (inclusive) and
-// ending at index end (exclusive).  The shuffled portion of the arary will be
+// ending at index end (exclusive).  The shuffled portion of the array will be
 // end - begin entries long.
 function utilsShuffleArray(nums, begin, end) {
     for (var i = begin; i < end; i++) {
