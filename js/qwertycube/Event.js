@@ -1,5 +1,8 @@
 "use strict";
 
+// Various event callbacks.  This is where keyboard and mouse events are
+// turned interpreted as moves and queued up in animateMoveQueue.
+
 // Public globals
 
 var eventButtonColorHighlight = "rgb(255, 255, 128)";
@@ -103,10 +106,10 @@ var _eventScramblerInitialized = false;
 
 // Public functions
 
+// Register event listeners that are needed by this program. Note that
+// bubbling ("true" argument) is used so that these events are processed
+// here before OrbitControls.
 function eventAdd() {
-    // Register event listeners that are needed by this program. Note that
-    // bubbling ("true" argument) is used so that these events are processed
-    // here before OrbitControls.
     console.log("Adding event listeners.");
     document.addEventListener("keydown", _eventOnKeyDown, true);
     initElContainer.addEventListener(initMobile ? "touchstart" : "mousedown",
@@ -130,6 +133,7 @@ function eventAdd() {
             animateClearStatus);
 }
 
+// Callback for when buttons are clicked.
 function eventOnButtonClick(event, buttonEl, button) {
     var func = button.func;
     var key = button.key;
@@ -174,11 +178,13 @@ function eventOnButtonClick(event, buttonEl, button) {
     initElTip.style.visibility = "hidden";
 }
 
+// Callback for when the mouse exits a button.  This is for tool tips.
 function eventOnButtonOut(event, buttonEl, button) {
     eventToolTipButtonEl = null;
     initElTip.style.visibility = "hidden";
 }
 
+// Callback for when the mouse enters a button.  This is for tool tips.
 function eventOnButtonOver(event, buttonEl, button) {
     if (eventToolTipTimeout === -1) {
         // Tool tips have been disabled.
@@ -216,10 +222,12 @@ function eventOnButtonOver(event, buttonEl, button) {
     }(buttonEl), eventToolTipTimeout);
 }
 
+// Suppress the default event handling.
 function eventPreventDefault(event) {
     event.preventDefault();
 }
 
+// Show or hide the help dialog.
 function eventShowHelp(show) {
     initAddUpdateButtons(show ? _eventHelpButtonList : initMainButtonList);
 
@@ -243,6 +251,7 @@ function eventShowHelp(show) {
     eventHelpDisplayed = show;
 }
 
+// Update the key map used ot interpret key strokes.
 function eventUpdateKeyMap() {
     // Save the size of the key map to speed things up.
     _eventKeyMapSize = 0;
@@ -261,6 +270,7 @@ function eventUpdateKeyMap() {
 
 // Private functions
 
+// For a given mouse event return the client/screen coordinates.
 function _eventGetCoords(event) {
     var coords = [];
     if (initMobile) {
@@ -274,10 +284,12 @@ function _eventGetCoords(event) {
     return coords;
 }
 
+// Close the help dialog due to "Close" or escape being clicked.
 function _eventHelpClose() {
     eventShowHelp(false);
 }
 
+// Convert a keystroke to a move or command.
 function _eventOnKeyDown(event) {
     var keyCode = event.keyCode;
     var punctuation = false;
@@ -658,6 +670,8 @@ function _eventOnKeyDown(event) {
     }
 }
 
+// A mouse button was pressed down.  Record the location and suppress orbit
+// controls if need be.
 function _eventOnMouseDown(event) {
     if (settingsDisplayed) {
         return;
@@ -695,6 +709,8 @@ function _eventOnMouseDown(event) {
     }
 }
 
+// The mouse button was released.  Calculate the move and allow orbit controls
+// to continue.
 function _eventOnMouseUp(event) {
     if (settingsDisplayed) {
         return;
@@ -813,11 +829,14 @@ function _eventOnMouseUp(event) {
     animateCameraAdjusting = false;
 }
 
+// Resize event handler.
 function _eventOnResize(event) {
     animateResize();
     animateCondReq(true);
 }
 
+// Touch move event generated on mobile devices.  Only the mouse down and
+// mouse up locations are considered, not the movement between those events.
 function _eventOnTouchMove(event) {
     // Prevent the browser from scrolling or otherwise attempting to respond
     // to the event.

@@ -1,5 +1,10 @@
 "use strict";
 
+// Handle updating the screen with each animation frame.  This includes
+// updating cubies, updating the timer, updating the status message and a few
+// other things.  This file consumes the animateMoveQueue written to by
+// Event.js.
+
 // Public globals
 
 var animateAnimationInst = false;
@@ -54,6 +59,7 @@ var _animateWireframeSphereMesh;
 
 // Public functions
 
+// Clear the yellow status message at the top of the screen.
 function animateClearStatus() {
     if (_animateStatusDisplayed) {
         initElStatus.innerHTML = "";
@@ -62,6 +68,8 @@ function animateClearStatus() {
     }
 }
 
+// Determined of an animation frame is needed.  If "needed" is passed then it
+// an animation frame will definately be requested.
 function animateCondReq(needed) {
     _animateNeeded = needed;
 
@@ -74,6 +82,8 @@ function animateCondReq(needed) {
     }
 }
 
+// Draw a wireframe sphere tightly around the cube.  This is helpful to
+// visualize the full possible extent of the cube as it's rotated.
 function animateDrawWireframeSphere(show) {
     if (show && !_animateWireframeSphereMesh) {
         // Add a sphere around the origin that tightly contains the cube.
@@ -90,6 +100,7 @@ function animateDrawWireframeSphere(show) {
     }
 }
 
+// Reset things to prepare for a new solved cube.
 function animateNewCube(clearHistory) {
     if (animateMoveCurrent || animateMoveQueue.length) {
         // Don't attempt to do a scramble if there are outstanding
@@ -113,6 +124,8 @@ function animateNewCube(clearHistory) {
     return true;
 }
 
+// Remove the existing cubies from the scene, create a new set, and then add
+// the new cubies to the scene.
 function animateResetScene(oldCubies) {
     // Remove the existing cubies.
     for (var i = 0; i < cubies.length; i++) {
@@ -201,6 +214,8 @@ function animateResize() {
     initElTip.style.visibility = "hidden";
 }
 
+// Set the camera to the position specified by setting animateCameraLocation.
+// It will be facing the origin regardless of it's location.
 function animateSetCamera() {
     if (!animateCamera) {
         animateCamera = new THREE.PerspectiveCamera(_animateFov, _animateAspectRatio, 100, 1000);
@@ -212,6 +227,7 @@ function animateSetCamera() {
             + " _animateAspectRatio=" + Math.floor(100 * _animateAspectRatio) / 100.0);
 }
 
+// Update the status bar at the top of the screen with the specified message.
 function animateUpdateStatus(message) {
     if (message) {
         console.log(message);
@@ -338,6 +354,8 @@ function _animateConsolidateMoves() {
     return bestI;
 }
 
+// The main animation callback.  Update items on the screen that need to be
+// updated.
 function _animateDoAnimate() {
     // Animation not requested since starting this animation frame.
     _animateAnimationRequested = false;
@@ -480,6 +498,8 @@ function _animateDoAnimate() {
     animateCondReq(false);
 }
 
+// Returns true if "rotation" rotates the entire cube is being rotated about
+// one of the axes.
 function _animateIsFullCubeRotation(rotation) {
     if (!rotation) {
         return false;
@@ -487,6 +507,7 @@ function _animateIsFullCubeRotation(rotation) {
     return (rotation[2] === -1) && (rotation[3] === 1);
 }
 
+// Update the timer value and color as a function of the timer state.
 function _animateUpdateTimer() {
     if (animateTimer) {
         // Prevent wrapping prior to the message being displayed since it

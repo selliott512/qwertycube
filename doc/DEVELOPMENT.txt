@@ -14,21 +14,26 @@ page is https://github.com/selliott512/qwertycube .  If it's a lot of work and
 you'd like to discuss it first you can reach me at selliott512@gmail.com
 
 The organization and style of QWERTYcube should be clear, but here are a few
-highlights:
+highlights that apply to QWERTYcube itself (to the js/qwertycube directory):
 1) Code is indented 4 spaces (no tabs).
 2) Curly brackets are on the same line (K+R style).
-3) Each JavaScript file is divided into four sections:
+3) Lines are mostly 80 characters or less.
+4) All files are "use strict".
+5) All files begin with a short description.
+6) All funcitons are preceeded by a short description.
+7) Each JavaScript file is divided into four sections:
     // Public globals
     // Private globals
     // Public functions
     // Private functions
-4) A symbol is public if it's referenced outside of the file it's in, and
+8) A symbol is public if it's referenced outside of the file it's in, and
    private otherwise.
-5) The symbols are in alphabetical order in each of the four sections.
-6) Public symbols are prefixed with the lower case basename of the file they
+9) The symbols are in alphabetical order in each of the four sections.
+10) Public symbols are prefixed with the lower case basename of the file they
    are declared in.  For example cubiesCubeSize can be found in Cubies.js.
-7) Private symbols are additionally prefixed with an underscore ("_").
-8) Line endings are UNIX style (no Control-Ms).
-9) All non-third party files are UTF-8.
+11) Private symbols are additionally prefixed with an underscore ("_").
+12) Line endings are UNIX style (no Control-Ms).
+13) All files are UTF-8.
 
 TODO: Add more information about how QWERTYcube works.
+For now hopefully the comments will be helpful.

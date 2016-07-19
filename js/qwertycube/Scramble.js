@@ -1,5 +1,7 @@
 "use strict";
 
+// Wrapper for cube scramblers.
+
 // Public globals
 
 var scrambleMoves = [];
@@ -98,6 +100,8 @@ var _scrambleSimpleCount = 0; // Simple scrambler.
 
 // Public functions
 
+// Determine the appropriate scrambler, call it, and enqueue the resulting
+// scramble moves.
 function scramble() {
     _scrambleScrCube.reset();
     if (scrambleType === "simple") {

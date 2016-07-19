@@ -1,5 +1,9 @@
 "use strict";
 
+// Handle creating the cubies which includes the logic to determine their
+// location and sticker colors.  Also, logic to determine if the cube is
+// solved is here.
+
 // Public globals
 
 // The size of the cubies.
@@ -364,6 +368,8 @@ function cubiesSolved() {
     return true;
 }
 
+// Get the cubie's position after updating the world so that it will be
+// accurate.
 function cubiesToVector3(cubie) {
     animateScene.updateMatrixWorld(true);
     var position = new THREE.Vector3();

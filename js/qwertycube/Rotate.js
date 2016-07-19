@@ -1,5 +1,8 @@
 "use strict";
 
+// Rotation logic that includes tables that map moves to rotations, and then
+// acting on those rotations to move cubies.
+
 // Public globals
 
 // The following lookup table should be kept in sync and in alphabetical order
@@ -47,6 +50,8 @@ var _rotateActive = [];
 
 // Public functions
 
+// Prepare for a rotation by determining what needs to be rotated and updating
+// the move history.
 function rotateBegin(move, rotation, discardPrevious) {
     // Discard the last move in the move history since it was consolidated.
     if (discardPrevious) {
@@ -114,6 +119,8 @@ function rotateBegin(move, rotation, discardPrevious) {
     }
 }
 
+// End a rotation by detaching the pivot and setting the rotation of the pivot
+// back to 0.
 function rotateEnd() {
     for (var i = 0; i < _rotateActive.length; i++) {
         THREE.SceneUtils.detach(_rotateActive[i], rotatePivot, animateScene);
@@ -128,6 +135,8 @@ function rotateEnd() {
 
 // Private functions
 
+// Prepare the specified subset of cubies for rotation by attaching them to a
+// pivot.
 function _rotateInRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
     for (var i = 0; i < cubies.length; i++) {
         var position = cubiesToVector3(cubies[i]);

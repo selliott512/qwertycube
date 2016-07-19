@@ -1,6 +1,7 @@
 "use strict";
 
-// Pure unit tests can be added to this file.
+// Unit test functions that are optionally pressed when "Ok" is clicked on the
+// settings dialog.
 
 // Public globals
 
@@ -16,6 +17,7 @@ var _testsAllTests = [
 
 // Public functions
 
+// Run all tests listed in _testsAllTests.
 function testsRun() {
     for (var i = 0; i < _testsAllTests.length; i++) {
         var test = _testsAllTests[i];
@@ -25,18 +27,22 @@ function testsRun() {
 
 // Private functions
 
+// Fail if "condition" is not true.
 function _testsAssert(condition, message) {
     if (!condition) {
         utilsFatalError(message);
     }
 }
 
+// Fail if the "expected" and "actual" values are not equal.
 function _testsAssertEquals(expected, actual, message) {
     if (expected !== actual) {
         utilsFatalError(message + " expected=" + expected +
                 " actual=" + actual);
     }
 }
+
+// Test functions having to do with moves.
 function _testsTestMoves() {
     var layers = [];
     for (var i = 0; i < cubiesOrder; i++) {
@@ -88,6 +94,7 @@ function _testsTestMoves() {
     _testsAssertEquals("2l2", inv, "utilsGetInverseMove: Bad inverse");
 }
 
+// Test utility functions.
 function _testsTestUtils() {
     // Test that shuffle has the expected effect.
     var nums = utilsGetSeq(30);

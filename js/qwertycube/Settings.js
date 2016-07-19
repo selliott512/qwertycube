@@ -1,5 +1,8 @@
 "use strict";
 
+// Logic to display the settings dialog, and to interpret the result when "Ok"
+// is clicked.
+
 // Public globals
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
@@ -80,6 +83,8 @@ var _settingsInitialText =
 
 // Public functions
 
+// Apply settings changes to the rest of this program.  This happens when "Ok"
+// is clicked.
 function settingsApply(okClicked) {
     // This is done twice since creating a new cube depends on some of the
     // varaibles.
@@ -127,6 +132,7 @@ function settingsApply(okClicked) {
     animateCondReq(true);
 }
 
+// Key event handler for the settings dialog.
 function settingsOnKeyDown(event) {
     var settingsEvent = false;
     if (event.keyCode === 27) {
@@ -143,12 +149,15 @@ function settingsOnKeyDown(event) {
     }
 }
 
+// Prepare the settings dialog to be displayed.
 function settingsOnLoad() {
     console.log("onLoad()");
     settingsResize();
     _settingsSetCursorAfterInit();
 }
 
+// Resize the settings dialog so that it takes up whe whole screen other than
+// the buttons at the bottom.
 function settingsResize() {
     console.log("settingsResize()");
     var settingsHeight = initPrimaryHeight;
@@ -159,6 +168,7 @@ function settingsResize() {
     initElSettingsText.style.height = settingsHeight + "px";
 }
 
+// Display the settings dialog.
 function settingsShow() {
     // Oddly this prevents a problem where the settings text does undesirable
     // horizontal scrolling when page-down is first pressed, at least on
@@ -208,6 +218,8 @@ function settingsShow() {
 
 // Private functions
 
+// Parse the contents of the settings dialog and apply it to public global
+// variables.
 function _settingsApplyVariables() {
     // Save variables where special action needs to be taken when they change.
     var scrambleCountOld = scrambleCount;
@@ -250,11 +262,14 @@ function _settingsApplyVariables() {
     }
 }
 
+// Handle the "Cancel" button being clicked.
 function _settingsCancel() {
     console.log("Cancel clicked")
     _settingsHide();
 }
 
+// Hide the settings dialog when it's no longer needed due to "Ok" or
+// "Cancel".
 function _settingsHide() {
     animateOrbitControls.enabled = !eventRotationLock;
 
@@ -267,6 +282,8 @@ function _settingsHide() {
     settingsDisplayed = false;
 }
 
+// Handle the "Ok" button being clicked.  Also run the unit tests if
+// testsRunAll was set.
 function _settingsOk() {
     console.log("Ok clicked");
     settingsApply(true);
@@ -285,6 +302,7 @@ function _settingsOk() {
     }
 }
 
+// Place the cursor just after the initial text.
 function _settingsSetCursorAfterInit() {
     initElSettingsText.spellcheck = false;
     initElSettingsText.focus();

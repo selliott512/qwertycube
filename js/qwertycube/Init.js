@@ -1,5 +1,7 @@
 "use strict";
 
+// Initialization code including the main entry point _initLoad().
+
 // Public globals
 
 var initButtonKeyToElMap = {};
@@ -127,6 +129,7 @@ var _initPresistentPrefix = "QC";
 
 // Public functions
 
+// Add the buttons listed in buttonList to the button of the screen.
 function initAddUpdateButtons(buttonList) {
     // Delete any existing buttons.
     while (initElButtonBar.childNodes.length) {
@@ -264,6 +267,7 @@ function initAddUpdateButtons(buttonList) {
     }
 }
 
+// Clear the persistent storage (Reset/Alt-Shift-P).
 function initClearStorage() {
     for (var i = 0; i < settingsVarNameDescs.length; i++) {
         var varNameDesc = settingsVarNameDescs[i];
@@ -276,6 +280,9 @@ function initClearStorage() {
     }
 }
 
+// Set the button color, highlighted or not, as a function of the boolean that
+// the button may be linked to.  Help is a special case because it's flashed
+// at startup.
 function initSetButtonColor(buttonEl, button, flash) {
     var toggle = button.toggle;
     var fh = (button.label === "Help") && initFlashHelp && !_initHelpFlashed;
@@ -300,6 +307,8 @@ function initSetButtonColor(buttonEl, button, flash) {
     }
 }
 
+// Save all public globals listed in settingsVarNameDescs to persistent
+// storage.
 function initSaveStorage() {
     for (var i = 0; i < settingsVarNameDescs.length; i++) {
         var varNameDesc = settingsVarNameDescs[i];
@@ -324,7 +333,8 @@ function initSaveStorage() {
     }
 }
 
-// Init miscellaneous variables.
+// Initialize miscellaneous global variables that calculated from other global
+// variables.
 function initVars() {
     // Calculate radians per msec given the moves (half turns) per second.
     animateMoveRadMsec = (animateMoveSec / 1000.0) * (Math.PI / 2.0);
@@ -376,6 +386,7 @@ function initVars() {
     eventUpdateKeyMap();
 }
 
+// Set the background color from cubiesColorBackground.
 function initSetBackgroundColor() {
     animateRenderer.setClearColor(utilsNormalizeColor(cubiesColorBackground));
 }
@@ -430,6 +441,7 @@ function _initFillMoveToRotation() {
     console.log("_initFillMoveToRotation: Added " + count + " moves.");
 }
 
+// Create the list of cubies and add them to the three.js scene.
 function _initFillScene() {
     animateScene = new THREE.Scene();
     cubiesCreate(null);
@@ -449,6 +461,7 @@ function _initFillScene() {
     }
 }
 
+// Get a handle to each interesting HTML element.
 function _initGetElements() {
     initElButtonBar = document.getElementById("button-bar");
     initElContainer = document.getElementById("container");
@@ -465,6 +478,7 @@ function _initGetElements() {
     }
 }
 
+// Load globals from persistent storage.
 function _initLoadStorage() {
     var queryParams = utilsGetQueryParameters();
 
@@ -500,7 +514,7 @@ function _initLoad() {
     animateCondReq(true);
 }
 
-// Scene initialization code:
+// Scene initialization code.
 function _initSetup() {
     // Renderer:
     if (Detector.webgl) {

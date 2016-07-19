@@ -1,5 +1,7 @@
 "use strict";
 
+// Miscellaneous utility functions.
+
 // Public globals
 
 // Private globals
@@ -315,14 +317,14 @@ function utilsGetSeq(num) {
     return nums;
 }
 
-//Convert from a index into the layers to a coordinate on the cube.
+// Convert from a index into the layers to a coordinate on the cube.
 function utilsIndexToCoord(limit) {
  return (cubiesSizeScaled + cubiesGapScaled) * limit -
      cubiesHalfSide - cubiesGapScaled / 2;
 }
 
-//Return true if the device is mobile. Inspired by:
-//http://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
+// Return true if the device is mobile. Inspired by:
+// http://stackoverflow.com/questions/11381673/detecting-a-mobile-browser
 function utilsIsMobile() {
  for (var i = 0; i < _utilsMobileUserAgentREs.length; i++) {
      var re = _utilsMobileUserAgentREs[i];

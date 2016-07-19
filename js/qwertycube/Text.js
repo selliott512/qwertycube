@@ -1,5 +1,7 @@
 "use strict";
 
+// Displays the orientation labels that can be seen by pressing "O".
+
 // Public globals
 
 // Private globals
