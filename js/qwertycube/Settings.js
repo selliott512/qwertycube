@@ -20,11 +20,12 @@ var settingsVarNameDescs = [
     ["animateAnimationInst", true, "If true then moves happen instantaneously. \"A\" toggles."],
     ["animateAnimationLimit", true, "Bypass animation when more than this number of moves are queued up."],
     ["animateButtonHeightScale", true, "Scale the height of the buttons.  0 for no buttons."],
-    ["animateButtonStyle", true, "How the buttons are aranged at the button of the screen.  Choices are " +
-             "\"portrait\" (3 rows), \"landscape\" (1 row) or \"auto\" (3 rows for initMobile and 1 row for " +
-              "non-initMobile)."],
-    ["animateCameraLocation", true, "Location of the animateCamera."],
-    ["animateDispOrientationLabels", true, "Display labels that to show the orientation \"O\" toggles)."],
+    ["animateButtonStyle", true, "How the buttons are arranged at the button of the screen.  Choices are " +
+             "\"portrait\" (3 rows), \"landscape\" (1 row) or \"auto\" (3 rows for mobile and 1 row for " +
+              "non-mobile)."],
+    ["animateCameraLocation", true, "Location of the camera."],
+    ["animateDispOrientationLabels", true, "Display labels so that each of the six sides are labeled. " +
+            "\"O\" toggles."],
     ["animateMoveHistory", false, "All moves made since loading the page."],
     ["animateMoveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
     ["animateMoveSec", true, "Number of moves per second when replaying."],
@@ -39,11 +40,11 @@ var settingsVarNameDescs = [
             "left side to magenta and the interior to 0x224466: R:grey L:magenta I:0x224466"],
     ["cubiesColorScheme", true, "Cube color scheme.  Valid values are \"hc-black\", \"hc-white\", " +
             "\"std-black\" and \"std-white\".  \"hc\" is high contrast."],
+    ["cubiesCubeSize", true, "The size of each cubie."],
     ["cubiesGapSize", true, "The size of the gaps between cubies."],
     ["cubiesInitFacelets", true, "Facelet pattern used for new cubes.  The pattern specified is " +
-            "considered to be solved (the animateTimer will stop when it's reached). Order is URFDLB."],
+            "considered to be solved (the timer will stop when it's reached). Order is URFDLB."],
     ["cubiesOrder", true, "The order of the cube.  The order of the usual 3x3x3 cube is 3."],
-    ["cubiesCubeSize", true, "The size of each cubie."],
     ["eventHeise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
     ["eventKeyMap", true, "Key map.  Space separated list of key mapping items where each item has the form " +
             "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
@@ -51,10 +52,10 @@ var settingsVarNameDescs = [
             "ASW:mR2 Q:kJ SX:mr"],
     ["eventKeyPreventDefault", true, "If true prevent default behavior when a key is recognized by this " +
             "program.  This prevents the browser from reacting in addition to this program."],
-    ["eventMoveThreshold", true, "Mouse movements must be at least this many pixels.  Less is interpreted" +
+    ["eventMoveThreshold", true, "Mouse movements must be at least this many pixels.  Less is interpreted " +
              "as a single click."],
     ["eventRotationLock", true, "If true then the cube is not rotated by clicking and moving on the grey " +
-            "background.  Instead, those clicks are interpreted as cube moves.  This both prevents accidental" +
+            "background.  Instead, those clicks are interpreted as cube moves.  This both prevents accidental " +
             "rotations and it makes it possible to have less precise mouse/touch movements for cube moves."],
     ["eventRotationLockLimit", true, "When eventRotationLock is true interpret clicks that are this close to " +
             "the cube as a move."],
