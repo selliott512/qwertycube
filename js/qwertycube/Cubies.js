@@ -426,8 +426,8 @@ function _cubiesGetMoveScore(move) {
     return score;
 }
 
-//Convert cubie indexes (zero based set of three integers) to a vector that
-//describes the initial solved location of that cubie.
+// Convert cubie indexes (zero based set of three integers) to a vector that
+// describes the initial solved location of that cubie.
 function _cubiesIndexesToInitVector3(xi, yi, zi) {
  var mid = (cubiesOrder - 1) / 2;
  var x = cubiesOffsetScaled * (xi - mid);

@@ -6,7 +6,7 @@
 
 var initButtonKeyToElMap = {};
 
-//Elements that are never recreated, so they're stored globally.
+// Elements that are never recreated, so they're stored globally.
 var initElButtonBar;
 var initElContainer;
 var initElHelp;
@@ -121,7 +121,7 @@ var initPrimaryHeight = 0;
 var _initButtonRowsMax = 0;
 var _initHelpFlashed = false;
 
-//Strings that moves can be suffixed with.
+// Strings that moves can be suffixed with.
 var _initMoveSuffixes = ["", "'", "2"];
 
 // Prefix to apply to entries in localStorage.

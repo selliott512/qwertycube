@@ -16,8 +16,8 @@ function utilsClearMoveQueue() {
     animateRotationQueue.length = 0;
 }
 
-//Convert from a coordinate on the cube to an index into the layers. Note that
-//this should be the inverse of utilsIndexToCoord.
+// Convert from a coordinate on the cube to an index into the layers. Note that
+// this should be the inverse of utilsIndexToCoord.
 function utilsCoordToIndex(coord) {
      return Math.floor((coord + (cubiesHalfSide + (cubiesGapScaled / 2))) /
              cubiesOffsetScaled);
