@@ -639,6 +639,7 @@ function _eventOnKeyDown(event) {
             break;
         case "T": // (T)imer
             animateTimer = !animateTimer;
+            animateElapsedMsecOld = 0;
             console.log("animateTimer: " + animateTimer);
             animateCondReq(true);
             break;

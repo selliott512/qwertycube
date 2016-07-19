@@ -19,6 +19,7 @@ var animateCameraRadius;
 var animateCanvasHeight = 0;
 var animateCanvasWidth = 0;
 var animateDispOrientationLabels = false;
+var animateElapsedMsecOld = 0;
 var animateMoveCurrent = "";
 var animateMoveHistory = [];
 var animateMoveHistoryNext = 0;
@@ -52,6 +53,7 @@ var _animateStatusDisplayed = false;
 var _animateStatusSecsPerChar = 0.05;
 var _animateStatusTimeMSec = 0;
 var _animateTimerAnimated = false;
+var _animateTimerJumpMax = 10000;
 var _animateTimerFrameNext = 0;
 var _animateTimerSolved;
 var _animateTimerStart = Date.now();
@@ -360,14 +362,14 @@ function _animateDoAnimate() {
     // Animation not requested since starting this animation frame.
     _animateAnimationRequested = false;
 
-    // If only the animateTimer is displayed then much of the animation code can be
+    // If only the timer is displayed then much of the animation code can be
     // bypassed. Also, the frame rate can be reduced saving CPU.
     var timerOnly = animateTimer
             && !(_animateNeeded || animateMoveCurrent || animateMoveQueue.length
                     || _animateStatusDisplayed || animateCameraAdjusting);
 
     if (!timerOnly) {
-        // Something other than the animateTimer needs to be updated.
+        // Something other than the timer needs to be updated.
         animateOrbitControls.update();
 
         // Display or hide the orientation labels.
@@ -403,7 +405,7 @@ function _animateDoAnimate() {
                         if (!animateAnimationInst) {
                             _animateMoveStartMsec = Date.now();
                         }
-                        // Start the animateTimer if it was inspection and the user did
+                        // Start the timer if it was inspection and the user did
                         // something other than rotate the entire cube.
                         if ((animateTimerState === "inspect")
                                 && !_animateIsFullCubeRotation(_animateRotationCurrent)) {
@@ -481,7 +483,7 @@ function _animateDoAnimate() {
         animateUpdateStatus(null);
         _animateUpdateTimer();
     } else {
-        // Only the animateTimer needs to be updated.
+        // Only the timer needs to be updated.
         var now = Date.now();
         if (now >= _animateTimerFrameNext) {
             _animateUpdateTimer();
@@ -520,6 +522,7 @@ function _animateUpdateTimer() {
             initElTimer.style.backgroundColor = "#ff8080";
             var elapsedMsec = (1000 * animateTimerInspectionSecs)
                     - (Date.now() - _animateTimerStart);
+            animateElapsedMsecOld = 0;
             if (elapsedMsec <= 0) {
                 // If they ran out of inspection time switch to solve and get
                 // the next animation.
@@ -531,6 +534,7 @@ function _animateUpdateTimer() {
             _animateTimerAnimated = false;
             initElTimer.style.backgroundColor = "#808080";
             var elapsedMsec = null;
+            animateElapsedMsecOld = 0;
         } else if (animateTimerState === "solve") {
             _animateTimerAnimated = true;
             initElTimer.style.backgroundColor = "#80ff80";
@@ -546,9 +550,18 @@ function _animateUpdateTimer() {
             utilsFatalError("Unknown animateTimerState \"" + animateTimerState + "\"");
             var elapsedMsec = -1;
         }
-        initElTimer.innerHTML = utilsElapsedMsecToStr(elapsedMsec)
+        initElTimer.innerHTML = utilsElapsedMsecToStr(elapsedMsec);
 
-        // Position the animateTimer dialog.
+        if ((elapsedMsec && animateElapsedMsecOld) &&
+                ((elapsedMsec - animateElapsedMsecOld) > _animateTimerJumpMax)) {
+            var jump = (elapsedMsec - animateElapsedMsecOld) / 1000.0;
+            // This sometimes happens.  I think it's typically due to the
+            // clock jumping forward due to the computer being suspended.
+            console.log("Timer jumped forward " + jump + " seconds.");
+        }
+        animateElapsedMsecOld = elapsedMsec;
+
+        // Position the timer dialog.
         var timerLeft = animateCanvasWidth - initElTimer.clientWidth - 1;
         if (timerLeft < 0) {
             timerLeft = 0;

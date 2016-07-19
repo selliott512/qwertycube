@@ -33,7 +33,7 @@ var settingsVarNameDescs = [
     ["animateMoveHistoryNext", false, "Next move to be made if a redo (Shift-G) is done."],
     ["animateMoveSec", true, "Number of moves per second when replaying."],
     ["animateStatusSecs", true, "How long status is displayed at the top of the browser."],
-    ["animateTimer", true, "Display the animateTimer.  May result in high CPU usage."],
+    ["animateTimer", true, "Display the timer.  May result in high CPU usage."],
     ["animateTimerInspectionSecs", true, "The amount of inspection time before solving."],
     ["animateWireframeSphere", true, "If true then enclose the cube in a wireframe sphere with radius cubiesRadius " +
             "so that it's extent can be seen.  This is mostly for developer use to arrange elements on the GUI."],
