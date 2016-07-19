@@ -582,7 +582,7 @@ function _eventOnKeyDown(event) {
                 _eventScramblerInitialized = true;
             }
             setTimeout(function() {
-                scramble();
+                scrambleCube();
                 animateUpdateStatus("Scrambled " + (newCube ? "new " : " ")
                         + "cube");
             }, 10);
@@ -635,7 +635,7 @@ function _eventOnKeyDown(event) {
                 console.log("Unknown color scheme \"" + cubiesColorScheme
                         + "\".");
             }
-            animateResetScene(cubies);
+            animateResetScene(cubiesList);
             break;
         case "T": // (T)imer
             animateTimer = !animateTimer;

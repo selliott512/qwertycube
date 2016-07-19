@@ -138,12 +138,12 @@ function rotateEnd() {
 // Prepare the specified subset of cubies for rotation by attaching them to a
 // pivot.
 function _rotateInRangeRotate(axisSign, axisOfRot, limLo, limHi, amount) {
-    for (var i = 0; i < cubies.length; i++) {
-        var position = cubiesToVector3(cubies[i]);
+    for (var i = 0; i < cubiesList.length; i++) {
+        var position = cubiesToVector3(cubiesList[i]);
         // The position coordinate being considered.
         var posCoord = position[axisOfRot];
         if (posCoord >= limLo && posCoord <= limHi) {
-            _rotateActive.push(cubies[i]);
+            _rotateActive.push(cubiesList[i]);
         }
     }
 

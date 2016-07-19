@@ -6,8 +6,6 @@
 
 // Public globals
 
-// The size of the cubies.
-var cubies = [];
 var cubiesColorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
 var cubiesColorBackground = "0x808080";
 var cubiesColorOverrides = {};
@@ -18,6 +16,7 @@ var cubiesExtendedMiddle;
 var cubiesGapScaled;
 var cubiesHalfSide;
 var cubiesInitFacelets = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
+var cubiesList = [];
 var cubiesOffset;
 var cubiesOffsetScaled;
 var cubiesOrder = 3;
@@ -187,7 +186,7 @@ function cubiesCreate(oldCubies) {
 
     // Order cubies by cubie type.  The resulting cubies array consists of
     // corners, then edges and finally middles.
-    cubies = cbsCorners.concat(cbsEdges, cbsMiddles);
+    cubiesList = cbsCorners.concat(cbsEdges, cbsMiddles);
     _cubiesEdgesIndex = cbsCorners.length;
     _cubiesMiddlesIndex = _cubiesEdgesIndex + cbsEdges.length;
 
@@ -196,17 +195,17 @@ function cubiesCreate(oldCubies) {
     // index of the same type.  The first shuffle starts at one to avoid
     // mapping the reference cubie, which is special.
     if ((!_cubiesIndexesShuffled) ||
-            (_cubiesIndexesShuffled.length !== cubies.length)) {
-        _cubiesIndexesShuffled = utilsGetSeq(cubies.length);
+            (_cubiesIndexesShuffled.length !== cubiesList.length)) {
+        _cubiesIndexesShuffled = utilsGetSeq(cubiesList.length);
         utilsShuffleArray(_cubiesIndexesShuffled, 1, _cubiesEdgesIndex);
         utilsShuffleArray(_cubiesIndexesShuffled, _cubiesEdgesIndex, _cubiesMiddlesIndex);
-        utilsShuffleArray(_cubiesIndexesShuffled, _cubiesMiddlesIndex, cubies.length);
+        utilsShuffleArray(_cubiesIndexesShuffled, _cubiesMiddlesIndex, cubiesList.length);
     }
 
     if (oldCubies) {
         // Set the position and angle based on the old cubies.
-        for (var i = 0; i < cubies.length; i++) {
-            var cubie = cubies[i];
+        for (var i = 0; i < cubiesList.length; i++) {
+            var cubie = cubiesList[i];
 
             cubie.position.copy(oldCubies[i].position);
             cubie.rotation.copy(oldCubies[i].rotation);
@@ -300,7 +299,7 @@ function cubiesScaleDist(dist)
 
 // Return true if the cube is solved.
 function cubiesSolved() {
-    var ref = cubies[0]; // reference cubie.
+    var ref = cubiesList[0]; // reference cubie.
     for (var i = 1; i < _cubiesMiddlesIndex; i++) {
         // The goal is to iterate through the cubies in a semi-random fashion
         // in order to increase the odds of detecting an unsolved cubie early.
@@ -311,7 +310,7 @@ function cubiesSolved() {
         // A corner or edge cubie. In this case the cubie is in the correct
         // location if and only if it has the same rotation as the reference
         // cubie.
-        var cubie = cubies[num];
+        var cubie = cubiesList[num];
         if (_cubiesAngleIsLarge(cubie.rotation.x - ref.rotation.x)
                 || _cubiesAngleIsLarge(cubie.rotation.y - ref.rotation.y)
                 || _cubiesAngleIsLarge(cubie.rotation.z - ref.rotation.z)) {
@@ -336,15 +335,15 @@ function cubiesSolved() {
         // the +X +Y -Z corner.
         var cornerIndex = (i === 2) ? 2 : 1;
         var refToCorner = ref.position.clone().sub(
-                cubies[i + cornerIndex].position);
+                cubiesList[i + cornerIndex].position);
         var currentAxis = utilsLargestAbsoluteAxis(refToCorner);
         axisToAxis[axis] = currentAxis;
     }
 
-    for (var i = _cubiesMiddlesIndex; i < cubies.length; i++) {
+    for (var i = _cubiesMiddlesIndex; i < cubiesList.length; i++) {
         // Pick a random middle cubie.
         var num = _cubiesIndexesShuffled[i];
-        var cubie = cubies[num];
+        var cubie = cubiesList[num];
         var surfInfo = _cubiesMiddlesInfo[num - _cubiesMiddlesIndex];
         var axis = surfInfo.axis;
         var move = surfInfo.move;

@@ -17,7 +17,7 @@ var _scrambleDupCubeCheck = false;
 
 // TODO: Perhaps this "simple" scrambler should be removed as I'm not sure why
 // anyone would want use it in place of the official WCA derived scramblers.
-var _scrambleScrCube = {
+var _scrambleSimpleCube = {
     // Define the six faces of the cube
     faces : "DLBURF",
     // This will contain a history of all the states to make sure we don't
@@ -35,11 +35,11 @@ var _scrambleScrCube = {
     },
     // Sets the cube to the solved state
     reset : function() {
-        _scrambleScrCube.states = [ "yyyyyyyyoooooooobbbbbbbbwwwwwwwwrrrrrrrrgggggggg" ];
+        _scrambleSimpleCube.states = [ "yyyyyyyyoooooooobbbbbbbbwwwwwwwwrrrrrrrrgggggggg" ];
     },
     // Twist the cube according to a move in WCA notation
     twist : function(state, move) {
-        var i, k, prevState, face = move.charAt(0), faceIndex = _scrambleScrCube.faces
+        var i, k, prevState, face = move.charAt(0), faceIndex = _scrambleSimpleCube.faces
                 .indexOf(move.charAt(0)), turns = move.length > 1 ? (move
                 .charAt(1) === "2" ? 2 : 3) : 1;
         state = state.split("");
@@ -52,18 +52,18 @@ var _scrambleScrCube = {
             }
             // Rotate the adjacent stickers that are part of the same layer
             for (k = 0; k < 12; k++) {
-                state[_scrambleScrCube.edges[face][k]] = prevState[_scrambleScrCube.edges[face][(k + 9) % 12]];
+                state[_scrambleSimpleCube.edges[face][k]] = prevState[_scrambleSimpleCube.edges[face][(k + 9) % 12]];
             }
         }
         return state.join("");
     },
     // Scramble the cube
     scramble : function() {
-        var count = 0, total = _scrambleSimpleCount, state, prevState = _scrambleScrCube.states[_scrambleScrCube.states.length - 1], move, moves = [], modifiers = [
+        var count = 0, total = _scrambleSimpleCount, state, prevState = _scrambleSimpleCube.states[_scrambleSimpleCube.states.length - 1], move, moves = [], modifiers = [
                 "", "'", "2" ];
         while (count < total) {
             // Generate a random move
-            move = _scrambleScrCube.faces[Math.floor(Math.random() * 6)]
+            move = _scrambleSimpleCube.faces[Math.floor(Math.random() * 6)]
                     + modifiers[Math.floor(Math.random() * 3)];
             // Don't move the same face twice in a row
             if (count > 0 && move.charAt(0) === moves[count - 1].charAt(0)) {
@@ -72,18 +72,18 @@ var _scrambleScrCube = {
             // Avoid move sequences like "R L R", which is the same as "R2 L"
             if (count > 1
                     && move.charAt(0) === moves[count - 2].charAt(0)
-                    && moves[count - 1].charAt(0) === _scrambleScrCube.faces
-                            .charAt((_scrambleScrCube.faces.indexOf(move.charAt(0)) + 3) % 6)) {
+                    && moves[count - 1].charAt(0) === _scrambleSimpleCube.faces
+                            .charAt((_scrambleSimpleCube.faces.indexOf(move.charAt(0)) + 3) % 6)) {
                 continue;
             }
             if (_scrambleDupCubeCheck) {
-                state = _scrambleScrCube.twist(prevState, move);
-                if (_scrambleScrCube.states.indexOf(state) === -1) {
+                state = _scrambleSimpleCube.twist(prevState, move);
+                if (_scrambleSimpleCube.states.indexOf(state) === -1) {
                     // If this state hasn't yet been encountered, save it and
                     // move
                     // on
                     moves[count] = move;
-                    _scrambleScrCube.states[count] = state;
+                    _scrambleSimpleCube.states[count] = state;
                     count++;
                     prevState = state;
                 }
@@ -102,12 +102,12 @@ var _scrambleSimpleCount = 0; // Simple scrambler.
 
 // Determine the appropriate scrambler, call it, and enqueue the resulting
 // scramble moves.
-function scramble() {
-    _scrambleScrCube.reset();
+function scrambleCube() {
+    _scrambleSimpleCube.reset();
     if (scrambleType === "simple") {
         // 30 is the default for the simple scrambler.
         _scrambleSimpleCount = scrambleCount ? scrambleCount : 30;
-        scrambleMoves = _scrambleScrCube.scramble();
+        scrambleMoves = _scrambleSimpleCube.scramble();
     } else if (scrambleType === "jsss") {
         var name = String(cubiesOrder) + String(cubiesOrder) + String(cubiesOrder);
         var scrambler = scramblers[name];

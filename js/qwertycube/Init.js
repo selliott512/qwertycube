@@ -451,8 +451,8 @@ function _initFillScene() {
     animateScene.add(rotatePivot);
 
     // Add cubies (Child cubes) to animateScene
-    for (var i = 0; i < cubies.length; i++) {
-        animateScene.add(cubies[i]);
+    for (var i = 0; i < cubiesList.length; i++) {
+        animateScene.add(cubiesList[i]);
     }
 
     if (animateWireframeSphere) {

@@ -130,14 +130,14 @@ function animateNewCube(clearHistory) {
 // the new cubies to the scene.
 function animateResetScene(oldCubies) {
     // Remove the existing cubies.
-    for (var i = 0; i < cubies.length; i++) {
-        animateScene.remove(cubies[i]);
+    for (var i = 0; i < cubiesList.length; i++) {
+        animateScene.remove(cubiesList[i]);
     }
 
     // Create a new list of cubies.
     cubiesCreate(oldCubies);
-    for (var i = 0; i < cubies.length; i++) {
-        animateScene.add(cubies[i]);
+    for (var i = 0; i < cubiesList.length; i++) {
+        animateScene.add(cubiesList[i]);
     }
 
     // Enclose the cube in a wireframe sphere.
