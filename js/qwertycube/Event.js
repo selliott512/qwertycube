@@ -82,6 +82,15 @@ var _eventKeyAllowedModifiersMap = {
     N : ["AS"],
     P : ["AS"],
 };
+var _eventKeyCubeReadyCheck = {
+    "@" : true,
+    "#" : true,
+    "$" : true,
+    "I" : true,
+    "J" : true,
+    "N" : true,
+    "Q" : true
+};
 var _eventKeyMapSize = 0;
 var _eventKeyMapTotal = {};
 // Incomplete.  Added to as needed.
@@ -453,6 +462,12 @@ function _eventOnKeyDown(event) {
                         + (alloweds ? alloweds : "none"));
                 return;
             }
+        }
+
+        // Check if the command is one that can not be safely done while the
+        // cube is busy, and then return if it is busy.
+        if (_eventKeyCubeReadyCheck[eventChar] && !animateCubeReadyCheck()) {
+            return;
         }
 
         var validEventChar = true;

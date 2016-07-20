@@ -524,7 +524,7 @@ function _initSetup() {
     } else {
         // TODO: Consider adding CanvasRenderer as a fallback, but maybe it's
         // better for people to upgrade their browsers.
-        animateUpdateStatus("WebGL is not supported.");
+        animateUpdateStatus("WebGL is not supported");
         animateRenderer = null;
         // So it's not overwritten by the help message.
         _initHelpFlashed = true;
@@ -554,7 +554,7 @@ function _initSetup() {
     // Dynamically add buttons to the button bar.
     initAddUpdateButtons(initMainButtonList);
     if (initFlashHelp) {
-        animateUpdateStatus("To get started press the Help button.");
+        animateUpdateStatus("To get started press the Help button");
         _initHelpFlashed = true;
     }
 }

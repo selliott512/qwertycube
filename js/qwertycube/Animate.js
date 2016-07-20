@@ -84,6 +84,20 @@ function animateCondReq(needed) {
     }
 }
 
+// Check if the cube is busy doing something.  Return true if it's not
+// busy/ready.
+function animateCubeReadyCheck(desc) {
+    if (animateMoveCurrent || animateMoveQueue.length) {
+        // Don't attempt to do a scramble if there are outstanding
+        // moves.  Should be infrequent for reasonably patient users.
+        animateUpdateStatus((desc ? desc : "Command") +
+                " failed - cube is busy");
+        return false;
+    } else {
+        return true;
+    }
+}
+
 // Draw a wireframe sphere tightly around the cube.  This is helpful to
 // visualize the full possible extent of the cube as it's rotated.
 function animateDrawWireframeSphere(show) {
@@ -104,10 +118,10 @@ function animateDrawWireframeSphere(show) {
 
 // Reset things to prepare for a new solved cube.
 function animateNewCube(clearHistory) {
-    if (animateMoveCurrent || animateMoveQueue.length) {
-        // Don't attempt to do a scramble if there are outstanding
-        // moves.
-        console.log("Can't new cube due to outstanding moves.");
+    if (!animateCubeReadyCheck("New cube")) {
+        // Don't attempt to do a create a new cube if there are outstanding
+        // moves. This probably shouldn't happen.  It should probably be
+        // prevented by animateCubeReadyCheck() before this point.
         return false;
     }
     animateMoveCurrent = null;

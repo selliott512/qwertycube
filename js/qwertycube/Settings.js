@@ -95,8 +95,6 @@ function settingsApply(okClicked) {
 
     // Reset the cube.
     if (!animateNewCube(okClicked)) {
-        // Should be infrequent.
-        animateUpdateStatus("Can't apply settings.");
         return;
     }
 
