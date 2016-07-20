@@ -324,6 +324,7 @@ function _eventOnKeyDown(event) {
     }
     var buttonBar = event.buttonBar;
     var alt = _eventEscLast || event.altKey;
+    _eventEscLast = false;
     var shift = event.shiftKey;
     if (settingsDisplayed) {
         // The settings dialog has it's own event handler.
