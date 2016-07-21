@@ -54,6 +54,20 @@ function _testsTestMoves() {
     _testsAssertEquals("L", move, "utilsGetMoveRotationFromLayers: Move returned was " +
             "not expected");
 
+    layers[1] = 1;
+    var moveRot = utilsGetMoveRotationFromLayers("x", layers);
+    var move = moveRot[0];
+    // In this case the expected move depends on the order.
+    if (cubiesOrder === 2) {
+        var expected = "X'";
+    } else if (cubiesOrder === 3) {
+        var expected = "l";
+    } else {
+        var expected = "1-2L";
+    }
+    _testsAssertEquals(expected, move, "utilsGetMoveRotationFromLayers: Move returned was " +
+            "not expected");
+
     for (var i = 0; i < cubiesOrder; i++) {
         layers[i] = -1;
     }

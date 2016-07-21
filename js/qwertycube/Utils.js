@@ -204,21 +204,10 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
         // Round up for the average in order to bias in favor of the positive
         // end of the cube.
         var avg = Math.ceil((lo + hi) / 2);
-        var twoLayer = (hi - lo) === 1;
         if (avg < ((cubiesOrder - 1) / 2)) {
-            if (twoLayer) {
-                limLo = -1;
-                limHi = 0;
-            } else {
-                limLo = limHi = -1;
-            }
+            limLo = limHi = -1;
         } else {
-            if (twoLayer) {
-                limLo = 0;
-                limHi = 1;
-            } else {
-                limLo = limHi = 1;
-            }
+            limLo = limHi = 1;
         }
     }
 
@@ -243,22 +232,18 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
         if (limLo === -1) {
             var loRange = lo + 1;
             var hiRange = hi + 1;
-            if (twoLayer) {
-                hiRange--;
-            }
         } else if (limHi === 1) {
             var loRange = cubiesOrder - hi;
             var hiRange = cubiesOrder - lo;
-            if (twoLayer) {
-                hiRange--;
-            }
-        }
-        else {
+        } else {
             // This should not happen.
             console.log("Unexpected ranges limLo=" + limLo + " limHi=" +
                     limHi);
         }
-        if (loRange === hiRange) {
+        if ((loRange === 1) && (hiRange === 1)) {
+            // Move is ok without a prefix.  This shouldn't happen.
+            utilsFatalError("Prefix of 1 for move \"" + move + "\"");
+        } else if (loRange === hiRange) {
             // Prefixed with a single number.
             move = loRange + move;
         } else {
@@ -568,7 +553,7 @@ function _utilsGetRotationFromMove(move) {
     var diff = limHi - limLo;
     if (diff === 1) {
         // Two layer.
-        hi++;
+        hi = cubiesOrder - 1;
     } else if (diff === 2) {
         // Full cube rotation.
         if (i) {
