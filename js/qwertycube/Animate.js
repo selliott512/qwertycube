@@ -293,6 +293,13 @@ function _animateConsolidateMoves() {
         return 0;
     }
 
+    if (animateMoveHistoryNextLast !== -1) {
+        // Moves are being replayed.  Avoid consolidating in order to minimize
+        // the risk of clicking "Ok" the settings dialog having some
+        // undesirable side effect.
+        return;
+    }
+
     var undo = animateMoveCurrent.indexOf("G") !== -1;
     if (undo) {
         // Don't attempt to consolidate move undos.
