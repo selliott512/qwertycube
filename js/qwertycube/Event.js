@@ -61,6 +61,7 @@ var _eventHelpButtonList = [{
     tip : "Close this help dialog"
 }];
 
+var _eventInButton = false;
 var _eventKeyAdditionalMap = {
     "0" : "A",
     "1" : "C",
@@ -189,12 +190,18 @@ function eventOnButtonClick(event, buttonEl, button) {
 
 // Callback for when the mouse exits a button.  This is for tool tips.
 function eventOnButtonOut(event, buttonEl, button) {
+    _eventInButton = false;
     eventToolTipButtonEl = null;
     initElTip.style.visibility = "hidden";
 }
 
 // Callback for when the mouse enters a button.  This is for tool tips.
 function eventOnButtonOver(event, buttonEl, button) {
+    if (_eventInButton) {
+        // No need to enter the same button multiple times.
+        return;
+    }
+    _eventInButton = true;
     if (eventToolTipTimeout === -1) {
         // Tool tips have been disabled.
         return;
