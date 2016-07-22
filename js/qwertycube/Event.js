@@ -58,6 +58,7 @@ var _eventHeiseMap = {
 var _eventHelpButtonList = [{
     label : "Close",
     func : _eventHelpClose,
+    key : "Esc",
     tip : "Close this help dialog"
 }];
 
@@ -152,7 +153,12 @@ function eventOnButtonClick(event, buttonEl, button) {
     // Don't confuse OrbitControls by allowing it to see this click.
     animateOrbitControls.enabled = false;
 
-    if (key) {
+    // Function takes precedence so that they key may be used for the tool
+    // tip in some cases.
+    if (func) {
+        // Just call the function for the button.
+        func();
+    } else if (key) {
         // Create a pseudo event and pretend it was a key press.
         var event = {
             buttonBar : true
@@ -174,9 +180,6 @@ function eventOnButtonClick(event, buttonEl, button) {
         }
         event.buttonBarChar = key;
         _eventOnKeyDown(event);
-    } else if (func) {
-        // Just call the function for the button.
-        func();
     } else {
         // This should not happen.
         utilsFatalError("Button must have either key or func.")
@@ -184,15 +187,13 @@ function eventOnButtonClick(event, buttonEl, button) {
 
     initSetButtonColor(buttonEl, button, true);
 
-    eventToolTipButtonEl = null;
-    initElTip.style.visibility = "hidden";
+    eventToolTipCancel();
 }
 
 // Callback for when the mouse exits a button.  This is for tool tips.
 function eventOnButtonOut(event, buttonEl, button) {
     _eventInButton = false;
-    eventToolTipButtonEl = null;
-    initElTip.style.visibility = "hidden";
+    eventToolTipCancel();
 }
 
 // Callback for when the mouse enters a button.  This is for tool tips.
@@ -212,7 +213,8 @@ function eventOnButtonOver(event, buttonEl, button) {
         console.log("Button " + button.label + " is missing a tool tip");
         return;
     }
-    initElTip.innerHTML = button.tip;
+    initElTip.innerHTML = button.tip +
+        (button.key ? (" (" + button.key + " key)") : "");
 
     // Now that the width is known the left side can be adjusted so that it's
     // centered over the button, but also entirely on the screen.
@@ -265,6 +267,14 @@ function eventShowHelp(show) {
     initElTimer.style.visibility = show ? "hidden" : "visible";
 
     eventHelpDisplayed = show;
+
+    eventToolTipCancel();
+}
+
+// Stop displaying the tool tip.
+function eventToolTipCancel() {
+    eventToolTipButtonEl = null;
+    initElTip.style.visibility = "hidden";
 }
 
 // Update the key map used ot interpret key strokes.
@@ -689,6 +699,7 @@ function _eventOnKeyDown(event) {
             if (eventKeyPreventDefault) {
                 event.preventDefault();
             }
+            eventToolTipCancel();
         }
         _eventEscLast = false;
     }

@@ -9,10 +9,12 @@
 var settingsButtonList = [ {
     label : "Cancel",
     func : _settingsCancel,
+    key : "Esc",
     tip : "Discard changes"
 }, {
     label : "Ok",
     func : _settingsOk,
+    key : "Ctrl-Enter",
     tip : "Save changes to persistent storage"
 } ];
 
@@ -278,6 +280,8 @@ function _settingsHide() {
     initAddUpdateButtons(initMainButtonList);
 
     settingsDisplayed = false;
+
+    eventToolTipCancel();
 }
 
 // Handle the "Ok" button being clicked.  Also run the unit tests if
