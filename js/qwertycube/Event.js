@@ -798,6 +798,10 @@ function _eventOnMouseUp(event) {
                 // (clockwise positive).
                 var axis = utilsLargestAbsoluteAxis(torque);
                 var sign = torque[axis] >= 0 ? 1 : -1;
+                if (event.shiftKey) {
+                    // Pull instead of push.
+                    sign = -sign;
+                }
 
                 // Get the indexes into the layers along axis.
                 var limLoIdx = utilsCoordToIndex(moveBegin.pos[axis]);
@@ -819,6 +823,35 @@ function _eventOnMouseUp(event) {
                         var limHiIdx = cubiesOrder - 1;
                     } else {
                         var limHiIdx = limLoIdx;
+                    }
+                }
+
+                if (event.altKey) {
+                    if (cubiesOrder === 2) {
+                        // Alt on any sticker is a whole cube rotation for 2x2.
+                        limLoIdx = 0;
+                        limHiIdx = 1;
+                    } else {
+                        if (limLoIdx === 0) {
+                            // l, l' etc.
+                            limHiIdx = Math.max(limHiIdx, cubiesOrder - 2);
+                        } else if (limHiIdx === (cubiesOrder - 1)) {
+                            // r, r' etc.
+                            limLoIdx = Math.min(limLoIdx, 1);
+                        } else {
+                            // Not at either extreme.
+                            if (cubiesOrder === 3) {
+                                // A special case - it's a bit tricky to do full
+                                // cube rotations on a 3x3, so let's interpret
+                                // Alt-Edge click as a full cube rotation.
+                                limLoIdx = 0;
+                                limHiIdx = 2;
+                            } else {
+                                // A fat middle move.
+                                limLoIdx = 1;
+                                limHiIdx = cubiesOrder - 2;
+                            }
+                        }
                     }
                 }
 
