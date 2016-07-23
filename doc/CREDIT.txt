@@ -1,0 +1,16 @@
+There are people who helped with QWERTYcube that I'd like to thank.
+
+* A big thanks to Siddhante Nangla who wrote rubik_scrambler, the program that
+  this program is based on.
+
+* The authors of THREE.js as well as the authors of it's various plugins that
+  can be found in the js/third-party directory.
+
+* The nice folks at https://www.reddit.com/r/Cubers/comments/44sf8r/qwertycube_an_open_source_web_based_rubiks_cube/
+  who gave me helpful feedback.
+
+* The nice folks at https://www.speedsolving.com/forum/threads/qwertycube-a-keyboard-operated-and-javascript-based-open-source-rubiks-cube.53934/
+  who gave me helpful feedback.
+
+* And last but not least my partner Erikalin Ashton who helped me test
+  QWERTYcube and who also named it.
