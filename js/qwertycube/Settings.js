@@ -53,8 +53,8 @@ var settingsVarNameDescs = [
     ["eventHeise", true, "If true use Heise key mapping instead of the standard RLUDFB."],
     ["eventKeyMap", true, "Key map.  Space separated list of key mapping items where each item has the form " +
             "[A][S]<keyChar|keyNum>:k<key>|m<move>.  A is alt, S is shift.  Case sensitive, order matters (A " +
-            "before S).  For example, to map Alt-Shift-W to move R2, Q to default key J and Shift-X to move r: " +
-            "ASW:mR2 Q:kJ SX:mr"],
+            "before S).  For example, to map Alt-Shift-W to move R2, Q to default key J, Shift-X to move r and " +
+            "Alt-R to move 1-2R (true two layer move, unlike r): ASW:mR2 Q:kJ SX:mr AR:m1-2R"],
     ["eventKeyPreventDefault", true, "If true prevent default behavior when a key is recognized by this " +
             "program.  This prevents the browser from reacting in addition to this program."],
     ["eventMoveThreshold", true, "Mouse movements must be at least this many pixels.  Less is interpreted " +
