@@ -381,6 +381,10 @@ function _eventOnKeyDown(event) {
                 animateCondReq(true);
                 _eventEscLast = false;
 
+                if (eventKeyPreventDefault) {
+                    event.preventDefault();
+                }
+
                 // If the user made a move they probably don't care about the
                 // message.
                 animateClearStatus();
