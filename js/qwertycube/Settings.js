@@ -92,6 +92,8 @@ function settingsApply(okClicked) {
     // variables.
     if (okClicked) {
         _settingsApplyVariables();
+    } else {
+        _settingsReadCamera();
     }
     initVars();
 
@@ -187,9 +189,7 @@ function settingsShow() {
     initElSettingsText.value = utilsWrapWithComments(_settingsInitialText) + "\n";
 
     // Update variables that may need updating.
-    animateCameraLocation[0] = Math.round(animateCamera.position.x);
-    animateCameraLocation[1] = Math.round(animateCamera.position.y);
-    animateCameraLocation[2] = Math.round(animateCamera.position.z);
+    _settingsReadCamera();
 
     for (var i = 0; i < settingsVarNameDescs.length; i++) {
         var varNameDesc = settingsVarNameDescs[i];
@@ -302,6 +302,13 @@ function _settingsOk() {
             alert(msg + ".  See console log for details.");
         }
     }
+}
+
+//Set the camera location variable based on the the actual camera location.
+function _settingsReadCamera() {
+    animateCameraLocation[0] = Math.round(animateCamera.position.x);
+    animateCameraLocation[1] = Math.round(animateCamera.position.y);
+    animateCameraLocation[2] = Math.round(animateCamera.position.z);
 }
 
 // Place the cursor just after the initial text.
