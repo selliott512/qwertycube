@@ -172,7 +172,7 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
         return null;
     }
 
-    var sign = _utilsGetSign(amount);
+    var sign = utilsGetSign(amount);
     amount = Math.abs(amount);
 
     if ((lo === hi) && ((lo === 0) || (lo == (cubiesOrder - 1))) ||
@@ -300,6 +300,17 @@ function utilsGetSeq(num) {
         nums.push(i);
     }
     return nums;
+}
+
+// Like Math.sign(), which is not supported everywhere.
+function utilsGetSign(num) {
+ if (num < 0) {
+     return - 1;
+ } else if (num === 0) {
+     return 0;
+ } else {
+     return 1;
+ }
 }
 
 // Convert from a index into the layers to a coordinate on the cube.
@@ -600,15 +611,4 @@ function _utilsGetRotationFromMove(move) {
     rotation[6] = limHiIdx;
 
     return rotation;
-}
-
-// Like Math.sign(), which is not supported everywhere.
-function _utilsGetSign(num) {
-    if (num < 0) {
-        return - 1;
-    } else if (num === 0) {
-        return 0;
-    } else {
-        return 1;
-    }
 }

@@ -43,15 +43,16 @@
       <h3>Mouse And Touch</h3>
       <p>Mouse and touch support should be intuitive, but there are some things
       about it that may not be obvious.  Clicking on the grey background
-	  rotates the entire cube.  Note that when the cube is rotated this way
-	  the R, L, U, D, etc. labels follow the cube (see "Orientation labels").
-	  If rotation lock (see "Rotation lock") is on the program does it's best
-      to interpret movement on the grey background near the cube as being a cube
-      move.</p>
-	  <p>Clicking the mouse on the cube and moving results in a cube move.
-	  Although it should be obvious how this works in the case of moving a
-	  single layer it's also possible to move multiple layers, such as a
-	  double layer move (r, etc.) or even the entire cube (x, etc.).  To move
+      rotates the entire cube.  Note that when the cube is rotated this way
+      the R, L, U, D, etc. labels follow the cube (see "Orientation labels").
+      If the cube is accidentally rotated slightly this way pressing % can
+      snap it back to its proper orientation.  If rotation lock (see "Rotation
+      lock") is on the program does it's best to interpret movement on the
+      grey background near the cube as being a cube move.</p>
+      <p>Clicking the mouse on the cube and moving results in a cube move.
+      Although it should be obvious how this works in the case of moving a
+      single layer it's also possible to move multiple layers, such as a
+      double layer move (r, etc.) or even the entire cube (x, etc.).  To move
       multiple layers the swipe should cross a layer boundary.  All touched
       layers will rotate.</p>
       <p>Clicking the mouse on the cube and not moving (a single click) will
@@ -155,10 +156,15 @@
           <td>3·3·3</td>
           <td>Set the cube order to 3</td>
         </tr>
-	    <tr>
+        <tr>
           <td>$</td>
           <td>N·N·N</td>
           <td>Increase the cube order</td>
+        </tr>
+        <tr>
+          <td>%</td>
+          <td></td>
+          <td>Snap to the closest corner, edge or side</td>
         </tr>
         <tr>
           <td>A or AS0</td>

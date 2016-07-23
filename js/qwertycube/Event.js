@@ -100,6 +100,7 @@ var _eventKeyPunctuationMap = {
      50 : "@",
      51 : "#",
      52 : "$",
+     53 : "%",
     173 : "-",
     186 : ";",
     187 : "=",
@@ -114,6 +115,7 @@ var _eventKeyPunctuationMap = {
 var _eventMoveBegins = [];
 var _eventNumericPrefix = "";
 var _eventScramblerInitialized = false;
+var _eventSnapLimit = 0.3;
 
 // Public functions
 
@@ -510,6 +512,24 @@ function _eventOnKeyDown(event) {
             cubiesOrder++;
             animateUpdateStatus("Increased order to " + cubiesOrder);
             settingsApply(false);
+            break;
+        case "%": // Snap to the closest corner, edge or side
+            var locOld = animateCamera.position.toArray();
+            var locNew = [];
+            var limit = _eventSnapLimit * animateCameraRadius;
+            for (var i = 0; i <= 2; i++) {
+                if (Math.abs(locOld[i]) >= limit) {
+                    locNew[i] = utilsGetSign(locOld[i]);
+                } else {
+                    locNew[i] = 0;
+                }
+            }
+            var locNewVec = new THREE.Vector3();
+            locNewVec.fromArray(locNew);
+            locNewVec.setLength(animateCameraRadius);
+            locNewVec.toArray(animateCameraLocation);
+            animateSetCamera();
+            animateCondReq(true);
             break;
 
         // A lot of good letters were already taken.
