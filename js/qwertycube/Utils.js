@@ -394,10 +394,10 @@ function utilsSetGlobal(varName, varValueStr) {
             varValue = varValueStr.split(" ");
             if ((window[varName].length > 0)
                     && (window[varName][0].constructor === Number)) {
-                // If the array contained integers then convert to that.
+                // If the array contained numbers then convert to that.
                 var varValueNum = [];
                 for (var i = 0; i < varValue.length; i++) {
-                    varValueNum.push(parseInt(varValue[i]));
+                    varValueNum.push(parseFloat(varValue[i]));
                 }
                 varValue = varValueNum;
             }

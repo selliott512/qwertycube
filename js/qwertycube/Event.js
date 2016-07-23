@@ -514,11 +514,22 @@ function _eventOnKeyDown(event) {
             settingsApply(false);
             break;
         case "%": // Snap to the closest corner, edge or side
+            // When looking at a corner, as this program does by default, the
+            // camera coordinates have the form +-N, +-N, +-N where N is 470
+            // initially.  For edges one of the three coordinates is 0 and for
+            // sides two of the there coordinates are 0.  Discard coordinates
+            // that have a low absolute value and assume the remaining
+            // coordinates should have the same magnitude and sign.
+            // TODO: It would be cool if the camera moved from locOld to
+            // locNew at a constant rate via animation.
             var locOld = animateCamera.position.toArray();
             var locNew = [];
+            // A lower _eventSnapLimit favors corners.
             var limit = _eventSnapLimit * animateCameraRadius;
             for (var i = 0; i <= 2; i++) {
                 if (Math.abs(locOld[i]) >= limit) {
+                    // At least one coordinate will be non-zero so song as
+                    // _eventSnapLimit < animateCameraRadius / sqrt(3).
                     locNew[i] = utilsGetSign(locOld[i]);
                 } else {
                     locNew[i] = 0;

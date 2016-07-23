@@ -304,11 +304,12 @@ function _settingsOk() {
     }
 }
 
-//Set the camera location variable based on the the actual camera location.
+// Set the camera location variable based on the the actual camera location.
 function _settingsReadCamera() {
-    animateCameraLocation[0] = Math.round(animateCamera.position.x);
-    animateCameraLocation[1] = Math.round(animateCamera.position.y);
-    animateCameraLocation[2] = Math.round(animateCamera.position.z);
+    // To a tenth of a pixel should be plenty accurate.
+    animateCameraLocation[0] = Math.round(10 * animateCamera.position.x) / 10;
+    animateCameraLocation[1] = Math.round(10 * animateCamera.position.y) / 10;
+    animateCameraLocation[2] = Math.round(10 * animateCamera.position.z) / 10;
 }
 
 // Place the cursor just after the initial text.
