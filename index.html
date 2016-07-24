@@ -32,8 +32,7 @@
       move double layer and inverse respectively.  Also for moves a numeric
       prefix may be typed immediately before a move.  For example, pressing 2
       then Shift-R results in move 2R' (move the second layer from R in the R'
-      direction).  Prefixes can also be applied to double layer moves (2r, for
-      example).  Prefixes may have ranges.  For example 2-5L would move layers
+      direction).  Prefixes may have ranges.  For example 2-5L would move layers
       2 through 5 from L in the L direction.  All three middle moves (E, M, S)
       and entire cube rotations (X, Y and Z) are supported.  The keys can be
       reconfigured (see "Settings").  Note that some of the command keys have
@@ -76,28 +75,29 @@
       able to make simultaneous compatible moves.</p>
       <h3>Savepoints</h3>
       <p>If the cube is in a state that you want to get back to later then click
-      Savepoint or the C key.  You might do this if you've reached the OLL or
-      PLL stage and you're not sure if you can do the algorithm correctly, so
+      Save or the C key.  You might do this if you've reached the OLL or PLL
+      stage and you're not sure if you can do the algorithm correctly, so
       you want to be able to go back and try again if you make a mistake.
       Normally Undo or G key undoes a single move, but that behavior can be
-      modified by the Alt (instead of a single move go until the next
+      modified by the Alt (instead of a single move undo until the next
       savepoint) or Shift (redo instead of undo).  See the
       <a href="#help-modifier-keys">modifier key table</a>.</p>
       <h3>Scrambling</h3>
-      <p>By default when Scramble or J is pressed a random-state scrambler
-      named "jsss" is used to scramble the cube.  It works by randomly
-      selecting a cube from all possible cubes, and then inverting the solution.
-      It should be as good as scrambling the cube with an infinite number of
-      random moves.  Alternatively the "simple" scrambler can be used which is
-      faster, but not as good.  Push Config or I and look for scrambleMoves
-      to see the moves used to scramble the cube.  Look for scrambleType to
-      see or change scrambler type.  A savepoint is created after each scramble,
-      which means pressing Undos or Alt-G will undo the scramble and Redos
-      or Alt-Shift-G will then redo the scramble.  By default the scramble
-      moves are applied to the existing cube.  If instead you wish to start
-      with a new cube, and then apply the scramble moves to that new cube, press
-      Alt-Shift-J instead of J.  For non-keyboard users press New and then
-      Scramble.</p>
+      <p>By default when Scramble or J is pressed a scrambler named "jsss" is
+      used to scramble the cube.  For 2x2x2 and 3x3x3 cubes it's a random state
+      scrambler which works by randomly selecting a cube from all possible cubes,
+      and then inverting the solution, which should be as good as scrambling the
+      cube with an infinite number of random moves.  For 4x4x4 and higher order
+      cubes the cube is scrambled with randomly generated moves.  Alternatively
+      the "simple" scrambler can be used which is faster, but not as good.  Push
+      Config or I and look for scrambleMoves to see the moves used to scramble
+      the cube.  Look for scrambleType to see or change scrambler type.  A
+      savepoint is created after each scramble, which means pressing Undos or
+      Alt-G will undo the scramble and Redos or Alt-Shift-G will then redo the
+      scramble.  By default the scramble moves are applied to the existing
+      cube.  If instead you wish to start with a new cube, and then apply the
+      scramble moves to that new cube, press Alt-Shift-J instead of J.  For
+      non-keyboard users press New and then Scramble.</p>
       <h3>Timer</h3>
       <p>A timer an be toggled by pressing Timer or T.  Scrambling the cube
       starts a 15 second count down at which time the timer is red. This is the
