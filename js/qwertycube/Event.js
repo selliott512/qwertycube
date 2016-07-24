@@ -717,7 +717,10 @@ function _eventOnKeyDown(event) {
             animateUpdateStatus((eventHeise ? "Heise" : "RLUDFB") + " key mapping");
             break;
         default:
-            console.log("Ignoring unknown key \"" + eventChar + "\".");
+            // "{" happens when the console is opened - irrelevant.
+            if (eventChar !== "{") {
+                console.log("Ignoring unknown key \"" + eventChar + "\".");
+            }
             validEventChar = false;
             break;
         }

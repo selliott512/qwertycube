@@ -474,8 +474,17 @@ function _animateDoAnimate() {
                 endMove = true;
             }
 
-            animateRenderer.render(animateScene, animateCamera);
-            _animateRendered = true; // True if _animateRendered at least once.
+            if (_animateRendered) {
+                animateRenderer.render(animateScene, animateCamera);
+            } else {
+                // The first time animateRenderer.render() is called three.js
+                // logs a warning that I don't understand.
+                var consoleWarnBak = console.warn;
+                console.warn = utilsSuppressedWarning;
+                animateRenderer.render(animateScene, animateCamera);
+                _animateRendered = true;
+                console.warn = consoleWarnBak;
+            }
 
             if (endMove) {
                 rotateEnd();

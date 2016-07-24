@@ -503,6 +503,7 @@ function _initLoadStorage() {
 
 // Main entry point. Referenced by index.html, but not by any other JS code.
 function _initLoad() {
+    console.log("Welcome to QWERTYcube.");
     _initGetElements();
     _initLoadStorage();
     settingsOnLoad();

@@ -153,7 +153,6 @@ function settingsOnKeyDown(event) {
 
 // Prepare the settings dialog to be displayed.
 function settingsOnLoad() {
-    console.log("onLoad()");
     settingsResize();
     _settingsSetCursorAfterInit();
 }
@@ -161,7 +160,6 @@ function settingsOnLoad() {
 // Resize the settings dialog so that it takes up the whole screen other than
 // the buttons at the bottom.
 function settingsResize() {
-    console.log("settingsResize()");
     var settingsHeight = initPrimaryHeight;
 
     initElSettingsText.style.left = "0px";

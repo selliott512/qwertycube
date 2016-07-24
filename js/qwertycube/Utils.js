@@ -436,6 +436,11 @@ function utilsSetGlobal(varName, varValueStr) {
     window[varName] = varValue;
 }
 
+// Log a warning without it actually being a warning (console.warn).
+function utilsSuppressedWarning(msg) {
+    console.log("Suppressed warning: " + msg);
+}
+
 // Wrap the next so that no line exceeds cols columns.
 function utilsWrapWithComments(animateText, cols) {
     if (!cols) {
