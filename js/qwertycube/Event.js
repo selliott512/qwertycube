@@ -83,6 +83,7 @@ var _eventKeyAllowedModifiersMap = {
     J : ["AS"],
     N : ["AS"],
     P : ["AS"],
+    "9" : ["AS"],
 };
 var _eventKeyCubeReadyCheck = {
     "@" : true,
@@ -715,6 +716,12 @@ function _eventOnKeyDown(event) {
             eventHeise = !eventHeise;
             eventUpdateKeyMap();
             animateUpdateStatus((eventHeise ? "Heise" : "RLUDFB") + " key mapping");
+            break;
+        case "9": // Move highlighting toggle
+            if (typeof moveHighlightToggle === 'function') {
+                var enabled = moveHighlightToggle();
+                animateUpdateStatus("Move training " + (enabled ? "enabled" : "disabled"));
+            }
             break;
         default:
             // "{" happens when the console is opened - irrelevant.

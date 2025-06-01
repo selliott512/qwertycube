@@ -109,6 +109,12 @@ var initMainButtonList = [{ // 0
     label : "Redos",
     key : "ASG",
     tip : "Redo all move until savepoint or the end"
+}, { // 18
+    label : "Train",
+    key : "AS9",
+    toggle : "moveHighlightEnabled",
+    tip : "Toggle move training indicators",
+    index : 18
 }];
 
 var initMobile = false;
@@ -459,6 +465,9 @@ function _initFillScene() {
         // Enclose the cube in a wireframe sphere.
         animateDrawWireframeSphere(true);
     }
+
+    // Initialize move highlighting system
+    moveHighlightInitOnLoad();
 }
 
 // Get a handle to each interesting HTML element.

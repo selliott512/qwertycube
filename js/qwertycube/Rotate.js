@@ -116,6 +116,11 @@ function rotateBegin(move, rotation, discardPrevious) {
         }
         animateMoveHistory.push(move);
         animateMoveHistoryNext++;
+        
+        // Update move highlighting with the new move
+        if (typeof moveHighlightSetLastMove === 'function') {
+            moveHighlightSetLastMove(move);
+        }
     }
 }
 
