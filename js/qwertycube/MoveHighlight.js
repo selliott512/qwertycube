@@ -27,16 +27,19 @@ function moveHighlightInit() {
 
 // Show move indicators for the last move made
 function moveHighlightShowLastMove() {
-    if (!moveHighlightLastMove || !animateMoveHistory.length) {
+    console.log("moveHighlightShowLastMove called, enabled:", moveHighlightEnabled, "lastMove:", moveHighlightLastMove);
+    
+    if (!moveHighlightLastMove) {
+        console.log("No last move stored");
         return;
     }
 
-    // Get the actual last move from history
-    var lastMove = animateMoveHistory[animateMoveHistory.length - 1];
-    
     // Skip undo moves and savepoints
-    if (lastMove && lastMove.indexOf("G") === -1 && lastMove !== "|") {
-        _moveHighlightShowMoveIndicators(lastMove);
+    if (moveHighlightLastMove.indexOf("G") === -1 && moveHighlightLastMove !== "|") {
+        console.log("Showing indicators for move:", moveHighlightLastMove);
+        _moveHighlightShowMoveIndicators(moveHighlightLastMove);
+    } else {
+        console.log("Skipping move (undo or savepoint):", moveHighlightLastMove);
     }
 }
 
@@ -50,6 +53,7 @@ function moveHighlightHideAll() {
 
 // Update the last move when a new move is made
 function moveHighlightSetLastMove(move) {
+    console.log("moveHighlightSetLastMove called with move:", move, "enabled:", moveHighlightEnabled);
     moveHighlightLastMove = move;
     
     if (moveHighlightEnabled) {
@@ -75,24 +79,48 @@ function moveHighlightToggle() {
 
 // Show triangle indicators for a specific move
 function _moveHighlightShowMoveIndicators(move) {
-    // Get rotation information for the move
-    var rotation = _utilsGetRotationFromMove(move);
-    if (!rotation) {
-        return;
-    }
-
-    // Get affected cubies and faces
-    var affectedFaces = _moveHighlightGetAffectedFaces(rotation);
+    console.log("_moveHighlightShowMoveIndicators called with move:", move);
     
-    // Create triangle indicators for each affected face
-    for (var i = 0; i < affectedFaces.length; i++) {
-        var faceInfo = affectedFaces[i];
-        var triangle = _moveHighlightCreateTriangle(faceInfo);
-        if (triangle) {
-            _moveHighlightTriangles.push(triangle);
-            animateScene.add(triangle);
-        }
+    // Create a simple test triangle to verify the system works
+    var triangle = _moveHighlightCreateTestTriangle();
+    if (triangle) {
+        _moveHighlightTriangles.push(triangle);
+        animateScene.add(triangle);
+        console.log("Added test triangle for move:", move);
+    } else {
+        console.log("Failed to create test triangle");
     }
+}
+
+// Create a simple test triangle
+function _moveHighlightCreateTestTriangle() {
+    // Create triangle geometry
+    var triangleSize = 40;
+    var geometry = new THREE.Geometry();
+    
+    // Create triangle vertices
+    geometry.vertices.push(
+        new THREE.Vector3(0, triangleSize, 0),
+        new THREE.Vector3(-triangleSize * 0.5, -triangleSize * 0.5, 0),
+        new THREE.Vector3(triangleSize * 0.5, -triangleSize * 0.5, 0)
+    );
+    
+    // Create triangle face (ensure correct winding order)
+    geometry.faces.push(new THREE.Face3(0, 1, 2));
+    geometry.computeFaceNormals();
+    
+    // Create the triangle mesh with material
+    if (!_moveHighlightMaterial) {
+        console.log("Material not initialized, initializing now");
+        moveHighlightInit();
+    }
+    
+    var triangle = new THREE.Mesh(geometry, _moveHighlightMaterial);
+    
+    // Position triangle in front of the cube
+    triangle.position.set(0, 0, 200);
+    
+    return triangle;
 }
 
 // Get all faces that will be affected by a move
@@ -288,7 +316,7 @@ function _moveHighlightCreateTriangle(faceInfo) {
         // Calculate rotation to align triangle with movement direction
         var up = new THREE.Vector3(0, 1, 0);
         var faceNormal = new THREE.Vector3();
-        faceNormal[faceAxis] = faceSign;
+        faceNormal.setComponent(faceInfo.faceAxisIndex, faceSign);
         
         // If the face normal is aligned with up, use a different reference
         if (Math.abs(faceNormal.dot(up)) > 0.9) {
