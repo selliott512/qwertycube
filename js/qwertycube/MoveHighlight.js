@@ -82,12 +82,12 @@ function _moveHighlightShowMoveIndicators(move) {
     console.log("_moveHighlightShowMoveIndicators called with move:", move);
     
     // Create triangles on all visible faces
-    _moveHighlightCreateTrianglesOnAllFaces();
+    _moveHighlightCreateTrianglesOnAllFaces(move);
 }
 
 // Create triangles on all visible cube faces
-function _moveHighlightCreateTrianglesOnAllFaces() {
-    console.log("Creating triangles on all visible faces");
+function _moveHighlightCreateTrianglesOnAllFaces(move) {
+    console.log("Creating triangles on all visible faces with move=", move);
     
     // Face definitions: [normal direction, name]
     var faces = [
@@ -104,6 +104,10 @@ function _moveHighlightCreateTrianglesOnAllFaces() {
     // For each face
     for (var f = 0; f < faces.length; f++) {
         var face = faces[f];
+
+        if (move[0] == face.name) {
+            continue;
+        }
         
         // For each 3x3 grid position on the face
         for (var i = 0; i < 3; i++) {
@@ -126,9 +130,89 @@ function _moveHighlightCreateTrianglesOnAllFaces() {
                     y = facePos.y;
                     z = face.position;
                 }
+
+                // Find the "face" in "faces" that where the "name" matches "move".
+                var match = false;
+                var moveFace
+                for (var m = 0; m < faces.length; m++) {
+                    if (faces[m].name === move[0]) {
+                        match = true;
+                        moveFace = faces[m];
+                        break;
+                    }
+                }
+                if (!match) {
+                    continue;
+                }
                 
+                // Skip if the move face is not visible
+                var moveNormal, moveDot;
+                moveNormal = moveFace.normal;
+                moveDot = moveNormal[0] * x + moveNormal[1] * y + moveNormal[2] * z;
+                if (moveDot <= 0) {
+                    continue;
+                }
+
                 // Create triangle with random direction for now
-                var direction = triangleCount % 4; // 0=up, 1=right, 2=down, 3=left
+                //   triangleCount % 4; // 0=up, 1=right, 2=down, 3=left
+                var baseMove = move[0];
+                if (baseMove == "R" || baseMove == "L") {
+                    if (face.name == "U") {
+                        var direction = 1; 
+                    }
+                    else if (face.name == "B") {
+                        var direction = 2; 
+                    }
+                    else if (face.name == "D") {
+                        var direction = 3; 
+                    }
+                    else if (face.name == "F") {
+                        var direction = 0;
+                    }
+                    else {
+                        var direction = 0;
+                    }
+                } 
+                else if (baseMove == "U" || baseMove == "D") {
+                    if (face.name == "R") {
+                        var direction = 3;
+                    }
+                    else if (face.name == "F") {
+                        var direction = 3;
+                    }
+                    else if (face.name == "L") {
+                        var direction = 3;
+                    }
+                    else if (face.name == "B") {
+                        var direction = 3;
+                    }
+                    else {
+                        var direction = 0;
+                    }
+                }
+                else if (baseMove == "F" || baseMove == "B") {
+                    if (face.name == "U") {
+                        var direction = 2;
+                    }
+                    else if (face.name == "R") {
+                        var direction = 2;
+                    }
+                    else if (face.name == "D") {
+                        var direction = 2;
+                    }
+                    else if (face.name == "L") {
+                        var direction = 0;
+                    }
+                    else {
+                        var direction = 0;
+                    }
+                }
+                if (move.length > 1 && move[1] == "'") {
+                    direction = (direction + 2) % 4;
+                }
+                if (baseMove == "L" || baseMove == "D" || baseMove == "B") {
+                    direction = (direction + 2) % 4;
+                }
                 var triangle = _moveHighlightCreateTriangleAtPosition(x, y, z, face.normal, direction);
                 
                 if (triangle) {
