@@ -81,15 +81,155 @@ function moveHighlightToggle() {
 function _moveHighlightShowMoveIndicators(move) {
     console.log("_moveHighlightShowMoveIndicators called with move:", move);
     
-    // Create a simple test triangle to verify the system works
-    var triangle = _moveHighlightCreateTestTriangle();
-    if (triangle) {
-        _moveHighlightTriangles.push(triangle);
-        animateScene.add(triangle);
-        console.log("Added test triangle for move:", move);
-    } else {
-        console.log("Failed to create test triangle");
+    // Create triangles on all visible faces
+    _moveHighlightCreateTrianglesOnAllFaces();
+}
+
+// Create triangles on all visible cube faces
+function _moveHighlightCreateTrianglesOnAllFaces() {
+    console.log("Creating triangles on all visible faces");
+    
+    // Face definitions: [normal direction, name]
+    var faces = [
+        { normal: [1, 0, 0], name: "R", position: cubiesHalfSide },      // Right face
+        { normal: [-1, 0, 0], name: "L", position: -cubiesHalfSide },    // Left face
+        { normal: [0, 1, 0], name: "U", position: cubiesHalfSide },      // Up face
+        { normal: [0, -1, 0], name: "D", position: -cubiesHalfSide },    // Down face
+        { normal: [0, 0, 1], name: "F", position: cubiesHalfSide },      // Front face
+        { normal: [0, 0, -1], name: "B", position: -cubiesHalfSide }     // Back face
+    ];
+    
+    var triangleCount = 0;
+    
+    // For each face
+    for (var f = 0; f < faces.length; f++) {
+        var face = faces[f];
+        
+        // For each 3x3 grid position on the face
+        for (var i = 0; i < 3; i++) {
+            for (var j = 0; j < 3; j++) {
+                // Calculate position on the face
+                var x = 0, y = 0, z = 0;
+                var facePos = _moveHighlightGetFacePosition(i, j);
+                
+                // Set coordinates based on face orientation
+                if (face.name === "R" || face.name === "L") {
+                    x = face.position;
+                    y = facePos.y;
+                    z = facePos.x;
+                } else if (face.name === "U" || face.name === "D") {
+                    x = facePos.x;
+                    y = face.position;
+                    z = facePos.y;
+                } else { // F or B
+                    x = facePos.x;
+                    y = facePos.y;
+                    z = face.position;
+                }
+                
+                // Create triangle with random direction for now
+                var direction = triangleCount % 4; // 0=up, 1=right, 2=down, 3=left
+                var triangle = _moveHighlightCreateTriangleAtPosition(x, y, z, face.normal, direction);
+                
+                if (triangle) {
+                    _moveHighlightTriangles.push(triangle);
+                    animateScene.add(triangle);
+                    triangleCount++;
+                }
+            }
+        }
     }
+    
+    console.log("Created", triangleCount, "triangles");
+}
+
+// Get position on a face grid (i, j from 0-2)
+function _moveHighlightGetFacePosition(i, j) {
+    var offset = cubiesOffsetScaled;
+    return {
+        x: (i - 1) * offset,  // -offset, 0, offset
+        y: (1 - j) * offset   // offset, 0, -offset (flip Y for proper orientation)
+    };
+}
+
+// Create a triangle at a specific position with direction
+function _moveHighlightCreateTriangleAtPosition(x, y, z, faceNormal, direction) {
+    // Create triangle geometry
+    var triangleSize = cubiesSizeScaled * 0.3;
+    var geometry = new THREE.Geometry();
+    
+    // Create triangle vertices based on direction
+    var vertices = _moveHighlightGetTriangleVertices(triangleSize, direction);
+    for (var i = 0; i < vertices.length; i++) {
+        geometry.vertices.push(vertices[i]);
+    }
+    
+    // Create triangle face
+    geometry.faces.push(new THREE.Face3(0, 1, 2));
+    geometry.computeFaceNormals();
+    
+    // Create the triangle mesh with material
+    if (!_moveHighlightMaterial) {
+        moveHighlightInit();
+    }
+    
+    var triangle = new THREE.Mesh(geometry, _moveHighlightMaterial);
+    
+    // Position triangle on the face
+    triangle.position.set(x, y, z);
+    
+    // Move triangle slightly away from the face surface
+    var offset = cubiesSizeScaled * 0.1;
+    triangle.position.x += faceNormal[0] * offset;
+    triangle.position.y += faceNormal[1] * offset;
+    triangle.position.z += faceNormal[2] * offset;
+    
+    // Orient triangle to face outward
+    var lookAtPos = triangle.position.clone();
+    lookAtPos.x += faceNormal[0];
+    lookAtPos.y += faceNormal[1];
+    lookAtPos.z += faceNormal[2];
+    triangle.lookAt(lookAtPos);
+    
+    return triangle;
+}
+
+// Get triangle vertices based on direction
+function _moveHighlightGetTriangleVertices(size, direction) {
+    var vertices = [];
+    
+    switch (direction) {
+        case 0: // Up
+            vertices.push(
+                new THREE.Vector3(0, size * 0.6, 0),
+                new THREE.Vector3(-size * 0.4, -size * 0.3, 0),
+                new THREE.Vector3(size * 0.4, -size * 0.3, 0)
+            );
+            break;
+        case 1: // Right
+            vertices.push(
+                new THREE.Vector3(size * 0.6, 0, 0),
+                new THREE.Vector3(-size * 0.3, -size * 0.4, 0),
+                new THREE.Vector3(-size * 0.3, size * 0.4, 0)
+            );
+            break;
+        case 2: // Down
+            vertices.push(
+                new THREE.Vector3(0, -size * 0.6, 0),
+                new THREE.Vector3(-size * 0.4, size * 0.3, 0),
+                new THREE.Vector3(size * 0.4, size * 0.3, 0)
+            );
+            break;
+        case 3: // Left
+            vertices.push(
+                new THREE.Vector3(-size * 0.6, 0, 0),
+                new THREE.Vector3(size * 0.3, -size * 0.4, 0),
+                new THREE.Vector3(size * 0.3, size * 0.4, 0)
+            );
+            break;
+    }
+    
+    return vertices;
 }
 
 // Create a simple test triangle
