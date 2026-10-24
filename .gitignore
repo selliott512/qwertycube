@@ -1,1 +1,15 @@
 *~
+*.swp
+/.codex
+/.idea/
+/.playwright-mcp/
+/downloads/
+/images/earth.jpg
+/images/earth_noClouds.0330.jpg
+/images/stars.jpg
+/qwertycube-*.png
+/QWERTYcube.iml
+
+# These datbaases are large, but valid. Keep them out of git,
+# but generate them for wherever this is hosted.
+/db/*.crdb.gz

@@ -1,0 +1,35 @@
+CFOP DB files contain the OLL and PLL algorithms needed to solve the Rubik's
+cube using the CFOP method. They are organized by phase in the same order those
+phases are encountered: CROSS, F2L, OLL, and PLL. These files contain only OLL
+and PLL rows because the CROSS and F2L phases are self-contained in their
+respective solvers.
+
+Each algorithm row has the following format:
+
+  OLL|PLL signature algorithm flag name mname probability
+
+The signature is optional. If it is omitted, `Cubearoni -t` can derive it from the
+algorithm and write a canonical `.new` file. A signature is four groups of three
+characters with commas in B,R,F,L order, clockwise starting from the back face
+as seen from above.
+
+OLL signatures use:
+  U - upper-face sticker present
+  * - any non-U sticker
+
+PLL signatures use:
+  B/R/F/L - side sticker labels in the signature. Values are normalized
+            internally to remove global relabeling.
+
+Flags:
+  m - mirror. Add two algorithms to the phase: the algorithm specified and its
+      mirror about the YZ plane. For example, RUL becomes L'U'R'.
+  d - default. Placeholder flag; this is the same as no special flag.
+
+For mirrored algorithm rows (`m`), `name` names the algorithm as written and
+`mname` names the mirrored algorithm. For default rows (`d`), `mname` is blank.
+The final probability column is optional. `Cubearoni -t` derives or repairs it from
+the signature's rotational symmetry. Mirrored rows use a `2*` prefix because
+the row represents both the original algorithm and its mirror.
+
+Everything after `#` is a comment.

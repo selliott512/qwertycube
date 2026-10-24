@@ -4,6 +4,7 @@
 
 // Public globals
 
+var activeName = "";
 var initButtonKeyToElMap = {};
 
 // Elements that are never recreated, so they're stored globally.
@@ -18,97 +19,132 @@ var initElTip;
 var initFlashHelp = true;
 
 // Buttons that appear at the bottom. Row is zero based.
-var initMainButtonList = [{ // 0
-    label : "Help",
+var initMainButtonList = [{
+    label : "?",
+    id : "help",
     key : "H",
     tip : "Help with QWERTYcube"
-}, { // 1
-    label : "Timer",
-    key : "T",
-    toggle : "animateTimer",
-    tip : "Time solves with an inspection period",
-    index : 9
-}, { // 2
-    label : "Heise",
-    key : "V",
-    toggle : "eventHeise",
-    tip : "Use Heise keymap",
-    index : 6
-}, { // 3
-    label : "N·N·N",
-    key : "$",
-    tip : "Increase the cube order by one",
-    index : 12
-}, { // 4
-    label : "Jumble",
-    key : "J",
-    tip : "Jumble/scramble the cube",
-    index : 1
-}, { // 5
-    label : "New",
-    key : "N",
-    tip : "Switch to a new solved cube",
-    index : 2
-}, { // 6
-    label : "Config",
+}, {
+    label : "⚙️",
+    id : "config",
     key : "I",
-    tip : "Display the configuration/settings dialog",
-    index : 4
-}, { // 7
-    label : "Lock",
-    key : "K",
-    toggle : "eventRotationLock",
-    tip : "Lock the cube so it does not rotate",
-    index : 8
-}, { // 8
-    label : "Inst",
+    tip : "Open Settings"
+}, {
+    label : "⚡",
+    id : "inst",
     key : "A",
     toggle : "animateAnimationInst",
-    tip : "Make moves instantly instead of animating",
-    index : 7
-}, { // 9
-    label : "3·3·3",
-    key : "#",
-    tip : "Set the cube order to 3",
-    index : 11
-}, { // 10
-    label : "Save",
-    key : "C",
-    tip : "Set a savepoint at the current state",
-    index : 15
-}, { // 11
-    label : "Reset",
-    key : "P",
-    tip : "Factory reset",
-    index : 3
-}, { // 12
-    label : "Undos",
-    key : "AG",
-    tip : "Undo all move until savepoint or the beginning",
-    index : 13
-}, { // 13
-    label : "Undo",
-    key : "G",
-    tip : "Undo one move",
-    index : 14
-}, { // 14
-    label : "Color",
+    tip : "Make moves instantly instead of animating"
+}, {
+    label : "🔒",
+    id : "lock",
+    key : "K",
+    toggle : "eventRotationLock",
+    tip : "Lock the cube so it does not rotate"
+}, {
+    label : "🎨",
+    id : "color",
     key : "Q",
-    tip : "Change the color",
-    index : 5
-}, { // 15
-    label : "n·n·n",
+    tip : "Change the color"
+}, {
+    label : "🔑",
+    id : "heise",
+    key : "V",
+    toggle : "eventHeise",
+    tip : "Use Heise keymap"
+}, {
+    label : "⏱️",
+    id : "timer",
+    key : "T",
+    toggle : "animateTimer",
+    tip : "Time solves with an inspection period"
+}, {
+    label : "Scramble",
+    id : "scramble",
+    icon : "images/cube-scrambled.svg",
+    iconScale : 0.68,
+    key : "SJ",
+    tip : "Scramble the cube"
+}, {
+    label : "S Input",
+    id : "scramble-input",
+    icon : "images/cube-scrambled.svg",
+    iconScale : 0.68,
+    iconSuffix : "✏️",
+    contentScale : 0.85,
+    key : "AJ",
+    tip : "Enter scramble moves"
+}, {
+    label : "−",
+    id : "order-decrease",
     key : "@",
-    tip : "Decrease the cube order by one",
-    index : 10
-}, { // 16
-    label : "Redo",
+    availability : "order-decrease",
+    tip : "Decrease the cube order by one"
+}, {
+    label : "3",
+    id : "order-three",
+    key : "#",
+    availability : "order-three",
+    tip : "Set the cube order to 3"
+}, {
+    label : "+",
+    id : "order-increase",
+    key : "$",
+    tip : "Increase the cube order by one"
+}, {
+    label : "🚂✏️",
+    id : "training-input",
+    contentScale : 0.85,
+    key : "AT",
+    tip : "Enter training moves"
+}, {
+    label : "🚂",
+    id : "train",
+    key : "ST",
+    toggle : "arrowsEnabled",
+    tip : "Toggle move training indicators"
+}, {
+    label : "New",
+    id : "new",
+    icon : "images/cube-solved.svg",
+    iconScale : 0.68,
+    key : "N",
+    tip : "Switch to a new solved cube"
+}, {
+    label : "<<",
+    id : "undos",
+    key : "AG",
+    availability : "undo",
+    tip : "Undo all moves until savepoint or the beginning"
+}, {
+    label : "<",
+    id : "undo",
+    key : "G",
+    availability : "undo",
+    tip : "Undo one move"
+}, {
+    label : "|",
+    id : "save",
+    key : "C",
+    availability : "save",
+    tip : "Set a savepoint at the current state"
+}, {
+    label : ">",
+    id : "redo",
     key : "SG",
+    availability : "redo",
     tip : "Redo one move"
-}, { // 17
-    label : "Redos",
+}, {
+    label : ">>",
+    id : "redos",
     key : "ASG",
-    tip : "Redo all move until savepoint or the end"
+    availability : "redo",
+    tip : "Redo all moves until savepoint or the end"
+}, {
+    label : "⟳",
+    id : "reset",
+    key : "P",
+    tip : "Factory reset"
 }];
 
 var initMobile = false;
@@ -120,6 +156,10 @@ var initPrimaryHeight = 0;
 
 var _initButtonRowsMax = 0;
 var _initHelpFlashed = false;
+var _initBackgroundLoadToken = 0;
+var _initLightAmbient = null;
+var _initLightDirectional = null;
+var _initLightDirectionalTarget = null;
 
 // Strings that moves can be suffixed with.
 var _initMoveSuffixes = ["", "'", "2"];
@@ -201,11 +241,16 @@ function initAddUpdateButtons(buttonList) {
 
         var button = bList[i];
         var buttonEl = document.createElement("button");
+        var contentScale = button.contentScale || 1.0;
 
         var row = Math.floor(i / cols);
 
         // Give it a name and make it visible.
-        buttonEl.id = "button-" + button.label.toLowerCase().replace(" ", "-");
+        buttonEl.id = "button-" + (button.id
+                ? button.id : button.label.toLowerCase().replace(" ", "-"));
+        if (button.tip) {
+            buttonEl.setAttribute("aria-label", button.tip);
+        }
 
         // Set the size and location.
         buttonEl.style.left = Math.round(col * buttonWidth) + "px";
@@ -213,12 +258,27 @@ function initAddUpdateButtons(buttonList) {
         buttonEl.style.width = Math.round(buttonWidth) + "px";
         buttonEl.style.height = buttonHeight + "px";
 
-        // Add a literal.
-        var literalEl = document.createTextNode(button.label);
-        buttonEl.appendChild(literalEl);
+        // Add either an icon or the button label.
+        var iconEl = null;
+        if (button.icon) {
+            iconEl = document.createElement("img");
+            iconEl.alt = "";
+            iconEl.draggable = false;
+            iconEl.src = button.icon;
+            iconEl.style.verticalAlign = "middle";
+            buttonEl.appendChild(iconEl);
+            if (button.iconSuffix) {
+                buttonEl.appendChild(document.createTextNode(button.iconSuffix));
+            }
+        } else {
+            buttonEl.appendChild(document.createTextNode(button.label));
+        }
+        if (button.iconSuffix || button.contentScale) {
+            buttonEl.style.whiteSpace = "nowrap";
+        }
 
         // Make the literal reasonably large.
-        buttonEl.style.fontSize = Math.floor(buttonHeight
+        buttonEl.style.fontSize = Math.floor(contentScale * buttonHeight
                 / (initMobile ? 2.4 : 1.6)) + "px";
 
         // Make it handle the click event as if it was a key event.
@@ -259,12 +319,17 @@ function initAddUpdateButtons(buttonList) {
 
         // Add it to the button bar.
         initElButtonBar.appendChild(buttonEl);
+        if (iconEl) {
+            var iconScale = contentScale * (button.iconScale || 0.9);
+            iconEl.style.height = Math.floor(buttonEl.clientHeight * iconScale) + "px";
+        }
 
         // Keep a reference the button variables.
         initButtonKeyToElMap[button.key] = [buttonEl, button];
 
         col++;
     }
+    eventUpdateButtonStates();
 }
 
 // Clear the persistent storage (Reset/Alt-Shift-P).
@@ -285,7 +350,7 @@ function initClearStorage() {
 // at startup.
 function initSetButtonColor(buttonEl, button, flash) {
     var toggle = button.toggle;
-    var fh = (button.label === "Help") && initFlashHelp && !_initHelpFlashed;
+    var fh = (button.id === "help") && initFlashHelp && !_initHelpFlashed;
     if (toggle) {
         var val = window[toggle];
         buttonEl.style.backgroundColor = (val ? eventButtonColorHighlight
@@ -307,6 +372,15 @@ function initSetButtonColor(buttonEl, button, flash) {
     }
 }
 
+// Briefly mark an unavailable button, then restore its current state.
+function initFlashButtonUnavailable(buttonEl, button) {
+    buttonEl.style.backgroundColor = "rgb(255, 160, 160)";
+    setTimeout(function() {
+        buttonEl.style.backgroundColor = eventButtonColorOrig;
+        eventUpdateButtonStates();
+    }, eventButtonFlashDelay);
+}
+
 // Save all public globals listed in settingsVarNameDescs to persistent
 // storage.
 function initSaveStorage() {
@@ -317,20 +391,45 @@ function initSaveStorage() {
         if (!varPersist) {
             continue;
         }
-        if (window[varName].constructor === Array) {
-            // Write arrays space separated.
-            var varValue = "";
-            for (var j = 0; j < window[varName].length; j++) {
-                varValue += (j ? " " : "") + window[varName][j];
-            }
-        } else if (window[varName].constructor === Object) {
-            // Write maps space separated key:value list.
-            varValue = utilsMapToString(window[varName]);
-        } else {
-            varValue = window[varName];
-        }
-        localStorage.setItem(_initPresistentPrefix + varName, varValue);
+        initSaveStorageVariable(varName);
     }
+}
+
+// Save one persistent settings variable to local storage.
+function initSaveStorageVariable(varName) {
+    var varPersist = false;
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        if (settingsVarNameDescs[i][0] === varName) {
+            varPersist = settingsVarNameDescs[i][1];
+            break;
+        }
+    }
+    if (!varPersist) {
+        console.log("initSaveStorageVariable: skipping non-persistent variable \""
+                + varName + "\".");
+        return false;
+    }
+
+    var varGlobal = window[varName];
+    if ((varGlobal === undefined) || (varGlobal === null)) {
+        console.log("initSaveStorageVariable: skipping undefined/null variable \""
+                + varName + "\".");
+        return false;
+    }
+    if (varGlobal.constructor === Array) {
+        // Write arrays space separated.
+        var varValue = "";
+        for (var j = 0; j < varGlobal.length; j++) {
+            varValue += (j ? " " : "") + varGlobal[j];
+        }
+    } else if (varGlobal.constructor === Object) {
+        // Write maps as a space-separated key=value list.
+        varValue = utilsMapToString(varGlobal);
+    } else {
+        varValue = varGlobal;
+    }
+    localStorage.setItem(_initPresistentPrefix + varName, varValue);
+    return true;
 }
 
 // Initialize miscellaneous global variables that calculated from other global
@@ -348,12 +447,18 @@ function initVars() {
     // the same size as a 3x3. A 3x3, which is the default, consists of 3
     // (order) cubies and 2 (order -1) gaps per dimension.
     if (cubiesOrder === 3) {
-        cubiesScale = 1;
+        var cubiesOrderScale = 1;
     }
     else {
-        cubiesScale = (3 * cubiesCubeSize + 2 * cubiesGapSize) / (
+        var cubiesOrderScale = (3 * cubiesCubeSize + 2 * cubiesGapSize) / (
                 cubiesOrder * cubiesCubeSize + (cubiesOrder - 1) * cubiesGapSize);
     }
+    if (!(cubiesDisplayScale > 0)) {
+        console.warn("Invalid cubiesDisplayScale " + cubiesDisplayScale
+                + "; using 1.0.");
+        cubiesDisplayScale = 1.0;
+    }
+    cubiesScale = cubiesOrderScale * cubiesDisplayScale;
 
     cubiesSizeScaled = cubiesScaleDist(cubiesCubeSize);
     cubiesGapScaled = cubiesScaleDist(cubiesGapSize);
@@ -361,8 +466,9 @@ function initVars() {
     // Used to find the position of each cubie.
     cubiesOffset = cubiesCubeSize + cubiesGapSize;
     cubiesOffsetScaled = cubiesScaleDist(cubiesOffset);
-    cubiesHalfSide = Math.round(cubiesCubeSize / 2 + cubiesOffset);
-    cubiesSep = Math.round((cubiesCubeSize + cubiesGapSize) / 2);
+    cubiesHalfSide = Math.round(((cubiesOrder - 1) / 2) * cubiesOffsetScaled
+            + (cubiesSizeScaled / 2));
+    cubiesSep = Math.round(cubiesOffsetScaled / 2);
     cubiesExtendedMiddle = cubiesHalfSide - cubiesSizeScaled -
         (cubiesGapScaled / 2);
 
@@ -386,9 +492,124 @@ function initVars() {
     eventUpdateKeyMap();
 }
 
-// Set the background color from cubiesColorBackground.
+// Register the callback Cubearoni uses to load database files on demand.
+function initCubearoni() {
+    if (window.location && window.location.protocol === "file:") {
+        console.warn("Cubearoni DB loading may fail from file:// URLs. " +
+            "Serve QWERTYcube over HTTP(S) so fetch(\"db/...\") is allowed.");
+    }
+
+    if (!window.setDBFileLoader) {
+        console.error("Cubearoni API is unavailable");
+        return;
+    }
+
+    window.setDBFileLoader(async function(fileName) {
+        var beforeMillis = performance.now();
+        var response = await fetch("db/" + encodeURIComponent(fileName), {
+            cache : "no-cache"
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch " + fileName + ": "
+                + response.status);
+        }
+        var bytes = new Uint8Array(await response.arrayBuffer());
+        var elapsedMillis = performance.now() - beforeMillis;
+        animateUpdateStatus("Loaded " + fileName + " in "
+            + elapsedMillis.toFixed(3) + " millis");
+        return bytes;
+    });
+    console.log("Cubearoni DB file loader registered.");
+}
+
+// Set the background from cubiesColorBackground/cubiesBackgroundImageUrl.
 function initSetBackgroundColor() {
-    animateRenderer.setClearColor(utilsNormalizeColor(cubiesColorBackground));
+    if (!animateRenderer) {
+        return;
+    }
+
+    var color = utilsNormalizeColor(cubiesColorBackground);
+    animateRenderer.setClearColor(color);
+    if (typeof textUpdateColor === "function") {
+        textUpdateColor();
+    }
+
+    if (!animateScene) {
+        // The scene is created later in _initFillScene().
+        return;
+    }
+
+    function disposeSceneBackground() {
+        if (animateScene.background && animateScene.background.dispose) {
+            animateScene.background.dispose();
+        }
+    }
+
+    var backgroundImageUrl = (cubiesBackgroundImageUrl || "").trim();
+    var loadToken = ++_initBackgroundLoadToken;
+    if (!backgroundImageUrl.length) {
+        disposeSceneBackground();
+        animateScene.background = null;
+        animateCondReq(true);
+        return;
+    }
+
+    var loader = new THREE.TextureLoader();
+    loader.load(backgroundImageUrl, function(texture) {
+        if (loadToken !== _initBackgroundLoadToken) {
+            // A newer background load has superseded this one.
+            texture.dispose();
+            return;
+        }
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        disposeSceneBackground();
+        animateScene.background = texture;
+        animateCondReq(true);
+    }, undefined, function(err) {
+        if (loadToken !== _initBackgroundLoadToken) {
+            return;
+        }
+        console.warn("Unable to load cubiesBackgroundImageUrl \"" +
+            backgroundImageUrl + "\". Falling back to cubiesColorBackground.", err);
+        disposeSceneBackground();
+        animateScene.background = null;
+        animateCondReq(true);
+    });
+}
+
+// Add or remove cubie lights based on cubiesLighting settings.
+function initUpdateLights() {
+    if (!animateScene) {
+        return;
+    }
+    if (_initLightAmbient) {
+        animateScene.remove(_initLightAmbient);
+        _initLightAmbient = null;
+    }
+    if (_initLightDirectional) {
+        animateScene.remove(_initLightDirectional);
+        _initLightDirectional = null;
+    }
+    if (_initLightDirectionalTarget) {
+        animateScene.remove(_initLightDirectionalTarget);
+        _initLightDirectionalTarget = null;
+    }
+    if (!cubiesLighting) {
+        return;
+    }
+
+    _initLightAmbient = new THREE.AmbientLight(0xffffff, cubiesLightAmbient);
+    animateScene.add(_initLightAmbient);
+
+    _initLightDirectional = new THREE.DirectionalLight(0xffffff,
+            cubiesLightDirectional);
+    _initLightDirectional.position.set(0, 2.4, 1);
+    _initLightDirectionalTarget = new THREE.Object3D();
+    _initLightDirectionalTarget.position.set(0, 0, 0);
+    animateScene.add(_initLightDirectionalTarget);
+    _initLightDirectional.target = _initLightDirectionalTarget;
+    animateScene.add(_initLightDirectional);
 }
 
 // Private functions
@@ -444,8 +665,11 @@ function _initFillMoveToRotation() {
 // Create the list of cubies and add them to the three.js scene.
 function _initFillScene() {
     animateScene = new THREE.Scene();
+    initSetBackgroundColor();
+    initUpdateLights();
     cubiesCreate(null);
     animateText = new textCreate();
+    textSetVisible(textDispOrientationLabels, true);
 
     rotatePivot = new THREE.Object3D();
     animateScene.add(rotatePivot);
@@ -455,10 +679,11 @@ function _initFillScene() {
         animateScene.add(cubiesList[i]);
     }
 
-    if (animateWireframeSphere) {
-        // Enclose the cube in a wireframe sphere.
-        animateDrawWireframeSphere(true);
-    }
+    animateDrawWireframeCube(animateWireframeCube);
+    animateDrawWireframeSphere(animateWireframeSphere);
+
+    // Initialize arrows system
+    arrowsInit();
 }
 
 // Get a handle to each interesting HTML element.
@@ -486,43 +711,69 @@ function _initLoadStorage() {
         var varNameDesc = settingsVarNameDescs[i];
         var varName = varNameDesc[0];
         var varPersist = varNameDesc[1];
-        // Persistent storage takes precedence over HTTP query parameters.
-        var varValueStr = varPersist ?
-                localStorage.getItem(_initPresistentPrefix + varName) : null;
-        if (varValueStr === null) {
-            var values = queryParams[varName];
-            if (values) {
-                varValueStr = values.join(" ");
-            }
+        var values = queryParams[varName];
+        var varValueStr = null;
+
+        // Query parameters take precedence over persistent storage, making
+        // bookmarkable presets straightforward.
+        if (values) {
+            varValueStr = values.join(" ");
+        } else if (varPersist) {
+            varValueStr = localStorage.getItem(_initPresistentPrefix + varName);
         }
         if (varValueStr !== null) {
             utilsSetGlobal(varName, varValueStr);
         }
     }
+    initSetTitle();
+}
+
+// Set the browser title from activeName.
+function initSetTitle() {
+    document.title = activeName ? ("QWERTYcube - " + activeName) : "QWERTYcube";
 }
 
 // Main entry point. Referenced by index.html, but not by any other JS code.
-function _initLoad() {
+async function _initLoad() {
     console.log("Welcome to QWERTYcube.");
     _initGetElements();
+    settingsCaptureDefaults();
     _initLoadStorage();
     settingsOnLoad();
     initVars();
     _initFillMoveToRotation();
     eventAdd();
-    _initSetup();
+    await _initSetup();
     _initFillScene();
+    _initReplayLoadedMoveHistory();
     animateCondReq(true);
 }
 
+// Replay move history loaded from the URL so the displayed cube matches it.
+function _initReplayLoadedMoveHistory() {
+    if (!animateMoveHistory.length) {
+        rotateUpdateArrowsMoveFromSolve();
+        return;
+    }
+    if (animateMoveHistoryNext > animateMoveHistory.length) {
+        animateMoveHistoryNext = animateMoveHistory.length;
+    }
+    utilsClearMoveQueue();
+    utilsEnqueueMoves(animateMoveHistory);
+    animateMoveHistory.length = 0; // The replay will rebuild history.
+    animateMoveHistoryNextLast = animateMoveHistoryNext;
+    animateMoveHistoryNext = 0;
+    rotateUpdateArrowsMoveFromSolve();
+}
+
 // Scene initialization code.
-function _initSetup() {
+async function _initSetup() {
     // Renderer:
-    if (Detector.webgl) {
+    try {
         animateRenderer = new THREE.WebGLRenderer({
             antialias : true
         });
-    } else {
+    } catch (e) {
         // TODO: Consider adding CanvasRenderer as a fallback, but maybe it's
         // better for people to upgrade their browsers.
         animateUpdateStatus("WebGL is not supported");
@@ -533,27 +784,34 @@ function _initSetup() {
 
     initSetBackgroundColor();
 
+    if (!animateRenderer) {
+        return;
+    }
+
     // Center things, etc.
     animateResize();
 
     animateSetCamera();
 
     // Orbit controls (rotating the animateCamera around the cube).
-    animateOrbitControls = new THREE.OrbitControls(animateCamera, animateRenderer.domElement,
-            animateRenderer.domElement);
+    animateOrbitControls = new OrbitControls(animateCamera, animateRenderer.domElement);
 
     // Limit manipulation that is not helpful.
     animateOrbitControls.enabled = !eventRotationLock;
-    animateOrbitControls.noKeys = true;
-    animateOrbitControls.noPan = true;
-    animateOrbitControls.noZoom = true;
-    animateOrbitControls.useMinClient = true;
+    animateOrbitControls.enableKeys = false;
+    animateOrbitControls.enablePan = false;
+    animateOrbitControls.enableZoom = false;
 
     // Add the animateRenderer to the page.
     initElContainer.appendChild(animateRenderer.domElement);
 
     // Dynamically add buttons to the button bar.
     initAddUpdateButtons(initMainButtonList);
+    try {
+        initCubearoni();
+    } catch (e) {
+        console.error("Unable to initialize Cubearoni:", e);
+    }
     if (initFlashHelp) {
         animateUpdateStatus("To get started press the Help button");
         _initHelpFlashed = true;

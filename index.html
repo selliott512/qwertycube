@@ -14,6 +14,17 @@
   </head>
   <body>
     <div id="container"></div>
+    <div id="file-url-warning">
+      <h2>QWERTYcube needs a web server</h2>
+      <p>Browsers cannot load all of QWERTYcube directly from a local file.</p>
+      <p>To run QWERTYcube:</p>
+      <ul>
+        <li><a href="https://selliott512.github.io/qwertycube/">Try the hosted version</a>.</li>
+        <li>Serve this directory with a local web server such as Apache, or run
+        <code>python3 -m http.server</code>. The Python command makes QWERTYcube
+        available at <a href="http://localhost:8888/">http://localhost:8888/</a>.</li>
+      </ul>
+    </div>
     <div id="help">
       <h2>QWERTYcube - Keyboard oriented Rubik's Cube</h2>
       by Steven Elliott based on rubik_scrambler by Siddhante Nangla
@@ -38,7 +49,10 @@
       reconfigured (see "Settings").  Note that some of the command keys have
       numeric alternatives.  This is helpful when the Heise key mapping is
       active. Finally, some commands may still be accessible via shift.  For
-      example, when Heise is enabled Shift-J will scramble the cube.</p>
+      example, when Heise is enabled Shift-J will scramble the cube.  The
+      arrow keys move the camera view only; they do not make cube moves or
+      alter move history.  Pressing = repeats the last move entered by the
+      user.</p>
       <h3>Mouse And Touch</h3>
       <p>Mouse and touch support should be intuitive, but there are some things
       about it that may not be obvious.  Clicking on the grey background
@@ -83,23 +97,38 @@
       savepoint) or Shift (redo instead of undo).  See the
       <a href="#help-modifier-keys">modifier key table</a>.</p>
       <h3>Scrambling</h3>
-      <p>By default when Scramble or J is pressed a scrambler named "jsss" is
+      <p>By default when Scramble or Shift-J is pressed a scrambler named "jsss" is
       used to scramble the cube.  For 2x2x2 and 3x3x3 cubes it's a random state
       scrambler which works by randomly selecting a cube from all possible cubes,
       and then inverting the solution, which should be as good as scrambling the
       cube with an infinite number of random moves.  For 4x4x4 and higher order
       cubes the cube is scrambled with randomly generated moves.  Alternatively
-      the "simple" scrambler can be used which is faster, but not as good.  Push
-      Config or I and look for scrambleMoves to see the moves used to scramble
-      the cube.  Look for scrambleType to see or change scrambler type.  A
+      the "simple" scrambler can be used which is faster, but not as good.  Open
+      Settings with the gear button or I and look for scrambleMoves to see
+      the moves used to scramble the cube.  Look for scrambleType to see or
+      change scrambler type.  A
       savepoint is created after each scramble, which means pressing Undos or
       Alt-G will undo the scramble and Redos or Alt-Shift-G will then redo the
       scramble.  By default the scramble moves are applied to the existing
       cube.  If instead you wish to start with a new cube, and then apply the
-      scramble moves to that new cube, press Alt-Shift-J instead of J.  For
-      non-keyboard users press New and then Scramble.</p>
+      scramble moves to that new cube, enable scrambleNewCube in Settings.  To
+      practice a CFOP phase, scrambleUntilPhase can stop the scramble at the
+      start of a phase; a numeric prefix before Shift-J overrides that setting
+      once, such as 3 then Shift-J for OLL.  To enter scramble moves manually,
+      use S Input, Alt-J or Alt-[.  The scramble shortcut uses J because S is
+      used for cube moves in some key mappings.</p>
+      <h3>Training</h3>
+      <p>Training arrows can be toggled by pressing Train or Shift-T.  When
+      enabled, black arrows indicate the next move and magenta arrows indicate
+      a corrective move after deviating from the solve.  Redo or Shift-G can
+      replay one training move, and Redos or Alt-Shift-G can replay until the
+      next savepoint.  To enter training moves manually, use T Input or
+      Alt-T.</p>
+      <p>The manual scramble and training dialogs accept compact algorithms as
+      well as common pasted notation such as grouping characters, Rw style
+      wide moves, and optional input flags shown in the dialog.</p>
       <h3>Timer</h3>
-      <p>A timer an be toggled by pressing Timer or T.  Scrambling the cube
+      <p>A timer can be toggled by pressing Timer or T.  Scrambling the cube
       starts a 15 second count down at which time the timer is red. This is the
       inspection period.  During the inspection period you may rotate the entire
       cube via clicking on the grey background, mouse gestures or axis keys.
@@ -110,28 +139,29 @@
       New or N just in case you want to time something that way.  The timer is
       off by default due to potentially high CPU usage.</p>
       <h3>Settings</h3>
-      <p>Pressing the Config or I displays the settings dialog.  This is
+      <p>Click the gear or press I to open Settings.  This is
       where various obscure and advanced settings are stored.  Things like the
-      background color, cube color, cube size, animation, initial cube
+      background color, background image, cube color, cube size, animation,
+      solver, training display modes, lighting, wireframe guides, initial cube
       facelets, etc. can be configured in the settings dialog.  Read the text
       at the start of the settings dialog for an overview of how settings work.
-      Click Ok to store the settings to persistent storage.  Note that the
-      settings dialog can be used in this way to save settings that were not
-      set in the settings dialog.  For example, let's say you've engaged
-      rotation lock by pressing Lock or K and you've rotated the cube slightly
-      change the perspective and you want it this way the next time QWERTYcube
-      is loaded.  To save that and all other settings to persistent storage
-      click Config or I and then click Ok.  Note that persistent storage can
-      be cleared by pressing Reset or P.</p>
+      Preference controls such as Color, Heise, Inst, Lock, Timer, orientation
+      labels and cube order save their changes immediately.  Click Ok to store
+      changes made in the settings dialog.  Enabling Lock also saves the
+      current camera position.  Persistent storage can be cleared by pressing
+      Reset or P.</p>
       <h3>Query Parameters</h3>
-      <p>It's possible to override the built in defaults for the variables that
+      <p>It's possible to override settings for the variables that
       can be seen in the settings dialog by appending HTTP query parameters
       to the URL.  For example, when the page is first loaded to set the
       cubiesOrder to 4 and to set cubiesColorOverrides to
       "R:grey L:magenta I:0x224466" append
       "?cubiesOrder=4&amp;cubiesColorOverrides=R%3Agrey%20L%3Amagenta%20I%3A0x224466"
       to the URL.  Note the percent encoding.  The user can override the values
-      via the settings dialog.
+      via the settings dialog.  Query parameters take precedence over
+      persistent storage, which is useful for bookmarkable presets.  Add
+      activeName=<i>preset-name</i> to label the browser title as "QWERTYcube -
+      preset-name".
       </p>
       <p/>
       <a name="key-tables"></a>
@@ -148,17 +178,17 @@
         </tr>
         <tr>
           <td>@</td>
-          <td>n·n·n</td>
+          <td>−</td>
           <td>Decrease the cube order</td>
         </tr>
         <tr>
           <td>#</td>
-          <td>3·3·3</td>
+          <td>3</td>
           <td>Set the cube order to 3</td>
         </tr>
         <tr>
           <td>$</td>
-          <td>N·N·N</td>
+          <td>+</td>
           <td>Increase the cube order</td>
         </tr>
         <tr>
@@ -168,43 +198,66 @@
         </tr>
         <tr>
           <td>A or AS0</td>
-          <td>Inst</td>
+          <td>⚡</td>
           <td>Toggle instantaneous animation</td>
         </tr>
         <tr>
           <td>C or AS1</td>
-          <td>Save</td>
+          <td>|</td>
           <td>Set a savepoint.  Try with Alt-G.</td>
         </tr>
         <tr>
           <td>G or '</td>
-          <td>Undo</td>
-          <td>Undo last move. Shift to redo</td>
+          <td>&lt;</td>
+          <td>Undo the last move</td>
+        </tr>
+        <tr>
+          <td>Alt-G</td>
+          <td>&lt;&lt;</td>
+          <td>Undo moves until a savepoint or the beginning</td>
+        </tr>
+        <tr>
+          <td>Shift-G</td>
+          <td>&gt;</td>
+          <td>Redo the next move</td>
+        </tr>
+        <tr>
+          <td>Alt-Shift-G</td>
+          <td>&gt;&gt;</td>
+          <td>Redo moves until a savepoint or the end</td>
         </tr>
         <tr>
           <td>H or AS2</td>
-          <td>Help</td>
+          <td>?</td>
           <td>Display this help message</td>
         </tr>
         <tr>
           <td>I or AS3</td>
-          <td>Config</td>
-          <td>Display the configuration/settings</td>
+          <td>⚙️</td>
+          <td>Open Settings</td>
         </tr>
         <tr>
-          <td>J or [</td>
-          <td>Jumble</td>
+          <td>Shift-J or Shift-[</td>
+          <td><img class="help-button-icon" src="images/cube-scrambled.svg"
+              alt="Scrambled cube" /></td>
           <td>Scramble the cube.  By default jsss is used.</td>
         </tr>
         <tr>
+          <td>Alt-J or Alt-[</td>
+          <td><img class="help-button-icon" src="images/cube-scrambled.svg"
+              alt="Scrambled cube" />✏️</td>
+          <td>Enter scramble moves manually</td>
+        </tr>
+        <tr>
           <td>K or AS4</td>
-          <td>Lock</td>
+          <td>🔒</td>
           <td>Rotation lock.  Prevent cube rotations.</td>
         </tr>
         <tr>
           <td>N or ]</td>
-          <td>New</td>
-          <td>New solved cube</td>
+          <td><img class="help-button-icon" src="images/cube-solved.svg"
+              alt="Solved cube" /></td>
+          <td>New solved cube.  Alt-Shift confirms.</td>
         </tr>
         <tr>
           <td>O or AS5</td>
@@ -212,24 +265,44 @@
           <td>Toggle orientation labels</td>
         </tr>
         <tr>
-          <td>P or =</td>
-          <td>Reset</td>
-          <td>Persistent storage clear (factory reset)</td>
+          <td>=</td>
+          <td></td>
+          <td>Repeat the last applied move</td>
+        </tr>
+        <tr>
+          <td>P</td>
+          <td>⟳</td>
+          <td>Persistent storage clear (factory reset).  Alt-Shift confirms.</td>
         </tr>
         <tr>
           <td>Q or AS6</td>
-          <td>Color</td>
+          <td>🎨</td>
           <td>Switch to the next color scheme</td>
         </tr>
         <tr>
           <td>T or AS7</td>
-          <td>Timer</td>
+          <td>⏱️</td>
           <td>Toggle the timer</td>
         </tr>
         <tr>
+          <td>T with Shift</td>
+          <td>🚂</td>
+          <td>Toggle training arrows</td>
+        </tr>
+        <tr>
+          <td>T with Alt</td>
+          <td>🚂✏️</td>
+          <td>Enter training moves manually</td>
+        </tr>
+        <tr>
           <td>V or AS8</td>
-          <td>Heise</td>
+          <td>🔑</td>
           <td>Toggle Heise key mapping</td>
+        </tr>
+        <tr>
+          <td>Arrow keys</td>
+          <td></td>
+          <td>Move the camera view without changing the cube</td>
         </tr>
       </table>
       <br />
@@ -327,7 +400,7 @@
           <td>Alt</td>
           <td>"A" in some places.  For moves two layers instead of one.  For
           G go to the next or previous savepoint instead of making a single
-          move.  For mouse triggered moves this extends the mumber of layers
+          move.  For mouse triggered moves this extends the number of layers
           moved in order to assist with moving multiple layers and whole cube
           rotations.</td>
         </tr>
@@ -349,26 +422,11 @@
       <textarea name="settings-text" id="settings-text" rows="0" cols="0"></textarea>
     </div>
     <div id="button-bar"></div>
-    <script type="text/javascript" src="js/third-party/three.min.js"></script>
-    <script type="text/javascript" src="js/third-party/Detector.js"></script>
-    <script type="text/javascript" src="js/third-party/helvetiker_regular.typeface.js"></script>
-    <script type="text/javascript" src="js/third-party/OrbitControls.js"></script>
-    <script type="text/javascript" src="js/third-party/SceneUtils.js"></script>
-    <script type="text/javascript" src="js/third-party/scramble_222.js"></script>
-    <script type="text/javascript" src="js/third-party/scramble_333.js"></script>
-    <script type="text/javascript" src="js/third-party/scramble_NNN.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Utils.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Text.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Cubies.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Event.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Settings.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Init.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Animate.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Rotate.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Scramble.js"></script>
-    <script type="text/javascript" src="js/qwertycube/Tests.js"></script>
     <script type="text/javascript">
-      window.onload = _initLoad;
+      if (window.location.protocol === "file:") {
+        document.getElementById("file-url-warning").style.display = "block";
+      }
     </script>
+    <script type="module" src="js/qwertycube/bootstrap.js"></script>
   </body>
 </html>

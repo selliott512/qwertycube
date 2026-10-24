@@ -1,7 +1,16 @@
-In it's current form QWERTYcube includes both MIT and GPLv3 licensed code
-which means it's dual licensed under both licenses.  However, the GPL code
-can be removed by removing the JSSS scrambler, which is GPLv3:
-    git revert 0f4c5f4a6608b60b91aeba6fc6d47737aba8b9e8
-For the licenses see the specific license file:
+QWERTYcube's own code is licensed under the MIT license. Bundled third-party
+components retain their respective licenses and copyright notices.
+
+Cubearoni is licensed under the MIT license.
+
+JSSS is licensed under GPLv3. The combined application distributed with JSSS
+must comply with GPLv3, including its corresponding-source requirements.
+This does not replace the MIT licenses on QWERTYcube's own code or Cubearoni,
+and it does not mean recipients may choose MIT instead of GPLv3 for the
+entire bundle. A QWERTYcube distribution without GPL-covered components
+requires removing or replacing JSSS and checking the licenses of all
+remaining bundled dependencies.
+
+For the MIT and GPLv3 license texts, see:
     LICENSE-GPLv3.txt
     LICENSE-MIT.txt

@@ -8,10 +8,19 @@
 
 var cubiesColorTableKeys = ["hc-black", "hc-white", "std-black", "std-white"];
 var cubiesColorBackground = "0x808080";
+var cubiesBackgroundImageUrl = "";
 var cubiesColorOverrides = {};
 var cubiesColorScheme = "std-black";
+var cubiesColorMissingSticker = "0.5";
 var cubiesCubeSize = 100;
+var cubiesDisplayScale = 1.0;
+var cubiesDoubleSided = "auto";
 var cubiesGapSize = cubiesCubeSize / 10;
+var cubiesRenderInteriorFaces = true;
+var cubiesLightAmbient=2.1416
+var cubiesLightDirectional=2.2941
+var cubiesLighting = true;
+var cubiesRenderMissingStickers = true;
 var cubiesExtendedMiddle;
 var cubiesGapScaled;
 var cubiesHalfSide;
@@ -20,10 +29,12 @@ var cubiesList = [];
 var cubiesOffset;
 var cubiesOffsetScaled;
 var cubiesOrder = 3;
+var cubiesCreateInterior = false;
 var cubiesRadius;
 var cubiesScale;
 var cubiesSep;
 var cubiesSizeScaled;
+var cubiesTrainer = "full";
 
 // Private globals
 
@@ -77,6 +88,7 @@ var _cubiesColorValues;
 
 var _cubiesCornerRange;
 var _cubiesEdgesIndex;
+var _cubiesInteriorsIndex;
 var _cubiesIndexesShuffled;
 var _cubiesMiddlesIndex;
 var _cubiesMiddlesInfo;
@@ -98,9 +110,11 @@ var _cubiesFaceletOrder = "URFDLB";
 
 // Public functions
 
+// Create all cubie meshes for a new or restored cube state.
 function cubiesCreate(oldCubies) {
     var cbsCorners = [];
     var cbsEdges = [];
+    var cbsInteriors = [];
     var cbsMiddles = [];
     var cbs = [];
     var cornerOffset = 0;
@@ -137,7 +151,7 @@ function cubiesCreate(oldCubies) {
                         surfInfo = {axis: "z", move: (zi !== 0)};
                     }
                 }
-                if (!surfs) {
+                if (!surfs && !cubiesCreateInterior) {
                     // If it's not touching any surface then it's inside the
                     // cube and we don't need to render it.
                     continue;
@@ -160,15 +174,23 @@ function cubiesCreate(oldCubies) {
                     // the face is on the positive side of the axis.
                     var sign = -rotation[0];
                     var axis = rotation[1];
-                    sideMaterial.push(Math.abs(vec[axis] - sign * cornerOffset) < _cubiesSmallDist ?
-                            _cubiesColorMatts[_cubiesFaceVectorToFacelet(face, vec)]: _cubiesColorMatts.I);
+                    var isSticker = Math.abs(vec[axis] - sign * cornerOffset)
+                            < _cubiesSmallDist;
+                    if (!isSticker) {
+                        sideMaterial.push(_cubiesColorMatts.I);
+                    } else if (_cubiesTrainerKeepsSticker(face, surfs, xi, yi, zi)) {
+                        sideMaterial.push(_cubiesColorMatts[
+                                _cubiesFaceVectorToFacelet(face, vec)]);
+                    } else {
+                        sideMaterial.push(_cubiesColorMatts.missingSticker);
+                    }
                 }
-                var cubieMesh = new THREE.Mesh(cubieGeometry,
-                        new THREE.MeshFaceMaterial(sideMaterial));
-                if (!oldCubies) {
-                    cubieMesh.position.copy(vec);
-                }
+                var cubieMesh = new THREE.Mesh(cubieGeometry, sideMaterial);
+                cubieMesh.position.copy(vec);
                 switch (surfs) {
+                case 0:
+                    cbsInteriors.push(cubieMesh);
+                    break;
                 case 1:
                     cbsMiddles.push(cubieMesh);
                     _cubiesMiddlesInfo.push(surfInfo);
@@ -185,10 +207,11 @@ function cubiesCreate(oldCubies) {
     }
 
     // Order cubies by cubie type.  The resulting cubies array consists of
-    // corners, then edges and finally middles.
-    cubiesList = cbsCorners.concat(cbsEdges, cbsMiddles);
+    // corners, then edges, middles and finally optional hidden interiors.
+    cubiesList = cbsCorners.concat(cbsEdges, cbsMiddles, cbsInteriors);
     _cubiesEdgesIndex = cbsCorners.length;
     _cubiesMiddlesIndex = _cubiesEdgesIndex + cbsEdges.length;
+    _cubiesInteriorsIndex = _cubiesMiddlesIndex + cbsMiddles.length;
 
     // Now that the indexes of the various cube types are known create a
     // shuffled map that translates 1:1 from a cubie index to another cubie
@@ -199,10 +222,10 @@ function cubiesCreate(oldCubies) {
         _cubiesIndexesShuffled = utilsGetSeq(cubiesList.length);
         utilsShuffleArray(_cubiesIndexesShuffled, 1, _cubiesEdgesIndex);
         utilsShuffleArray(_cubiesIndexesShuffled, _cubiesEdgesIndex, _cubiesMiddlesIndex);
-        utilsShuffleArray(_cubiesIndexesShuffled, _cubiesMiddlesIndex, cubiesList.length);
+        utilsShuffleArray(_cubiesIndexesShuffled, _cubiesMiddlesIndex, _cubiesInteriorsIndex);
     }
 
-    if (oldCubies) {
+    if (oldCubies && oldCubies.length === cubiesList.length) {
         // Set the position and angle based on the old cubies.
         for (var i = 0; i < cubiesList.length; i++) {
             var cubie = cubiesList[i];
@@ -340,7 +363,7 @@ function cubiesSolved() {
         axisToAxis[axis] = currentAxis;
     }
 
-    for (var i = _cubiesMiddlesIndex; i < cubiesList.length; i++) {
+    for (var i = _cubiesMiddlesIndex; i < _cubiesInteriorsIndex; i++) {
         // Pick a random middle cubie.
         var num = _cubiesIndexesShuffled[i];
         var cubie = cubiesList[num];
@@ -406,6 +429,85 @@ function _cubiesFaceVectorToFacelet(face, vec) {
     return cubiesInitFacelets[base + offset];
 }
 
+// Return true if the current trainer mode keeps this sticker visible.
+function _cubiesTrainerKeepsSticker(face, surfs, xi, yi, zi) {
+    if (cubiesTrainer === "full") {
+        return true;
+    }
+    if ("middles not-middles edges corners cross f2l oll pll".split(" ").indexOf(cubiesTrainer) === -1) {
+        console.log("Unknown cubiesTrainer value \"" + cubiesTrainer
+                + "\"; using full stickers.");
+        return true;
+    }
+
+    if (cubiesTrainer === "not-middles") {
+        return surfs !== 1;
+    }
+
+    if (cubiesTrainer === "edges") {
+        return surfs === 2;
+    }
+
+    if (cubiesTrainer === "corners") {
+        return surfs === 3;
+    }
+
+    if (surfs === 1) {
+        // Other trainer modes keep face-center stickers as references. On
+        // larger cubes this keeps the whole center area.
+        return true;
+    }
+
+    if (cubiesTrainer === "middles") {
+        return false;
+    }
+
+    var indexMax = cubiesOrder - 1;
+    var yBottomSurf = yi === 0;
+    var yTopSurf = yi === indexMax;
+
+    if (((cubiesTrainer === "cross") || (cubiesTrainer === "f2l"))
+            && _cubiesTrainerKeepsCrossSticker(face, surfs, yBottomSurf)) {
+        return true;
+    }
+
+    if (cubiesTrainer === "cross") {
+        return false;
+    }
+
+    if ((cubiesTrainer === "f2l") && !yTopSurf) {
+        // Keep all non-center stickers in the first two layers.
+        return true;
+    }
+
+    if ((cubiesTrainer === "oll") || (cubiesTrainer === "pll")) {
+        if (yTopSurf && (face === "U")) {
+            // OLL shows the top stickers.
+            return true;
+        }
+        if ((cubiesTrainer === "pll") && yTopSurf && (face !== "U")
+                && (face !== "D")) {
+            // PLL also shows the side stickers around the top layer.
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// Return true for the cross-trainer stickers.
+function _cubiesTrainerKeepsCrossSticker(face, surfs, yBottomSurf) {
+    if (surfs === 2 && yBottomSurf && (face === "D")) {
+        return true;
+    }
+
+    if (surfs === 2 && yBottomSurf && (face !== "U") && (face !== "D")) {
+        return true;
+    }
+
+    return false;
+}
+
 // Determine which side a given click is closest to. Note that "move" is not the
 // simple rotation letter type of move it is elsewhere.
 function _cubiesGetMoveScore(move) {
@@ -447,8 +549,56 @@ function _cubiesInitMaterials() {
             color = colorOverride;
         }
         color = utilsNormalizeColor(color);
-        _cubiesColorMatts[side] = new THREE.MeshBasicMaterial({
+        if ((side === "I") && !cubiesRenderInteriorFaces) {
+            _cubiesColorMatts[side] = new THREE.MeshBasicMaterial({
+                color : color,
+                side : utilsGetMaterialSide(),
+                transparent : true,
+                opacity : 0
+            });
+        } else if (side === "I") {
+            _cubiesColorMatts[side] = _cubiesCreateMaterial(color, false);
+        } else {
+            _cubiesColorMatts[side] = _cubiesCreateMaterial(color, true);
+        }
+    }
+    _cubiesColorMatts.missingSticker = _cubiesCreateMissingStickerMaterial();
+}
+
+// Create a cubie material, optionally affected by lighting.
+function _cubiesCreateMaterial(color, lit) {
+    var params = {
+        color : color,
+        side : utilsGetMaterialSide()
+    };
+    return lit && cubiesLighting
+            ? new THREE.MeshLambertMaterial(params)
+            : new THREE.MeshBasicMaterial(params);
+}
+
+// Create the material used for stickers hidden by trainer modes.
+function _cubiesCreateMissingStickerMaterial() {
+    var color = _cubiesGetMissingStickerColor();
+    if (!cubiesRenderMissingStickers) {
+        return new THREE.MeshBasicMaterial({
             color : color,
+            side : utilsGetMaterialSide(),
+            transparent : true,
+            opacity : 0
         });
     }
+    return _cubiesCreateMaterial(color, true);
+}
+
+// Resolve cubiesColorMissingSticker as either blend factor or explicit color.
+function _cubiesGetMissingStickerColor() {
+    var value = String(cubiesColorMissingSticker).trim();
+    if (/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(value)) {
+        var fraction = Math.max(0, Math.min(1, parseFloat(value)));
+        var background = new THREE.Color(utilsNormalizeColor(cubiesColorBackground));
+        var interior = new THREE.Color(utilsNormalizeColor(_cubiesColorValues.I));
+        background.lerp(interior, fraction);
+        return background.getHex();
+    }
+    return utilsNormalizeColor(cubiesColorMissingSticker);
 }

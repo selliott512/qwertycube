@@ -10,9 +10,15 @@ var eventButtonColorOrig;
 var eventButtonFlashDelay = 300;
 var eventHelpDisplayed = false;
 var eventHeise = false;
+var eventHeisePhysicalKeys = true;
+var eventIgnoreMouseSingleClickAfterKey = false;
 var eventKeyMap = {};
 var eventKeyPreventDefault = true;
+var eventCopyFormat = "url";
+var eventCopyVars = "@nondefault cubiesOrder";
+var eventCopyVarsExclude = "";
 var eventMoveThreshold = 30;
+var eventPasteAllVars = true;
 var eventRotationLock = false;
 var eventRotationLockLimit = 100;
 var eventToolTipButtonEl;
@@ -21,37 +27,51 @@ var eventToolTipTimeout = 700;
 // Private globals
 
 var _eventEscLast = false;
+var _eventLastMoveInputSource = null;
+
+// A Heise map. This is the original Heise map with some adjustments and
+// additions.  The duplicate entry for B and T for X-axis rotations has
+// been mapped to f and f' making all commonly used wide moves available. The
+// "c" prefix is for camera moves which is typically the full cube rotation key
+// binding with the alt key modifier. The "c" prefixed moves should be kept
+// in sync with their corresponding "m" moves.
 var _eventHeiseMap = {
-    A : "mY'",
-    B : "mX'",
-    C : "mu'",
-    D : "mL",
-    E : "mL'",
-    F : "mU'",
-    G : "mF'",
-    H : "mF",
-    I : "mR",
-    J : "mU",
-    K : "mR'",
-    L : "mD'",
-    M : "mr'",
-    N : "mX'",
-    O : "mB'",
-    P : "mZ",
-    Q : "mZ'",
-    R : "ml'",
-    S : "mD",
-    T : "mX",
-    U : "mr",
-    V : "ml",
-    W : "mB",
-    X : "mM",
-    Y : "mX",
-    Z : "md",
-    ";" : "mY",
-    "," : "mu",
-    "." : "mM'",
-    "/" : "md'",
+    A    : "mY'",
+    AA   : "cY'",
+    B    : "mf",
+    C    : "mu'",
+    D    : "mL",
+    E    : "mL'",
+    F    : "mU'",
+    G    : "mF'",
+    H    : "mF",
+    I    : "mR",
+    J    : "mU",
+    K    : "mR'",
+    L    : "mD'",
+    M    : "mr'",
+    N    : "mX'",
+    AN   : "cX'",
+    O    : "mB'",
+    P    : "mZ",
+    AP   : "cZ",
+    Q    : "mZ'",
+    AQ   : "cZ'",
+    R    : "ml'",
+    S    : "mD",
+    T    : "mf'",
+    U    : "mr",
+    V    : "ml",
+    W    : "mB",
+    X    : "mM",
+    Y    : "mX",
+    AY   : "cX",
+    Z    : "md",
+    ";"  : "mY",
+    "A;" : "cY",
+    ","  : "mu",
+    "."  : "mM'",
+    "/"  : "md'",
 };
 
 // Buttons that appear at the bottom for the settings dialog. Row is zero based.
@@ -73,16 +93,16 @@ var _eventKeyAdditionalMap = {
     "4" : "K",
     "]" : "N",
     "5" : "O",
-    "=" : "P",
     "6" : "Q",
     "7" : "T",
     "8" : "V"
 };
 var _eventKeyAllowedModifiersMap = {
     G : ["A", "S", "AS"],
-    J : ["AS"],
+    J : ["A", "S", "AS"],
     N : ["AS"],
     P : ["AS"],
+    T : ["A", "S"],
 };
 var _eventKeyCubeReadyCheck = {
     "@" : true,
@@ -112,6 +132,20 @@ var _eventKeyPunctuationMap = {
     221 : "]",
     222 : "'"
 };
+var _eventCodeToQwertyChar = {
+    Backquote : "`",
+    Minus : "-",
+    Equal : "=",
+    BracketLeft : "[",
+    BracketRight : "]",
+    Backslash : "\\",
+    Semicolon : ";",
+    Quote : "'",
+    Comma : ",",
+    Period : ".",
+    Slash : "/"
+};
+var _eventLastInputMove = null;
 var _eventMoveBegins = [];
 var _eventNumericPrefix = "";
 var _eventScramblerInitialized = false;
@@ -125,6 +159,8 @@ var _eventSnapLimit = 0.3;
 function eventAdd() {
     console.log("Adding event listeners.");
     document.addEventListener("keydown", _eventOnKeyDown, true);
+    document.addEventListener("copy", _eventOnCopy, true);
+    document.addEventListener("paste", _eventOnPaste, true);
     initElContainer.addEventListener(initMobile ? "touchstart" : "mousedown",
             _eventOnMouseDown, true);
     initElContainer.addEventListener(initMobile ? "touchend" : "mouseup", _eventOnMouseUp,
@@ -134,6 +170,7 @@ function eventAdd() {
     }
 
     window.addEventListener("resize", _eventOnResize, true);
+    window.addEventListener("blur", _eventOnBlur, true);
 
     // Make sure the button bar does not do anything with events other than
     // click buttons.
@@ -146,11 +183,28 @@ function eventAdd() {
             animateClearStatus);
 }
 
+// Clear partially entered keyboard modifiers when the browser loses focus.
+function _eventOnBlur() {
+    if (_eventNumericPrefix) {
+        console.log("Clearing move prefix \"" + _eventNumericPrefix
+                + "\" because the window lost focus.");
+    }
+    _eventNumericPrefix = "";
+    _eventEscLast = false;
+}
+
 // Callback for when buttons are clicked.
 function eventOnButtonClick(event, buttonEl, button) {
     var func = button.func;
     var key = button.key;
     var label = button.label;
+
+    var unavailableReason = eventGetButtonUnavailableReason(button);
+    if (unavailableReason) {
+        animateUpdateStatus(unavailableReason);
+        initFlashButtonUnavailable(buttonEl, button);
+        return;
+    }
 
     // Don't confuse OrbitControls by allowing it to see this click.
     animateOrbitControls.enabled = false;
@@ -192,6 +246,42 @@ function eventOnButtonClick(event, buttonEl, button) {
     eventToolTipCancel();
 }
 
+// Refresh buttons whose availability depends on move-history state.
+function eventUpdateButtonStates() {
+    for (var key in initButtonKeyToElMap) {
+        var buttonElAndButton = initButtonKeyToElMap[key];
+        var buttonEl = buttonElAndButton[0];
+        var button = buttonElAndButton[1];
+        if (!button.availability) {
+            continue;
+        }
+        var unavailable = !!eventGetButtonUnavailableReason(button);
+        buttonEl.setAttribute("aria-disabled", unavailable ? "true" : "false");
+        buttonEl.style.opacity = unavailable ? "0.55" : "1";
+    }
+}
+
+// Return why a state-dependent button is unavailable, or null if it can be used.
+function eventGetButtonUnavailableReason(button) {
+    if (!button || !button.availability) {
+        return null;
+    }
+    switch (button.availability) {
+    case "undo":
+        return _eventCanUndo() ? null : "Nothing to undo";
+    case "redo":
+        return _eventCanRedo() ? null : "Nothing to redo";
+    case "save":
+        return _eventCanSetSavepoint() ? null : "Savepoint already set";
+    case "order-decrease":
+        return (cubiesOrder > 2) ? null : "Minimum cube order reached";
+    case "order-three":
+        return (cubiesOrder !== 3) ? null : "Cube order is already 3";
+    default:
+        return null;
+    }
+}
+
 // Callback for when the mouse exits a button.  This is for tool tips.
 function eventOnButtonOut(event, buttonEl, button) {
     _eventInButton = false;
@@ -215,7 +305,9 @@ function eventOnButtonOver(event, buttonEl, button) {
         console.log("Button " + button.label + " is missing a tool tip");
         return;
     }
-    initElTip.innerHTML = button.tip +
+    var unavailableReason = eventGetButtonUnavailableReason(button);
+    initElTip.innerHTML = button.tip
+        + (unavailableReason ? " - " + unavailableReason : "") +
         (button.key ? (" (" + button.key + " key)") : "");
 
     // Now that the width is known the left side can be adjusted so that it's
@@ -273,6 +365,12 @@ function eventShowHelp(show) {
     eventToolTipCancel();
 }
 
+// Forget the move used by the repeat-move key.
+function eventResetLastInputMove() {
+    _eventLastInputMove = null;
+    _eventLastMoveInputSource = null;
+}
+
 // Stop displaying the tool tip.
 function eventToolTipCancel() {
     eventToolTipButtonEl = null;
@@ -298,6 +396,21 @@ function eventUpdateKeyMap() {
 
 // Private functions
 
+// Queue a user-entered move and remember it for the repeat-move key.
+function _eventEnqueueInputMove(move) {
+    move = utilsNormalizeMovePrefix(move);
+    _eventLastInputMove = move;
+    _eventLastMoveInputSource = "key";
+    utilsEnqueueMove(move);
+}
+
+// Queue a user-entered move/rotation pair and remember it for repeat.
+function _eventEnqueueInputMoveRotation(moveRot) {
+    _eventLastInputMove = moveRot[0];
+    _eventLastMoveInputSource = "mouse";
+    utilsEnqueueMoveRotation(moveRot);
+}
+
 // For a given mouse event return the client/screen coordinates.
 function _eventGetCoords(event) {
     var coords = [];
@@ -312,14 +425,296 @@ function _eventGetCoords(event) {
     return coords;
 }
 
+// Copy selected cube state/configuration values.
+function _eventOnCopy(event) {
+    if (settingsDisplayed || eventHelpDisplayed) {
+        return;
+    }
+    var copyVars = _eventGetCopyVars();
+    var copyObj = {};
+    for (var i = 0; i < copyVars.length; i++) {
+        var varName = copyVars[i];
+        if (window[varName] === undefined) {
+            console.warn("Unable to copy unknown variable \"" + varName + "\".");
+            continue;
+        }
+        copyObj[varName] = window[varName];
+    }
+    event.clipboardData.setData("text/plain", _eventFormatCopyObject(copyObj));
+    event.preventDefault();
+    animateUpdateStatus("Copied cube state");
+}
+
+// Format copied state according to eventCopyFormat.
+function _eventFormatCopyObject(copyObj) {
+    var format = String(eventCopyFormat || "").toLowerCase();
+    if (format === "json") {
+        return _eventStringifyCopyObject(copyObj);
+    }
+    if (format !== "url") {
+        console.warn("Unknown eventCopyFormat \"" + eventCopyFormat
+            + "\"; using url.");
+    }
+    return _eventCopyObjectToUrl(copyObj);
+}
+
+// Format a copied state object as a bookmarkable URL.
+function _eventCopyObjectToUrl(copyObj) {
+    var url = window.location.href.replace(/[?#].*$/, "");
+    var sep = "?";
+    for (var key in copyObj) {
+        url += sep + encodeURIComponent(key) + "="
+            + encodeURIComponent(settingsValueToText(copyObj[key]));
+        sep = "&";
+    }
+    return url;
+}
+
+// Format a copied state object with one top-level key/value pair per line.
+function _eventStringifyCopyObject(copyObj) {
+    var lines = ["{"];
+    var first = true;
+    for (var key in copyObj) {
+        if (!first) {
+            lines[lines.length - 1] += ",";
+        }
+        lines.push("  " + JSON.stringify(key) + ": "
+            + JSON.stringify(copyObj[key]));
+        first = false;
+    }
+    lines.push("}");
+    return lines.join("\n");
+}
+
+// Paste selected cube state/configuration values from copied JSON or URL text.
+function _eventOnPaste(event) {
+    if (settingsDisplayed || eventHelpDisplayed) {
+        return;
+    }
+    var text = event.clipboardData.getData("text/plain");
+    if (!text) {
+        return;
+    }
+    var pasteObj = _eventParsePasteText(text);
+    if (!pasteObj) {
+        return;
+    }
+    if (!pasteObj || (pasteObj.constructor !== Object)) {
+        return;
+    }
+
+    var settingsText = _eventSettingsTextFromPasteObject(pasteObj);
+    if (!settingsText) {
+        console.warn("Pasted text did not contain any recognized QWERTYcube variables.");
+        return;
+    }
+    event.preventDefault();
+    settingsApplyText(settingsText, true, "Pasted cube state");
+}
+
+// Parse pasted text as either a JSON object or URL/query parameters.
+function _eventParsePasteText(text) {
+    text = String(text).trim();
+    if (!text) {
+        return null;
+    }
+    if (/^\s*{/.test(text)) {
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.warn("Unable to parse pasted JSON: " + e);
+            return null;
+        }
+    }
+    return _eventParsePasteUrl(text);
+}
+
+// Parse a pasted full URL or bare query string into a settings object.
+function _eventParsePasteUrl(text) {
+    var url = null;
+    try {
+        url = new URL(text, window.location.href);
+    } catch (e) {
+        console.warn("Unable to parse pasted URL: " + e);
+        return null;
+    }
+    var result = {};
+    url.searchParams.forEach(function(value, key) {
+        var oldValue = result[key];
+        if (oldValue === undefined) {
+            result[key] = value;
+        } else if (oldValue.constructor === Array) {
+            oldValue.push(value);
+        } else {
+            result[key] = [oldValue, value];
+        }
+    });
+    return result;
+}
+
+// Convert copied/pasted values into settings text for the shared apply path.
+function _eventSettingsTextFromPasteObject(pasteObj) {
+    var lines = [];
+    var pasteVars = eventPasteAllVars ? _eventGetAllSettingsVars()
+        : _eventGetCopyVars();
+    var pastedVars = {};
+    for (var i = 0; i < pasteVars.length; i++) {
+        var varName = pasteVars[i];
+        if (pasteObj[varName] === undefined) {
+            continue;
+        }
+        if (window[varName] === undefined) {
+            console.warn("Ignoring pasted unknown variable \"" + varName + "\".");
+            continue;
+        }
+        pastedVars[varName] = true;
+        lines.push(varName + "=" + settingsValueToText(pasteObj[varName]));
+    }
+    _eventLogIgnoredPasteVars(pasteObj, pastedVars, pasteVars);
+    return lines.join("\n");
+}
+
+// Log paste keys that are known but not currently allowed by paste settings.
+function _eventLogIgnoredPasteVars(pasteObj, pastedVars, pasteVars) {
+    for (var key in pasteObj) {
+        if (pastedVars[key]) {
+            continue;
+        }
+        if (_eventIsSettingsVar(key)) {
+            console.log("Ignoring pasted variable \"" + key + "\" because "
+                + (eventPasteAllVars ? "it was not selected for paste."
+                    : "eventPasteAllVars=false and it is not included by eventCopyVars."));
+        } else {
+            console.warn("Ignoring pasted unknown variable \"" + key + "\".");
+        }
+    }
+}
+
+// Return all user-facing settings variable names.
+function _eventGetAllSettingsVars() {
+    var result = [];
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        result.push(settingsVarNameDescs[i][0]);
+    }
+    return result;
+}
+
+// Return the configured list of variables eligible for copy/paste.
+function _eventGetCopyVars() {
+    var included = {};
+    var excluded = {};
+    var result = [];
+
+    _eventApplyCopyVarPatterns(included, eventCopyVars);
+    _eventApplyCopyVarPatterns(excluded, eventCopyVarsExclude);
+
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varName = settingsVarNameDescs[i][0];
+        if (included[varName] && !excluded[varName]) {
+            result.push(varName);
+        }
+    }
+    return result;
+}
+
+// Expand exact names and trailing-* prefix patterns into a map.
+function _eventApplyCopyVarPatterns(out, patternsText) {
+    var patterns = String(patternsText || "").trim().split(/\s+/);
+    for (var i = 0; i < patterns.length; i++) {
+        var pattern = patterns[i];
+        if (!pattern) {
+            continue;
+        }
+        if (pattern === "@nondefault") {
+            _eventAddNonDefaultCopyVars(out);
+        } else if (pattern === "*") {
+            _eventAddMatchingCopyVars(out, "");
+        } else if (pattern[pattern.length - 1] === "*") {
+            _eventAddMatchingCopyVars(out, pattern.substr(0, pattern.length - 1));
+        } else if (_eventIsSettingsVar(pattern)) {
+            out[pattern] = true;
+        } else {
+            console.warn("Ignoring unknown eventCopyVars entry \"" + pattern + "\".");
+        }
+    }
+}
+
+// Add persisted settings variables whose current value differs from default.
+function _eventAddNonDefaultCopyVars(out) {
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varNameDesc = settingsVarNameDescs[i];
+        var varName = varNameDesc[0];
+        var varPersist = varNameDesc[1];
+        if (varPersist && settingsIsNonDefault(varName)) {
+            out[varName] = true;
+        }
+    }
+}
+
+// Add settings variables that start with the given prefix to out.
+function _eventAddMatchingCopyVars(out, prefix) {
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        var varName = settingsVarNameDescs[i][0];
+        if (varName.indexOf(prefix) === 0) {
+            out[varName] = true;
+        }
+    }
+}
+
+// Return true if varName is user-facing settings variable.
+function _eventIsSettingsVar(varName) {
+    for (var i = 0; i < settingsVarNameDescs.length; i++) {
+        if (settingsVarNameDescs[i][0] === varName) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Close the help dialog due to "Close" or escape being clicked.
 function _eventHelpClose() {
     eventShowHelp(false);
 }
 
+// Convert KeyboardEvent.code to its physical QWERTY character.
+function _eventCodeToQwertyCharGet(code) {
+    if (/^Key[A-Z]$/.test(code)) {
+        return code.substr(3);
+    }
+    if (/^Digit[0-9]$/.test(code)) {
+        return code.substr(5);
+    }
+    return _eventCodeToQwertyChar[code] || null;
+}
+
 // Convert a keystroke to a move or command.
-function _eventOnKeyDown(event) {
+async function _eventOnKeyDown(event) {
     var keyCode = event.keyCode;
+
+    // Arrow keys move the camera without making cube moves.
+    if (!event.buttonBar && !settingsDisplayed && !eventHelpDisplayed
+            && !event.ctrlKey
+            && ((keyCode === 37) || (keyCode === 38) || (keyCode === 39) || (keyCode === 40))) {
+        switch (keyCode) {
+        case 37: // Left: +90 around Y axis.
+            animateQueueCameraMove("left");
+            break;
+        case 38: // Up: move to +Y hemisphere.
+            animateQueueCameraMove("up");
+            break;
+        case 39: // Right: -90 around Y axis.
+            animateQueueCameraMove("right");
+            break;
+        case 40: // Down: move to -Y hemisphere.
+            animateQueueCameraMove("down");
+            break;
+        }
+        if (eventKeyPreventDefault && event.preventDefault) {
+            event.preventDefault();
+        }
+        return;
+    }
+
     var punctuation = false;
     if ((keyCode === 16) || (keyCode === 18)) {
         // Ignore shift and alt being pressed by themselves.
@@ -355,6 +750,24 @@ function _eventOnKeyDown(event) {
         console.log("Ignoring key event due to the control key.");
         return;
     }
+    if ((keyCode === 27) && !eventHelpDisplayed && _eventNumericPrefix) {
+        console.log("Clearing move prefix \"" + _eventNumericPrefix + "\".");
+        _eventNumericPrefix = "";
+        _eventEscLast = false;
+        animateUpdateStatus("Move prefix cleared");
+        if (eventKeyPreventDefault) {
+            event.preventDefault();
+        }
+        return;
+    }
+
+    if (eventHeise && eventHeisePhysicalKeys && !buttonBar && event.code) {
+        var eventCodeChar = _eventCodeToQwertyCharGet(event.code);
+        if (eventCodeChar) {
+            eventChar = eventCodeChar;
+            punctuation = !(/[A-Z0-9-]/.test(eventChar));
+        }
+    }
 
     // Apply a keymap, if any. If it came from the button bar interpret as is
     // without mapping.
@@ -368,25 +781,42 @@ function _eventOnKeyDown(event) {
             keyMapValue = _eventKeyMapTotal[prefix + event.keyCode];
         }
         if (keyMapValue) {
-            if (keyMapValue[0] === "k") {
+            if (keyMapValue === "default") {
+                // Let the browser handle this key as if QWERTYcube had not
+                // recognized it.
+                return;
+            } else if (keyMapValue === "none") {
+                _eventNumericPrefix = "";
+                _eventEscLast = false;
+                animateClearStatus();
+                if (eventKeyPreventDefault) {
+                    event.preventDefault();
+                }
+                return;
+            } else if (keyMapValue[0] === "k") {
                 // Map the keystroke to a different keystroke.
                 eventChar = keyMapValue.slice(-1);
                 alt = keyMapValue.indexOf("A") !== -1;
                 shift = keyMapValue.indexOf("S") !== -1;
-            } else if (keyMapValue[0] === "m") {
+            } else if (keyMapValue[0] === "m" || keyMapValue[0] === "c") {
                 // Map directly to a move and return.
                 var move = keyMapValue.substring(1);
-                utilsEnqueueMove(_eventNumericPrefix + move);
+                if (keyMapValue[0] === "m") {
+                    // It's a cube move.
+                    _eventEnqueueInputMove(_eventNumericPrefix + move);
+                } else if (keyMapValue[0] === "c") {
+                    // It's a camera move.
+                    _eventQueueCameraMoveForCubeRotation(move);
+                }
                 _eventNumericPrefix = "";
                 animateCondReq(true);
                 _eventEscLast = false;
-
                 if (eventKeyPreventDefault) {
                     event.preventDefault();
                 }
 
-                // If the user made a move they probably don't care about the
-                // message.
+                // If the user made a move they probably don't care about
+                // the message.
                 animateClearStatus();
                 return;
             } else {
@@ -396,6 +826,7 @@ function _eventOnKeyDown(event) {
         }
     }
 
+    var eventCharBeforeAdditionalMap = eventChar;
     var numeric = (eventChar >= "0") && (eventChar <= "9");
     if ((alt && shift && numeric) || (punctuation && (eventChar !== "-"))) {
         // Convert the alternate numeric or punctuation key to a command key.
@@ -444,10 +875,23 @@ function _eventOnKeyDown(event) {
         if (shift) {
             move += "'";
         }
+
+        var cameraMove = false;
         if (alt) {
-            move = move.toLowerCase();
+            if (_eventQueueCameraMoveForCubeRotation(move)) {
+                // The move turned out ot be alt combined with a full cube
+                // rotation character, so there is no need to queue up the move.
+                cameraMove = true;
+            } else {
+                // A wide non-camera move.
+                move = move.toLowerCase();
+            }
         }
-        utilsEnqueueMove(_eventNumericPrefix + move);
+        if (!cameraMove) {
+            _eventEnqueueInputMove(_eventNumericPrefix + move);
+        }
+
+        // Start common code.
         _eventNumericPrefix = "";
         animateCondReq(true);
         _eventEscLast = false;
@@ -494,15 +938,46 @@ function _eventOnKeyDown(event) {
             return;
         }
 
+        var buttonKey = (alt ? "A" : "") + (shift ? "S" : "") + eventChar;
+        var buttonElAndButton = initButtonKeyToElMap[buttonKey];
+        if (!buttonElAndButton) {
+            buttonElAndButton = initButtonKeyToElMap[eventChar];
+        }
+        var unavailableReason = buttonElAndButton
+                ? eventGetButtonUnavailableReason(buttonElAndButton[1]) : null;
+        if (unavailableReason) {
+            animateUpdateStatus(unavailableReason);
+            initFlashButtonUnavailable(buttonElAndButton[0],
+                    buttonElAndButton[1]);
+            if (eventKeyPreventDefault && event.preventDefault) {
+                event.preventDefault();
+            }
+            return;
+        }
+
+        var persistCameraLocation = false;
+        var persistVarName = null;
         var validEventChar = true;
         switch (eventChar) {
         // Punctuation is used for changing the cube order since those buttons
         // don't have a key binding.
+        case "=": // Repeat the last applied move.
+            var move = _eventLastInputMove || rotateGetLastAppliedMove();
+            _eventNumericPrefix = "";
+            if (move) {
+                _eventEnqueueInputMove(move);
+                animateCondReq(true);
+                animateClearStatus();
+            } else {
+                animateUpdateStatus("No move to repeat");
+            }
+            break;
         case "@": // Decrease the order.
             if (cubiesOrder > 2) {
                 cubiesOrder--;
                 animateUpdateStatus("Decreased order to " + cubiesOrder);
                 settingsApply(false);
+                persistVarName = "cubiesOrder";
             } else {
                 animateUpdateStatus("Minmimum order is 2");
             }
@@ -511,11 +986,13 @@ function _eventOnKeyDown(event) {
             cubiesOrder = 3;
             animateUpdateStatus("Reset order to " + cubiesOrder);
             settingsApply(false);
+            persistVarName = "cubiesOrder";
             break;
         case "$": // Increase the order
             cubiesOrder++;
             animateUpdateStatus("Increased order to " + cubiesOrder);
             settingsApply(false);
+            persistVarName = "cubiesOrder";
             break;
         case "%": // Snap to the closest corner, edge or side
             // When looking at a corner, as this program does by default, the
@@ -554,6 +1031,7 @@ function _eventOnKeyDown(event) {
                     + (animateAnimationInst ? "is instantaneous"
                             : ("at " + animateMoveSec + " TPS"));
             animateUpdateStatus(msg);
+            persistVarName = "animateAnimationInst";
             break;
         case "C": // (C)heckpoint
             if ((animateMoveHistory[animateMoveHistoryNext - 1] === "|")
@@ -562,6 +1040,7 @@ function _eventOnKeyDown(event) {
             } else {
                 animateUpdateStatus("Savepoint set");
                 animateMoveHistory.splice(animateMoveHistoryNext++, 0, "|");
+                eventUpdateButtonStates();
             }
             break
         case "G": // Undo (like Ctrl-G in Emacs). Shift to redo.
@@ -579,6 +1058,22 @@ function _eventOnKeyDown(event) {
                     if (animateMoveHistoryNext < animateMoveHistory.length) {
                         move = animateMoveHistory[animateMoveHistoryNext++];
                         moveG = move;
+                    } else {
+                        // No redo move left in history. Fall back to remaining
+                        // solve moves, if any.
+                        var solveRemaining = rotateGetSolveMovesRemaining(alt);
+                        if (solveRemaining.length) {
+                            animateMoveQueueReplay = true;
+                            if (alt) {
+                                console.log("Redoing solve moves " + solveRemaining.join(" "));
+                                utilsEnqueueMoves(solveRemaining);
+                            } else {
+                                console.log("Redoing solve move " + solveRemaining[0]);
+                                utilsEnqueueMove(solveRemaining[0]);
+                            }
+                            animateCondReq(true);
+                        }
+                        break;
                     }
                 } else {
                     // undo
@@ -604,6 +1099,7 @@ function _eventOnKeyDown(event) {
                                 + (shift ? "redo" : "undo")));
                 if (moveG) {
                     // "G" indicates it's an undo.
+                    animateMoveQueueReplay = true;
                     utilsEnqueueMove(moveG + "G");
                     animateCondReq(true);
                 }
@@ -627,32 +1123,47 @@ function _eventOnKeyDown(event) {
             settingsShow();
             break;
         case "J": // (J)umble (S was taken)
-            // If alt and shift then reset the cube to it's standard new
-            // orientation and clear the move list before doing the scramble.
-            // This is good if the user wants the resulting cube to match the
-            // scramble, but it destroys information. If alt and shift are
-            // not pressed the scramble sequence is simply applied to the
-            // existing cube.
-            var newCube = alt && shift;
-            if (newCube) {
-                if (!animateNewCube(true)) {
-                    return;
+            if (!shift && !alt && !buttonBar) {
+                _eventNumericPrefix = "";
+                animateUpdateStatus("Scramble?  Shift-" + eventCharBeforeAdditionalMap);
+                break;
+            }
+            if (buttonBar && !alt && !confirm("Scramble cube?")) {
+                break;
+            }
+            var manualScramble = null;
+            var scrambleUntilPhaseOverride = _eventNumericPrefix
+                    ? parseInt(_eventNumericPrefix) : undefined;
+            _eventNumericPrefix = "";
+            var scrambleNewCubeThisTime = scrambleNewCube;
+            if (alt) {
+                // preventDefault() must happen before awaiting dialog parsing.
+                if (!buttonBar && eventKeyPreventDefault) {
+                    event.preventDefault();
+                }
+                manualScramble = await scramblePromptManualScramble();
+                if (!manualScramble) {
+                    break;
+                }
+                scrambleNewCubeThisTime = manualScramble.newCube;
+            } else {
+                // Scrambling is structured this way, with two messages, because
+                // scrambling may be slow the first time. The first message is
+                // not displayed until this function returns, so the setTimeout
+                // was needed. 10 msec is used so that the first status has
+                // a chance to be displayed before the blocking scrambler.
+                if (!_eventScramblerInitialized) {
+                    animateUpdateStatus("Initializing scrambler");
+                    _eventScramblerInitialized = true;
                 }
             }
-
-            // Scrambling is structured this way, with two messages, because
-            // scrambling may be slow the first time. The first message is
-            // not displayed until this function returns, so the setTimeout
-            // was needed. 10 msec is used so that the first status has
-            // a chance to be displayed before the blocking scrambler.
-            if (!_eventScramblerInitialized) {
-                animateUpdateStatus("Initializing scrambler");
-                _eventScramblerInitialized = true;
-            }
-            setTimeout(function() {
-                scrambleCube();
-                animateUpdateStatus("Scrambled " + (newCube ? "new " : " ")
-                        + "cube");
+            setTimeout(async function() {
+                if (scrambleNewCubeThisTime && !animateNewCube(true)) {
+                    return;
+                }
+                var scrambleStatus = await scrambleCube(manualScramble,
+                        scrambleUntilPhaseOverride);
+                animateUpdateStatus(scrambleStatus);
             }, 10);
             break;
         case "K": // Toggle rotation lock.
@@ -660,6 +1171,8 @@ function _eventOnKeyDown(event) {
             animateUpdateStatus("Rotation lock "
                     + (eventRotationLock ? "enabled" : "disabled"))
             animateCondReq(true);
+            persistCameraLocation = eventRotationLock;
+            persistVarName = "eventRotationLock";
             break;
         case "N": // (N)new cube
             if ((buttonBar && confirm("New cube?")) || (alt && shift)) {
@@ -674,10 +1187,11 @@ function _eventOnKeyDown(event) {
             }
             break;
         case "O": // (O)rientation display toggle.
-            animateDispOrientationLabels = !animateDispOrientationLabels;
+            textDispOrientationLabels = !textDispOrientationLabels;
             animateUpdateStatus("Orientation labels "
-                    + (animateDispOrientationLabels ? "enabled" : "disabled"))
+                    + (textDispOrientationLabels ? "enabled" : "disabled"))
             animateCondReq(true);
+            persistVarName = "textDispOrientationLabels";
             break;
         case "P": // (P)ersistent storage clear
             if ((buttonBar && confirm("Reset all settings?")) || (alt && shift)) {
@@ -698,6 +1212,7 @@ function _eventOnKeyDown(event) {
                 i = (++i) % cubiesColorTableKeys.length;
                 cubiesColorScheme = cubiesColorTableKeys[i];
                 animateUpdateStatus("Color scheme " + cubiesColorScheme);
+                persistVarName = "cubiesColorScheme";
             } else {
                 // This should not happen
                 console.log("Unknown color scheme \"" + cubiesColorScheme
@@ -705,16 +1220,44 @@ function _eventOnKeyDown(event) {
             }
             animateResetScene(cubiesList);
             break;
-        case "T": // (T)imer
-            animateTimer = !animateTimer;
-            animateElapsedMsecOld = 0;
-            console.log("animateTimer: " + animateTimer);
-            animateCondReq(true);
+        case "T": // T(raining) or (T)imer
+            if (alt) {
+                // preventDefault() must happen before awaiting dialog parsing.
+                if (!buttonBar && eventKeyPreventDefault) {
+                    event.preventDefault();
+                }
+                var manualTraining = await scramblePromptManualTraining();
+                if (!manualTraining) {
+                    break;
+                }
+                if (!arrowsEnabled) {
+                    arrowsToggle();
+                }
+                solveSetMoves(manualTraining.moves, false);
+                break;
+            } else if (shift) {
+                var enabled = arrowsToggle();
+                animateUpdateStatus("Training " + (enabled ? "enabled" : "disabled"));
+                if (enabled) {
+                    // preventDefault() must happen before awaiting the solver.
+                    if (!buttonBar && eventKeyPreventDefault) {
+                        event.preventDefault();
+                    }
+                    await solveFindMovesFromHistory();
+                }
+            } else {
+                animateTimer = !animateTimer;
+                animateElapsedMsecOld = 0;
+                console.log("animateTimer: " + animateTimer);
+                animateCondReq(true);
+                persistVarName = "animateTimer";
+            }
             break;
         case "V": // Heise
             eventHeise = !eventHeise;
             eventUpdateKeyMap();
             animateUpdateStatus((eventHeise ? "Heise" : "RLUDFB") + " key mapping");
+            persistVarName = "eventHeise";
             break;
         default:
             // "{" happens when the console is opened - irrelevant.
@@ -723,6 +1266,13 @@ function _eventOnKeyDown(event) {
             }
             validEventChar = false;
             break;
+        }
+        if (persistVarName) {
+            initSaveStorageVariable(persistVarName);
+        }
+        if (persistCameraLocation) {
+            animateSyncCameraLocation();
+            initSaveStorageVariable("animateCameraLocation");
         }
         if (validEventChar && !buttonBar) {
             // Flash the button if activated by a key.
@@ -741,6 +1291,32 @@ function _eventOnKeyDown(event) {
         }
         _eventEscLast = false;
     }
+}
+
+// Return true if undo can reach a move after skipping adjacent savepoints.
+function _eventCanUndo() {
+    for (var i = animateMoveHistoryNext - 1; i >= 0; i--) {
+        if (animateMoveHistory[i] !== "|") {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Return true if redo can reach history or continue the loaded solve.
+function _eventCanRedo() {
+    for (var i = animateMoveHistoryNext; i < animateMoveHistory.length; i++) {
+        if (animateMoveHistory[i] !== "|") {
+            return true;
+        }
+    }
+    return rotateGetSolveMovesRemaining(false).length > 0;
+}
+
+// Return true if the current history position is not already a savepoint.
+function _eventCanSetSavepoint() {
+    return (animateMoveHistory[animateMoveHistoryNext - 1] !== "|")
+            && (animateMoveHistory[animateMoveHistoryNext] !== "|");
 }
 
 // A mouse button was pressed down.  Record the location and suppress orbit
@@ -828,6 +1404,12 @@ function _eventOnMouseUp(event) {
                         moveBegin.axis);
             } else {
                 // A single click without movement.
+                if (eventIgnoreMouseSingleClickAfterKey
+                        && (_eventLastMoveInputSource === "key")) {
+                    console.log("Ignoring mouse single-click move after key move.");
+                    _eventLastMoveInputSource = null;
+                    continue;
+                }
                 var moveEnd = {};
                 moveEnd.axis = moveBegin.axis;
                 moveEnd.pos = moveBegin.pos.clone();
@@ -915,7 +1497,7 @@ function _eventOnMouseUp(event) {
                 var moveRot = utilsGetMoveRotationFromLayers(axis, layers);
                 if (moveRot) {
                     // Queue the move and rotation up.
-                    utilsEnqueueMoveRotation(moveRot);
+                    _eventEnqueueInputMoveRotation(moveRot);
 
                     // If the user made a move they probably don't care
                     // about the message.
@@ -947,4 +1529,37 @@ function _eventOnTouchMove(event) {
     // Prevent the browser from scrolling or otherwise attempting to respond
     // to the event.
     event.preventDefault();
+}
+
+// When alt is combined with a full move rotation a visually similar camera
+// move is done instead. This function returns true if the move was done.
+function _eventQueueCameraMoveForCubeRotation(move) {
+    var cameraDirection = null;
+    switch (move) {
+        case "X":
+            cameraDirection = "down";
+            break;
+        case "X'":
+            cameraDirection = "up";
+            break;
+        case "Y":
+            cameraDirection = "right";
+            break;
+        case "Y'":
+            cameraDirection = "left";
+            break;
+        case "Z":
+            cameraDirection = "up";
+            break;
+        case "Z'":
+            cameraDirection = "down";
+            break;
+    }
+
+    if (cameraDirection) {
+        animateQueueCameraMove(cameraDirection);
+        return true;
+    } else {
+        return false;
+    }
 }

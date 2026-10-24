@@ -15,16 +15,20 @@ var animateButtonStyle = "auto";
 var animateCamera;
 var animateCameraAdjusting = false;
 var animateCameraLocation = [470, 470, 470];
+var animateCameraOrthographic = false;
+var animateCameraOrthographicScale = 0.943;
 var animateCameraRadius;
 var animateCanvasHeight = 0;
 var animateCanvasWidth = 0;
-var animateDispOrientationLabels = false;
 var animateElapsedMsecOld = 0;
 var animateMoveCurrent = "";
 var animateMoveHistory = [];
 var animateMoveHistoryNext = 0;
 var animateMoveHistoryNextLast = -1; // Not set
+var animateMoveHistoryNormalize = true;
 var animateMoveQueue = [];
+var animateMoveQueueReplay = false;
+var animateScrambleReplay = false;
 var animateMoveRadMsec = 0.0;
 var animateMoveSec = 10.0;
 var animateOrbitControls;
@@ -36,14 +40,21 @@ var animateText = [];
 var animateTimer = false;
 var animateTimerInspectionSecs = 15;
 var animateTimerState = "solve";
+var animateWireframeColor = "darkgreen";
+var animateWireframeCube = false;
 var animateWireframeSphere = false;
 
 // Private globals
 
 var _animateAnimationRequested = false;
 var _animateAspectRatio = 0.0;
+var _animateButtonDesktopScale = 1.25;
 var _animateCanvasMin = 0;
+var _animateCameraNear = 100;
 var _animateFov = 0.0;
+var _animateCameraOrthographicActive = null;
+var _animateCameraMoveCurrent = null;
+var _animateCameraMoveQueue = [];
 var _animateMoveQueueLen = -1;
 var _animateMoveStartMsec = 0;
 var _animateNeeded = false;
@@ -55,8 +66,14 @@ var _animateStatusTimeMSec = 0;
 var _animateTimerAnimated = false;
 var _animateTimerJumpMax = 10000;
 var _animateTimerFrameNext = 0;
+var _animateTimerDisplayCanvasHeight = -1;
+var _animateTimerDisplayCanvasWidth = -1;
+var _animateTimerDisplayState = null;
+var _animateTimerDisplayText = null;
+var _animateTimerDisplayVisible = null;
 var _animateTimerSolved;
 var _animateTimerStart = Date.now();
+var _animateWireframeCubeMesh;
 var _animateWireframeSphereMesh;
 
 // Public functions
@@ -101,18 +118,37 @@ function animateCubeReadyCheck(desc) {
 // Draw a wireframe sphere tightly around the cube.  This is helpful to
 // visualize the full possible extent of the cube as it's rotated.
 function animateDrawWireframeSphere(show) {
+    if (_animateWireframeSphereMesh) {
+        animateScene.remove(_animateWireframeSphereMesh);
+        _animateDisposeObject(_animateWireframeSphereMesh);
+        _animateWireframeSphereMesh = null;
+    }
     if (show && !_animateWireframeSphereMesh) {
         // Add a sphere around the origin that tightly contains the cube.
         var matt = new THREE.MeshBasicMaterial({
-            color : "darkgreen",
+            color : utilsNormalizeColor(animateWireframeColor),
             wireframe : true
         });
         var geometry = new THREE.SphereGeometry(cubiesRadius, 64, 64);
         _animateWireframeSphereMesh = new THREE.Mesh(geometry, matt);
         animateScene.add(_animateWireframeSphereMesh);
-    } else if ((!show) && _animateWireframeSphereMesh) {
-        animateScene.remove(_animateWireframeSphereMesh);
-        _animateWireframeSphereMesh = null;
+    }
+}
+
+// Draw a wireframe cube subdivided to match the current cube order.
+function animateDrawWireframeCube(show) {
+    if (_animateWireframeCubeMesh) {
+        animateScene.remove(_animateWireframeCubeMesh);
+        _animateDisposeObject(_animateWireframeCubeMesh);
+        _animateWireframeCubeMesh = null;
+    }
+    if (show) {
+        var geometry = _animateCreateWireframeCubeGeometry();
+        var matt = new THREE.LineBasicMaterial({
+            color : utilsNormalizeColor(animateWireframeColor)
+        });
+        _animateWireframeCubeMesh = new THREE.LineSegments(geometry, matt);
+        animateScene.add(_animateWireframeCubeMesh);
     }
 }
 
@@ -129,6 +165,9 @@ function animateNewCube(clearHistory) {
     if (clearHistory) {
         animateMoveHistory.length = 0;
         animateMoveHistoryNext = 0;
+        scrambleMoves.length = 0;
+        eventResetLastInputMove();
+        solveClearMoves();
     }
     rotateEnd();
     animateResetScene(null);
@@ -150,11 +189,13 @@ function animateResetScene(oldCubies) {
 
     // Create a new list of cubies.
     cubiesCreate(oldCubies);
+    arrowsInit();
     for (var i = 0; i < cubiesList.length; i++) {
         animateScene.add(cubiesList[i]);
     }
 
-    // Enclose the cube in a wireframe sphere.
+    // Enclose the cube in optional wireframe guides.
+    animateDrawWireframeCube(animateWireframeCube);
     animateDrawWireframeSphere(animateWireframeSphere);
 }
 
@@ -174,7 +215,8 @@ function animateResize() {
     } else if (animateButtonStyle === "auto") {
         var buttonBarHeightFraction = initMobile ? 0.2 : 0.03333;
     }
-    animateButtonBarHeight = animateButtonHeightScale
+    var buttonPlatformScale = initMobile ? 1.0 : _animateButtonDesktopScale;
+    animateButtonBarHeight = animateButtonHeightScale * buttonPlatformScale
             * Math.floor(buttonBarHeightFraction * window.innerHeight);
     if (animateButtonHeightScale) {
         animateButtonBarHeight = Math.max(animateButtonBarHeight, 15);
@@ -199,11 +241,7 @@ function animateResize() {
         var angle = Math.atan(tan);
     }
     _animateFov = (180.0 / Math.PI) * (2.0 * angle);
-    if (animateCamera) {
-        animateCamera.aspect = _animateAspectRatio;
-        animateCamera._animateFov = _animateFov;
-        animateCamera.updateProjectionMatrix();
-    }
+    _animateUpdateCameraProjection();
 
     // Position the help dialog.
     var helpLeft = (animateCanvasWidth - initElHelp.clientWidth) / 2.0;
@@ -230,17 +268,158 @@ function animateResize() {
     initElTip.style.visibility = "hidden";
 }
 
+// Update camera projection fields after resize or projection mode changes.
+function _animateUpdateCameraProjection() {
+    if (!animateCamera) {
+        return;
+    }
+
+    animateCamera.near = _animateCameraNear;
+    animateCamera.far = _animateGetCameraFar();
+
+    if (animateCameraOrthographic) {
+        // Starting point for orthographic sizing: fit the same enclosing sphere
+        // used by the perspective FOV calculation.
+        var halfWidth = cubiesRadius * animateCameraOrthographicScale;
+        var halfHeight = cubiesRadius * animateCameraOrthographicScale;
+        if (_animateAspectRatio >= 1.0) {
+            halfWidth = cubiesRadius * animateCameraOrthographicScale * _animateAspectRatio;
+        } else {
+            halfHeight = cubiesRadius * animateCameraOrthographicScale / _animateAspectRatio;
+        }
+        animateCamera.left = -halfWidth;
+        animateCamera.right = halfWidth;
+        animateCamera.top = halfHeight;
+        animateCamera.bottom = -halfHeight;
+    } else {
+        // Preserve the current perspective behavior.
+        animateCamera.aspect = _animateAspectRatio;
+        animateCamera._animateFov = _animateFov;
+    }
+    animateCamera.updateProjectionMatrix();
+}
+
 // Set the camera to the position specified by setting animateCameraLocation.
 // It will be facing the origin regardless of it's location.
-function animateSetCamera() {
-    if (!animateCamera) {
-        animateCamera = new THREE.PerspectiveCamera(_animateFov, _animateAspectRatio, 100, 1000);
+function animateSetCamera(suppressLog) {
+    if (!animateCamera || _animateCameraOrthographicActive !== animateCameraOrthographic) {
+        if (animateCameraOrthographic) {
+            animateCamera = new THREE.OrthographicCamera(-1, 1, 1, -1,
+                    _animateCameraNear, _animateGetCameraFar());
+        } else {
+            animateCamera = new THREE.PerspectiveCamera(_animateFov, _animateAspectRatio,
+                    _animateCameraNear, _animateGetCameraFar());
+        }
+        _animateCameraOrthographicActive = animateCameraOrthographic;
+        if (animateOrbitControls) {
+            animateOrbitControls.object = animateCamera;
+        }
+        _animateUpdateCameraProjection();
     }
     animateCamera.position
             .set(animateCameraLocation[0], animateCameraLocation[1], animateCameraLocation[2]);
-    console.log("Camera at [" + animateCameraLocation[0] + ", " + animateCameraLocation[1]
-            + ", " + animateCameraLocation[2] + "] _animateFov=" + Math.floor(10 * _animateFov) / 10.0
-            + " _animateAspectRatio=" + Math.floor(100 * _animateAspectRatio) / 100.0);
+    animateCamera.up.set(0, 1, 0);
+    animateCamera.lookAt(new THREE.Vector3(0, 0, 0));
+    if (!suppressLog) {
+        console.log("Camera at [" + animateCameraLocation[0] + ", " + animateCameraLocation[1]
+                + ", " + animateCameraLocation[2] + "]"
+                + " animateCameraOrthographic=" + animateCameraOrthographic
+                + " _animateFov=" + Math.floor(10 * _animateFov) / 10.0
+                + " _animateAspectRatio=" + Math.floor(100 * _animateAspectRatio) / 100.0);
+    }
+}
+
+// Synchronize animateCameraLocation with the actual camera position.
+function animateSyncCameraLocation() {
+    // To a tenth of a pixel should be plenty accurate.
+    animateCameraLocation[0] = Math.round(10 * animateCamera.position.x) / 10;
+    animateCameraLocation[1] = Math.round(10 * animateCamera.position.y) / 10;
+    animateCameraLocation[2] = Math.round(10 * animateCamera.position.z) / 10;
+}
+
+// Build the subdivided wireframe cube geometry.
+function _animateCreateWireframeCubeGeometry() {
+    var positions = [];
+    var arrowOutsideFactor = (typeof _slightlyOutsideFactor === "number")
+            ? _slightlyOutsideFactor : 1.01;
+    var overlayOffset = 3.0 * (arrowOutsideFactor - 1.0) * cubiesHalfSide;
+    var d = cubiesHalfSide + overlayOffset;
+    var step = (2.0 * d) / cubiesOrder;
+    var coords = [];
+    for (var i = 0; i <= cubiesOrder; i++) {
+        coords.push(-d + (i * step));
+    }
+
+    _animateAddWireframeCubeFace(positions, "x", "y", "z", d, coords);
+    _animateAddWireframeCubeFace(positions, "x", "y", "z", -d, coords);
+    _animateAddWireframeCubeFace(positions, "y", "x", "z", d, coords);
+    _animateAddWireframeCubeFace(positions, "y", "x", "z", -d, coords);
+    _animateAddWireframeCubeFace(positions, "z", "x", "y", d, coords);
+    _animateAddWireframeCubeFace(positions, "z", "x", "y", -d, coords);
+
+    var geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(
+            positions, 3));
+    return geometry;
+}
+
+// Add grid lines for one face to the wireframe cube positions array.
+function _animateAddWireframeCubeFace(positions, fixedAxis, axisA, axisB,
+        fixedValue, coords) {
+    var min = coords[0];
+    var max = coords[coords.length - 1];
+    for (var i = 0; i < coords.length; i++) {
+        var coord = coords[i];
+        _animateAddWireframeLine(positions, fixedAxis, fixedValue,
+                axisA, coord, axisB, min, max);
+        _animateAddWireframeLine(positions, fixedAxis, fixedValue,
+                axisB, coord, axisA, min, max);
+    }
+}
+
+// Add one line segment to the wireframe positions array.
+function _animateAddWireframeLine(positions, fixedAxis, fixedValue, constAxis,
+        constValue, varyingAxis, min, max) {
+    var p1 = {x: 0, y: 0, z: 0};
+    var p2 = {x: 0, y: 0, z: 0};
+    p1[fixedAxis] = fixedValue;
+    p2[fixedAxis] = fixedValue;
+    p1[constAxis] = constValue;
+    p2[constAxis] = constValue;
+    p1[varyingAxis] = min;
+    p2[varyingAxis] = max;
+    positions.push(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
+}
+
+// Dispose of geometry and material for a removed Three.js object.
+function _animateDisposeObject(obj) {
+    if (obj.geometry && obj.geometry.dispose) {
+        obj.geometry.dispose();
+    }
+    if (obj.material && obj.material.dispose) {
+        obj.material.dispose();
+    }
+}
+
+// Return a far clipping plane that includes the cube plus nearby overlays.
+function _animateGetCameraFar() {
+    const farPlane = Math.max(1000, animateCameraRadius + (1.2 * cubiesRadius));
+    console.log("Camera far plane " + farPlane + " animateCameraRadius="
+        + animateCameraRadius + " cubiesRadius=" + cubiesRadius);
+    return farPlane;
+}
+
+// Queue a camera move command. Valid values: "left", "right", "up", "down".
+function animateQueueCameraMove(move) {
+    // If no camera move is active, start from the true current camera position.
+    // This keeps arrow-key camera movement aligned with mouse/orbit changes.
+    if (!_animateCameraMoveCurrent && !_animateCameraMoveQueue.length && animateCamera) {
+        animateCameraLocation[0] = animateCamera.position.x;
+        animateCameraLocation[1] = animateCamera.position.y;
+        animateCameraLocation[2] = animateCamera.position.z;
+    }
+    _animateCameraMoveQueue.push(move);
+    animateCondReq(true);
 }
 
 // Update the status bar at the top of the screen with the specified message.
@@ -297,7 +476,13 @@ function _animateConsolidateMoves() {
         // Moves are being replayed.  Avoid consolidating in order to minimize
         // the risk of clicking "Ok" the settings dialog having some
         // undesirable side effect.
-        return;
+        return 0;
+    }
+
+    if (animateMoveQueueReplay) {
+        // Replay must preserve the queued move sequence so solve tracking stays
+        // aligned with arrows and savepoint boundaries.
+        return 0;
     }
 
     var undo = animateMoveCurrent.indexOf("G") !== -1;
@@ -344,9 +529,8 @@ function _animateConsolidateMoves() {
             bestMove = moveRotNew[0];
             bestRotation = moveRotNew[1];
         } else {
-            // The moves were not compatible.
-            console.log("Unable to find consolidated move for rotation "
-                    + rotation);
+            // Not every combination of layers has a single-move notation.
+            utilsLogVerbose("Unable to consolidate move rotation " + rotation);
         }
     }
     if (!bestMove) {
@@ -383,25 +567,36 @@ function _animateDoAnimate() {
     // Animation not requested since starting this animation frame.
     _animateAnimationRequested = false;
 
+    // If true then this method has caused a need to animate again.
+    var animateNeededFromAnimate = false;
+
     // If only the timer is displayed then much of the animation code can be
     // bypassed. Also, the frame rate can be reduced saving CPU.
     var timerOnly = animateTimer
             && !(_animateNeeded || animateMoveCurrent || animateMoveQueue.length
-                    || _animateStatusDisplayed || animateCameraAdjusting);
+                    || _animateStatusDisplayed || animateCameraAdjusting
+                    || _animateCameraMoveCurrent || _animateCameraMoveQueue.length);
 
     if (!timerOnly) {
         // Something other than the timer needs to be updated.
         animateOrbitControls.update();
+        _animateUpdateCameraMove();
+        if (_animateCameraMoveCurrent || _animateCameraMoveQueue.length) {
+            animateNeededFromAnimate = true;
+        }
 
         // Display or hide the orientation labels.
-        textSetVisible(animateDispOrientationLabels);
+        textSetVisible(textDispOrientationLabels);
 
         // If animateMoveQueue is longer than a typical scramble (scrambleJSSMax) then
         // replay all of the moves prior to a typical scramble as quickly as
         // possible without updating the screen.
         var moveCount = 0;
+        var renderedDuringLoop = false;
         do {
             moveCount++;
+            var movesPendingAtLoopStart = animateMoveQueue.length
+                    + (animateMoveCurrent ? 1 : 0);
             var endMove = false;
             if (!animateMoveCurrent) {
                 // Keeping animateMoveCurrent and _animateRotationCurrent in sync depends on a
@@ -440,6 +635,11 @@ function _animateDoAnimate() {
             if (_animateRotationCurrent) {
                 // Consolidate now if a new move is waiting.
                 if ((animateMoveQueue.length !== _animateMoveQueueLen) && _animateConsolidateMoves()) {
+                    utilsLogVerbose("consolidate-before-rebegin: move="
+                            + animateMoveCurrent + " animateMoveHistoryNext="
+                            + animateMoveHistoryNext + " animateMoveHistory="
+                            + animateMoveHistory.join(" "));
+                    rotateReplaceLastHistoryMove(animateMoveCurrent);
                     // Rotate the current move back to where it started.
                     rotatePivot.rotation[_animateRotationCurrent[1]] = 0.0;
                     animateRenderer.render(animateScene, animateCamera);
@@ -448,6 +648,10 @@ function _animateDoAnimate() {
                     // the new consolidated move.
                     rotateEnd();
                     rotateBegin(animateMoveCurrent, _animateRotationCurrent, true);
+                    utilsLogVerbose("consolidate-after-rebegin: move="
+                            + animateMoveCurrent + " animateMoveHistoryNext="
+                            + animateMoveHistoryNext + " animateMoveHistory="
+                            + animateMoveHistory.join(" "));
                 }
                 _animateMoveQueueLen = animateMoveQueue.length;
 
@@ -456,7 +660,9 @@ function _animateDoAnimate() {
                 // value of the actual angle.
                 var angleMax = (_animateRotationCurrent[4] === 2) ? Math.PI
                         : Math.PI / 2.0;
-                if ((!animateAnimationInst) && (animateMoveQueue.length <= animateAnimationLimit)) {
+                var fastForwardMoves = _animateFastForwardMoves(moveCount,
+                        movesPendingAtLoopStart);
+                if (!fastForwardMoves) {
                     var elapsedMsec = Date.now() - _animateMoveStartMsec;
                     var angleGoal = elapsedMsec * animateMoveRadMsec;
                     if (angleGoal >= angleMax) {
@@ -472,28 +678,31 @@ function _animateDoAnimate() {
             } else {
                 animateMoveCurrent = null;
                 endMove = true;
+                var fastForwardMoves = false;
             }
 
-            if (_animateRendered) {
-                animateRenderer.render(animateScene, animateCamera);
-            } else {
-                // The first time animateRenderer.render() is called three.js
-                // logs a warning that I don't understand.
-                var consoleWarnBak = console.warn;
-                console.warn = utilsSuppressedWarning;
-                animateRenderer.render(animateScene, animateCamera);
-                _animateRendered = true;
-                console.warn = consoleWarnBak;
+            if (!fastForwardMoves) {
+                _animateRender();
+                renderedDuringLoop = true;
             }
 
-            if (endMove) {
+            // The loop also runs while non-move animation, such as a status
+            // message, is active. Only finish a move when one was pending.
+            if (endMove && movesPendingAtLoopStart) {
                 rotateEnd();
+                if (_animateRotationCurrent) {
+                    _rotateMoveHistoryNormalize();
+                    animateNeededFromAnimate = true;
+                }
                 if (!animateMoveQueue.length) {
                     if (animateTimerState === "scramble") {
                         // If the last move of the scramble was made then begin
                         // the inspection phase.
                         animateTimerState = "inspect";
                         _animateTimerStart = Date.now();
+                        if (arrowsEnabled) {
+                            solveFindMovesFromHistory();
+                        }
                     } else if (animateTimerState === "solve" && animateMoveHistory.length
                             && !_animateIsFullCubeRotation(_animateRotationCurrent)) {
                         if (cubiesSolved()) {
@@ -503,13 +712,19 @@ function _animateDoAnimate() {
                     }
                     // We're done replaying moves.
                     animateMoveHistoryNextLast = -1;
+                    animateMoveQueueReplay = false;
+                    animateScrambleReplay = false;
                 }
+                // Refresh once per completed move. This also handles a final
+                // replay item that is a savepoint with no rotation.
+                rotateUpdateArrowsMoveFromSolve();
                 animateMoveCurrent = null;
                 _animateRotationCurrent = null;
             }
-        } while ((animateMoveQueue.length > scrambleJSSMax)
-                && ((animateMoveHistoryNextLast - animateMoveQueue.length) >= 2)
-                && (moveCount <= 100));
+        } while (fastForwardMoves && (animateMoveCurrent || animateMoveQueue.length));
+        if (moveCount && !renderedDuringLoop) {
+            _animateRender();
+        }
         animateUpdateStatus(null);
         _animateUpdateTimer();
     } else {
@@ -527,7 +742,127 @@ function _animateDoAnimate() {
         }
     }
 
-    animateCondReq(false);
+    animateCondReq(animateNeededFromAnimate);
+}
+
+// Return true if queued moves should finish without intermediate rendering.
+function _animateFastForwardMoves(moveCount, movesPendingAtLoopStart) {
+    if (animateAnimationInst) {
+        return true;
+    }
+    if (animateScrambleReplay) {
+        return true;
+    }
+    if (movesPendingAtLoopStart > (animateAnimationLimit + 1)) {
+        return true;
+    }
+    return (animateMoveQueue.length > scrambleJSSMax)
+            && ((animateMoveHistoryNextLast - animateMoveQueue.length) >= 2)
+            && (moveCount <= 100);
+}
+
+// Render the current scene, suppressing the first-render warning if needed.
+function _animateRender() {
+    if (_animateRendered) {
+        animateRenderer.render(animateScene, animateCamera);
+    } else {
+        // The first time animateRenderer.render() is called three.js logs a
+        // warning that I don't understand.
+        var consoleWarnBak = console.warn;
+        console.warn = utilsSuppressedWarning;
+        animateRenderer.render(animateScene, animateCamera);
+        _animateRendered = true;
+        console.warn = consoleWarnBak;
+    }
+}
+
+// Apply one animation step for queued camera movement.
+function _animateUpdateCameraMove() {
+    if (!_animateCameraMoveCurrent && _animateCameraMoveQueue.length) {
+        _animateCameraMoveCurrent = _animateBuildCameraMove(_animateCameraMoveQueue.shift());
+    }
+    if (!_animateCameraMoveCurrent) {
+        return;
+    }
+
+    var current = _animateCameraMoveCurrent;
+    var elapsedMsec = Date.now() - current.startMsec;
+    var angleGoal = animateAnimationInst ? current.angleTotal : elapsedMsec * animateMoveRadMsec;
+    if (angleGoal > current.angleTotal) {
+        angleGoal = current.angleTotal;
+    }
+    var angleStep = current.angleSign * angleGoal;
+    var pos = current.startVec.clone().applyAxisAngle(current.axisVec, angleStep);
+    animateCameraLocation[0] = pos.x;
+    animateCameraLocation[1] = pos.y;
+    animateCameraLocation[2] = pos.z;
+    animateSetCamera(true);
+
+    if (angleGoal >= current.angleTotal) {
+        animateCameraLocation[0] = current.targetVec.x;
+        animateCameraLocation[1] = current.targetVec.y;
+        animateCameraLocation[2] = current.targetVec.z;
+        animateSetCamera(true);
+        _animateCameraMoveCurrent = null;
+    }
+}
+
+// Build target vectors and timing data for a camera move.
+function _animateBuildCameraMove(move) {
+    var startVec = new THREE.Vector3(animateCameraLocation[0], animateCameraLocation[1],
+            animateCameraLocation[2]);
+    var targetVec = startVec.clone();
+    var axisVec = null;
+    var angleSign = 1.0;
+    var angleTotal = 0.0;
+
+    if (move === "left") {
+        targetVec.set(-startVec.z, startVec.y, startVec.x);
+        axisVec = new THREE.Vector3(0, 1, 0);
+        angleSign = -1.0;
+        angleTotal = Math.PI / 2.0;
+    } else if (move === "right") {
+        targetVec.set(startVec.z, startVec.y, -startVec.x);
+        axisVec = new THREE.Vector3(0, -1, 0);
+        angleSign = -1.0;
+        angleTotal = Math.PI / 2.0;
+    } else if (move === "up") {
+        if (startVec.y >= 0) {
+            return null;
+        }
+        targetVec.set(startVec.x, -startVec.y, startVec.z);
+        axisVec = new THREE.Vector3().crossVectors(startVec, targetVec);
+        if (axisVec.lengthSq() < 0.000001) {
+            axisVec.set(1, 0, 0);
+        } else {
+            axisVec.normalize();
+        }
+        angleTotal = startVec.angleTo(targetVec);
+    } else if (move === "down") {
+        if (startVec.y <= 0) {
+            return null;
+        }
+        targetVec.set(startVec.x, -startVec.y, startVec.z);
+        axisVec = new THREE.Vector3().crossVectors(startVec, targetVec);
+        if (axisVec.lengthSq() < 0.000001) {
+            axisVec.set(1, 0, 0);
+        } else {
+            axisVec.normalize();
+        }
+        angleTotal = startVec.angleTo(targetVec);
+    } else {
+        console.log("Ignoring unknown camera move \"" + move + "\".");
+        return null;
+    }
+
+    return {
+        axisVec : axisVec,
+        angleSign : angleSign,
+        angleTotal : angleTotal,
+        startMsec : Date.now(),
+        startVec : startVec,
+        targetVec : targetVec
+    };
 }
 
 // Returns true if "rotation" rotates the entire cube is being rotated about
@@ -542,14 +877,9 @@ function _animateIsFullCubeRotation(rotation) {
 // Update the timer value and color as a function of the timer state.
 function _animateUpdateTimer() {
     if (animateTimer) {
-        // Prevent wrapping prior to the message being displayed since it
-        // messes up the centering.
-        initElTimer.style.left = "0px";
-        initElTimer.style.opacity = 1.0;
-
         if (animateTimerState === "inspect") {
             _animateTimerAnimated = true;
-            initElTimer.style.backgroundColor = "#ff8080";
+            var backgroundColor = "#ff8080";
             var elapsedMsec = (1000 * animateTimerInspectionSecs)
                     - (Date.now() - _animateTimerStart);
             animateElapsedMsecOld = 0;
@@ -562,25 +892,25 @@ function _animateUpdateTimer() {
             }
         } else if (animateTimerState === "scramble") {
             _animateTimerAnimated = false;
-            initElTimer.style.backgroundColor = "#808080";
+            var backgroundColor = "#808080";
             var elapsedMsec = null;
             animateElapsedMsecOld = 0;
         } else if (animateTimerState === "solve") {
             _animateTimerAnimated = true;
-            initElTimer.style.backgroundColor = "#80ff80";
+            var backgroundColor = "#80ff80";
             var elapsedMsec = Date.now() - _animateTimerStart;
         } else if (animateTimerState === "solved") {
             _animateTimerAnimated = false;
-            initElTimer.style.backgroundColor = "#ffff80";
+            var backgroundColor = "#ffff80";
             var elapsedMsec = _animateTimerSolved - _animateTimerStart;
         } else {
             _animateTimerAnimated = false;
-            initElTimer.style.backgroundColor = "#ff80ff";
+            var backgroundColor = "#ff80ff";
             // Unknown animateTimerState. This should not happen.
             utilsFatalError("Unknown animateTimerState \"" + animateTimerState + "\"");
             var elapsedMsec = -1;
         }
-        initElTimer.innerHTML = utilsElapsedMsecToStr(elapsedMsec);
+        var timerText = utilsElapsedMsecToStr(elapsedMsec);
 
         if ((elapsedMsec && animateElapsedMsecOld) &&
                 ((elapsedMsec - animateElapsedMsecOld) > _animateTimerJumpMax)) {
@@ -591,6 +921,21 @@ function _animateUpdateTimer() {
         }
         animateElapsedMsecOld = elapsedMsec;
 
+        if ((_animateTimerDisplayVisible === true)
+                && (_animateTimerDisplayText === timerText)
+                && (_animateTimerDisplayState === animateTimerState)
+                && (_animateTimerDisplayCanvasWidth === animateCanvasWidth)
+                && (_animateTimerDisplayCanvasHeight === animateCanvasHeight)) {
+            return;
+        }
+
+        // Prevent wrapping prior to the message being displayed since it
+        // messes up the centering.
+        initElTimer.style.left = "0px";
+        initElTimer.style.opacity = 1.0;
+        initElTimer.style.backgroundColor = backgroundColor;
+        initElTimer.innerHTML = timerText;
+
         // Position the timer dialog.
         var timerLeft = animateCanvasWidth - initElTimer.clientWidth - 1;
         if (timerLeft < 0) {
@@ -598,7 +943,18 @@ function _animateUpdateTimer() {
         }
         initElTimer.style.left = timerLeft + "px";
         initElTimer.style.top = (animateCanvasHeight - initElTimer.offsetHeight) + "px";
+
+        _animateTimerDisplayVisible = true;
+        _animateTimerDisplayText = timerText;
+        _animateTimerDisplayState = animateTimerState;
+        _animateTimerDisplayCanvasWidth = animateCanvasWidth;
+        _animateTimerDisplayCanvasHeight = animateCanvasHeight;
     } else {
-        initElTimer.style.opacity = 0.0;
+        if (_animateTimerDisplayVisible !== false) {
+            initElTimer.style.opacity = 0.0;
+            _animateTimerDisplayVisible = false;
+            _animateTimerDisplayText = null;
+            _animateTimerDisplayState = null;
+        }
     }
 }

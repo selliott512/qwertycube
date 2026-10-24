@@ -1,0 +1,16 @@
+# Custom CFOP algorithms.
+#
+# This file is intentionally minimal. Copy one of the existing cfop-*.txt files
+# over this file, or add OLL/PLL rows here, to build a custom CFOP algorithm set.
+# See cfop-help.txt for the row format. The "none" (solved) row has been added
+# to demonstrate.
+
+# OLL algorithms
+
+# phase signature           algorithm                       flag    name    mname   probability
+OLL     ***,***,***,***     none                            d       0               1/216
+
+# PLL algorithms
+
+# phase signature           algorithm                       flag    name    mname   probability
+PLL     BBB,RRR,FFF,LLL     none                            d       O               1/72

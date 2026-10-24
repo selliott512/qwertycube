@@ -5,9 +5,13 @@
 // Public globals
 
 var scrambleMoves = [];
+var scrambleAnimate = true;
 var scrambleCount = 0; // 0 to let the scrambler decide.
+var scrambleExtraMoves = "jsss"; // Scrambler types that get anti-undo tail moves.
 var scrambleJSSMax = 21; // Observed maximum for JSS.
+var scrambleNewCube = false;
 var scrambleType = "jsss";
+var scrambleUntilPhase = 0;
 
 // Private globals
 
@@ -102,11 +106,16 @@ var _scrambleSimpleCount = 0; // Simple scrambler.
 
 // Determine the appropriate scrambler, call it, and enqueue the resulting
 // scramble moves.
-function scrambleCube() {
+async function scrambleCube(manualScramble, untilPhaseOverride) {
+    var status = null;
+    solveClearMoves();
     _scrambleSimpleCube.reset();
-    if (scrambleType === "simple") {
-        // 30 is the default for the simple scrambler.
-        _scrambleSimpleCount = scrambleCount ? scrambleCount : 30;
+    if (manualScramble) {
+        // User-entered scrambles are applied exactly as entered.
+        scrambleMoves = manualScramble.moves.slice();
+    } else if (scrambleType === "simple") {
+        // 35 is the default for the simple scrambler.
+        _scrambleSimpleCount = scrambleCount ? scrambleCount : 35;
         scrambleMoves = _scrambleSimpleCube.scramble();
     } else if (scrambleType === "jsss") {
         var name = String(cubiesOrder) + String(cubiesOrder) + String(cubiesOrder);
@@ -119,7 +128,7 @@ function scrambleCube() {
             if (!scrambler) {
               console.log("Unable to get scrambler named \"" + name +
                   "\" for order " + cubiesOrder);
-              return;
+              return "Scramble failed - see console";
             }
         }
         var scrambleMovesNulls = scrambler.getRandomScramble().scramble_string.split(" ");
@@ -132,10 +141,39 @@ function scrambleCube() {
     } else {
         // TODO: Probably prevent this in Settings.js.
         console.log("Unknown scrambler type \"" + scrambleType + "\".");
-        return;
+        return "Scramble failed - see console";
+    }
+
+    // Optionally add extra tail moves so undoing the few animated moves does
+    // not expose a shorter-than-random-state scramble.
+    if ((!manualScramble) && scrambleAnimate
+            && _scrambleExtraMovesEnabledForType(scrambleType)) {
+        var extraCount = Math.max(0, Math.floor(animateAnimationLimit));
+        if (extraCount) {
+            var extraMovesPlusOne = _scrambleGenerateSimpleMoves(extraCount + 1);
+            if (scrambleMoves.length
+                    && (utilsGetMoveFace(scrambleMoves[scrambleMoves.length - 1])
+                        === utilsGetMoveFace(extraMovesPlusOne[0]))) {
+                // By construction of simple scrambler, if extraMovesPlusOne[0]
+                // matches then extraMovesPlusOne[1] will not.
+                var extraMoves = extraMovesPlusOne.slice(1, extraCount + 1);
+            } else {
+                var extraMoves = extraMovesPlusOne.slice(0, extraCount);
+            }
+            for (var i = 0; i < extraMoves.length; i++) {
+                scrambleMoves.push(extraMoves[i]);
+            }
+            console.log("Added " + extraMoves.length
+                + " anti-undo extra moves for scramble type \"" + scrambleType + "\".");
+        }
+    }
+
+    if (!manualScramble) {
+        status = await _scrambleAppendUntilPhase(untilPhaseOverride);
     }
 
     // Apply the scramble found.
+    animateScrambleReplay = !scrambleAnimate;
     utilsEnqueueMoves(scrambleMoves);
 
     // Add a savepoint after the scramble so that Alt-G rewinds to it.
@@ -146,6 +184,220 @@ function scrambleCube() {
 
     console.log("Scramble length: " + scrambleMoves.length);
     console.log("Scramble: " + scrambleMoves.join(" "));
+    return status ? status : ("Scrambled " + _scrambleCountMoves(scrambleMoves)
+            + " moves");
+}
+
+// Prompt for a user-entered scramble and return parsed moves plus flags.
+async function scramblePromptManualScramble() {
+    var manualMoves = await _scramblePromptManualMoves(
+        "Enter scramble ([flags[:]]moves)\n"
+            + "Example: im:R U F\n"
+            + "a: algorithm by name\n"
+            + "i: invert\n"
+            + "k: keep cube\n"
+            + "m: mirror\n"
+            + "n: new cube",
+        "Scramble",
+        false);
+    if (!manualMoves) {
+        return null;
+    }
+
+    return _scrambleApplyManualScrambleFlags({
+        flagsText : manualMoves.flagsText,
+        flags : manualMoves.flags,
+        moves : manualMoves.moves,
+        newCube : scrambleNewCube
+    });
+}
+
+// Prompt for user-entered training moves and return parsed moves plus flags.
+async function scramblePromptManualTraining() {
+    var manualMoves = await _scramblePromptManualMoves(
+        "Enter training ([flags[:]]moves)\n"
+            + "Example: im:R U F\n"
+            + "a: algorithm by name\n"
+            + "i: invert\n"
+            + "m: mirror",
+        "Training input",
+        true);
+    if (!manualMoves) {
+        return null;
+    }
+
+    return _scrambleApplyManualTrainingFlags(manualMoves);
 }
 
 // Private functions
+
+// Count actual moves, excluding savepoint markers.
+function _scrambleCountMoves(moves) {
+    var count = 0;
+    for (var i = 0; i < moves.length; i++) {
+        if (moves[i] !== "|") {
+            count++;
+        }
+    }
+    return count;
+}
+
+// Append solve moves until the configured phase starts.
+async function _scrambleAppendUntilPhase(untilPhaseOverride) {
+    var untilPhaseValue = (untilPhaseOverride !== undefined)
+            ? untilPhaseOverride : scrambleUntilPhase;
+    var untilPhase = Math.floor(Number(untilPhaseValue));
+    if (!(untilPhase > 0)) {
+        return null;
+    }
+
+    var solveMovesFound = await solveFindMovesFromMoves(scrambleMoves);
+    if (!solveMovesFound) {
+        console.log("Unable to solve scramble for scrambleUntilPhase="
+                + untilPhase + ". Scramble: " + scrambleMoves.join(" "));
+        return "Phase scramble solve failed - see console";
+    }
+
+    var phaseMoves = _scrambleGetSolveMovesUntilPhase(solveMovesFound,
+            untilPhase);
+    if (phaseMoves.warn) {
+        console.warn("Solver returned fewer phase markers than requested for "
+                + "scrambleUntilPhase=" + untilPhase + ". Solve: "
+                + solveMovesFound.join(" "));
+    }
+    for (var i = 0; i < phaseMoves.moves.length; i++) {
+        scrambleMoves.push(phaseMoves.moves[i]);
+    }
+    console.log("Appended " + phaseMoves.moves.length
+            + " phase-practice moves for scrambleUntilPhase=" + untilPhase
+            + ": " + phaseMoves.moves.join(" "));
+    return phaseMoves.warn ? "Phase scramble partial solve - see console" : null;
+}
+
+// Return solve moves that happen before the requested one-based phase starts.
+function _scrambleGetSolveMovesUntilPhase(solveMovesFound, untilPhase) {
+    var moves = [];
+    var phase = 0;
+    for (var i = 0; i < solveMovesFound.length; i++) {
+        var move = solveMovesFound[i];
+        if (move === "|") {
+            if ((phase + 1) >= untilPhase) {
+                return {
+                    moves : moves,
+                    warn : false
+                };
+            }
+            phase++;
+            moves.push(move);
+        } else {
+            moves.push(move);
+        }
+    }
+    return {
+        moves : moves,
+        warn : true
+    };
+}
+
+// Prompt for manual move text, parse flags, and return move data.
+async function _scramblePromptManualMoves(promptText, statusName, keepSavepoints) {
+    var text = prompt(promptText);
+    if (text === null) {
+        animateUpdateStatus(statusName + " canceled");
+        return null;
+    }
+
+    var input = utilsParseMoveTextFlags(text);
+    var moves = null;
+    if (input.flags.a) {
+        var name = input.movesText.trim();
+        if (!name.length) {
+            animateUpdateStatus(statusName + " canceled");
+            return null;
+        }
+        moves = await solveFindCFOPMovesForName(name);
+        if (!moves) {
+            animateUpdateStatus(statusName + " algorithm lookup failed");
+            return null;
+        }
+    } else {
+        var movesText = utilsExpandMoveTextVariables(
+                utilsNormalizeMoveText(input.movesText));
+        if (!movesText.length) {
+            animateUpdateStatus(statusName + " canceled");
+            return null;
+        }
+        moves = utilsParseMoves(movesText);
+    }
+    if (!moves.length) {
+        animateUpdateStatus(statusName + " canceled");
+        return null;
+    }
+
+    if (!keepSavepoints) {
+        // Savepoints are not part of a scramble.
+        moves = moves.filter(function(move) {
+            return move !== "|";
+        });
+    }
+    if (!moves.length) {
+        animateUpdateStatus(statusName + " canceled");
+        return null;
+    }
+
+    return {
+        flagsText : input.flagsText,
+        flags : input.flags,
+        moves : moves
+    };
+}
+
+// Apply manual scramble flags to moves and per-scramble options.
+function _scrambleApplyManualScrambleFlags(manualScramble) {
+    for (var i = 0; i < manualScramble.flagsText.length; i++) {
+        var flag = manualScramble.flagsText[i];
+        if (flag === "i") {
+            manualScramble.moves = utilsGetInverseMoves(manualScramble.moves);
+        } else if (flag === "k") {
+            manualScramble.newCube = false;
+        } else if (flag === "m") {
+            manualScramble.moves = utilsGetMirrorMovesXZ(manualScramble.moves);
+        } else if (flag === "n") {
+            manualScramble.newCube = true;
+        }
+    }
+    return manualScramble;
+}
+
+// Apply manual training flags to moves.
+function _scrambleApplyManualTrainingFlags(manualTraining) {
+    for (var i = 0; i < manualTraining.flagsText.length; i++) {
+        var flag = manualTraining.flagsText[i];
+        if (flag === "i") {
+            manualTraining.moves = utilsGetInverseMoves(manualTraining.moves);
+        } else if (flag === "m") {
+            manualTraining.moves = utilsGetMirrorMovesXZ(manualTraining.moves);
+        }
+    }
+    return manualTraining;
+}
+
+// Return true if a scrambler type should get anti-undo tail moves.
+function _scrambleExtraMovesEnabledForType(type) {
+    if (!scrambleExtraMoves) {
+        return false;
+    }
+    var cfg = scrambleExtraMoves.toLowerCase().replace(/,/g, " ").trim();
+    if (!cfg.length) {
+        return false;
+    }
+    var types = cfg.split(/\s+/);
+    return types.indexOf(type.toLowerCase()) !== -1;
+}
+
+// Generate a simple random-move scramble of the requested length.
+function _scrambleGenerateSimpleMoves(count) {
+    _scrambleSimpleCube.reset();
+    _scrambleSimpleCount = count;
+    return _scrambleSimpleCube.scramble();
+}

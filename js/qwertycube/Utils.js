@@ -4,6 +4,8 @@
 
 // Public globals
 
+var utilsVerboseLogging = false;
+
 // Private globals
 
 var _utilsMobileUserAgentREs = [/Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
@@ -11,9 +13,168 @@ var _utilsMobileUserAgentREs = [/Android/i, /BlackBerry/i, /iPad/i, /iPhone/i,
 
 // Public functions
 
+// Add two 3-element arrays.
+function utilsAdd2Vectors(a, b, out) {
+    var result = out || [0, 0, 0];
+    result[0] = a[0] + b[0];
+    result[1] = a[1] + b[1];
+    result[2] = a[2] + b[2];
+    return result;
+}
+
+// Add three 3-element arrays.
+function utilsAdd3Vectors(a, b, c, out) {
+    var result = out || [0, 0, 0];
+    result[0] = a[0] + b[0] + c[0];
+    result[1] = a[1] + b[1] + c[1];
+    result[2] = a[2] + b[2] + c[2];
+    return result;
+}
+
+// Clear queued moves and replay state.
 function utilsClearMoveQueue() {
     animateMoveQueue.length = 0;
     animateRotationQueue.length = 0;
+    animateMoveQueueReplay = false;
+}
+
+// Log a message only when verbose logging is enabled.
+function utilsLogVerbose(message) {
+    if (utilsVerboseLogging) {
+        console.log(message);
+    }
+}
+
+// Return the material side setting shared by cubies, arrows and labels.
+function utilsGetMaterialSide() {
+    var doubleSided = cubiesDoubleSided;
+    if (doubleSided === "auto") {
+        doubleSided = !cubiesRenderInteriorFaces || !cubiesRenderMissingStickers;
+    } else if (typeof doubleSided === "string") {
+        doubleSided = doubleSided.toLowerCase().substr(0, 1) === "t";
+    }
+    return doubleSided ? THREE.DoubleSide : THREE.FrontSide;
+}
+
+// Normalize pasted move text by turning grouping characters into delimiters and
+// converting notation variants to QWERTYcube move text.
+function utilsNormalizeMoveText(text) {
+    return String(text)
+            .replace(/⁸/g, "'")
+            .replace(/[()[\]{}]+/g, " ")
+            .replace(/([UDRLFBudrlfb])w/g, function(match, face) {
+                return face.toLowerCase();
+            })
+            .replace(/[ \t\r\n]+/g, " ")
+            .trim()
+            .replace(/[xyz]/g, function(ch) {
+                return ch.toUpperCase();
+            });
+}
+
+// Expand move-text variables such as "@" for the current applied history.
+function utilsExpandMoveTextVariables(moveText) {
+    var historyEnd = Math.max(0, Math.min(animateMoveHistoryNext,
+            animateMoveHistory.length));
+    var historyText = animateMoveHistory.slice(0, historyEnd).join(" ");
+    return String(moveText).replace(/@/g, " " + historyText + " ")
+            .replace(/[ \t\r\n]+/g, " ").trim();
+}
+
+// Parse optional leading scramble flags. Format is "abc:R U F" or "abcR U F".
+function utilsParseMoveTextFlags(text) {
+    var rawText = String(text);
+    var match = rawText.match(/^\s*([a-z]+)\s*:(.*)$/s);
+    var flagsText = "";
+    var flags = {};
+    var movesText = rawText;
+    if (!match) {
+        match = rawText.match(/^\s*([aikmn]+)([^aikmn].*)$/s);
+    }
+    if (!match) {
+        return {
+            flagsText : flagsText,
+            flags : flags,
+            movesText : movesText
+        };
+    }
+    movesText = match[2];
+    for (var i = 0; i < match[1].length; i++) {
+        var flag = match[1][i];
+        if (!flags[flag]) {
+            flags[flag] = true;
+            flagsText += flag;
+        }
+    }
+    return {
+        flagsText : flagsText,
+        flags : flags,
+        movesText : movesText
+    };
+}
+
+// Parse move text into an array of move strings.
+function utilsParseMoves(moveText) {
+    var moves = [];
+    var move = "";
+    for (var i = 0; i < moveText.length; i++) {
+        var ch = moveText[i];
+        if (ch === "|") {
+            if (move.length) {
+                moves.push(utilsNormalizeMovePrefix(move));
+                move = "";
+            }
+            moves.push("|");
+            continue;
+        }
+        var letter = /[A-Za-z]/.test(ch);
+        if (letter) {
+            if (move.length && /[A-Za-z]/.test(move)) {
+                moves.push(utilsNormalizeMovePrefix(move));
+                move = "";
+            }
+            move += ch;
+        } else if ((ch === "'") || (ch === "2")) {
+            if (!move.length) {
+                if (ch === "2") {
+                    move += ch;
+                } else {
+                    console.log("Ignoring suffix without move: \"" + ch + "\"");
+                }
+                continue;
+            }
+            move += ch;
+        } else if (/\s/.test(ch)) {
+            // Whitespace delimits moves. This matters for numeric prefixes.
+            if (move.length) {
+                moves.push(utilsNormalizeMovePrefix(move));
+                move = "";
+            }
+        } else {
+            // Keep non-whitespace modifiers such as numeric prefixes/ranges.
+            if (move.length && /[A-Za-z]/.test(move)) {
+                moves.push(utilsNormalizeMovePrefix(move));
+                move = "";
+            }
+            move += ch;
+        }
+    }
+    if (move.length) {
+        moves.push(utilsNormalizeMovePrefix(move));
+    }
+    return moves;
+}
+
+// Normalize shorthand move prefixes, such as "23R" to "2-3R" on small cubes.
+function utilsNormalizeMovePrefix(move) {
+    var match = String(move).match(/^([1-9])([1-9])([A-Za-z].*)$/);
+    if (!match) {
+        return move;
+    }
+    if (parseInt(match[1] + match[2]) <= cubiesOrder) {
+        return move;
+    }
+    return match[1] + "-" + match[2] + match[3];
 }
 
 // Convert from a coordinate on the cube to an index into the layers. Note that
@@ -30,6 +191,29 @@ function utilsCopyMap(oldMap) {
         newMap[item] = oldMap[item];
     }
     return newMap;
+}
+
+// Cross product for 3-element arrays: a × b.
+function utilsCrossProduct(a, b) {
+    return [
+        a[1] * b[2] - a[2] * b[1],  // i component
+        a[2] * b[0] - a[0] * b[2],  // j component
+        a[0] * b[1] - a[1] * b[0]   // k component
+    ];
+}
+
+// Dot product for 3-element arrays.
+function utilsDotProduct(a, b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
+// Scale a 3-element array by a scalar.
+function utilsScaleVector3(vector, scalar, out) {
+    var result = out || [0, 0, 0];
+    result[0] = vector[0] * scalar;
+    result[1] = vector[1] * scalar;
+    result[2] = vector[2] * scalar;
+    return result;
 }
 
 // Convert an elapsed amount of time to mm:ss.x format.
@@ -61,8 +245,12 @@ function utilsElapsedMsecToStr(elapsedMsec) {
 // Queues up a move along with it's corresponding rotation. Note that index to
 // index animateMoveQueue and animateRotationQueue must be kept in sync.
 function utilsEnqueueMove(move) {
+    var rotation = _utilsGetRotationFromMove(move);
+    if (!rotation && (move !== "|")) {
+        console.warn("Unknown move \"" + move + "\".");
+    }
     animateMoveQueue.push(move);
-    animateRotationQueue.push(_utilsGetRotationFromMove(move));
+    animateRotationQueue.push(rotation);
 }
 
 // Like utilsEnqueueMove except that the rotation may already be known (not null)
@@ -70,6 +258,9 @@ function utilsEnqueueMove(move) {
 function utilsEnqueueMoveRotation(moveRot) {
     if (!moveRot[1]) {
         moveRot[1] = _utilsGetRotationFromMove(moveRot[0]);
+        if (!moveRot[1] && (moveRot[0] !== "|")) {
+            console.warn("Unknown move \"" + moveRot[0] + "\".");
+        }
     }
     animateMoveQueue.push(moveRot[0]);
     animateRotationQueue.push(moveRot[1]);
@@ -115,6 +306,67 @@ function utilsGetInverseMove(move) {
     }
 }
 
+// Reverse a move list and invert each move.
+function utilsGetInverseMoves(moves) {
+    var inv = [];
+    for (var i = moves.length - 1; i >= 0; i--) {
+        var move = moves[i];
+        if (move === "|") {
+            inv.push("|");
+        } else {
+            inv.push(utilsGetInverseMove(move));
+        }
+    }
+    return inv;
+}
+
+// Mirror a move list about the XZ plane.
+function utilsGetMirrorMovesXZ(moves) {
+    var mirrored = [];
+    for (var i = 0; i < moves.length; i++) {
+        mirrored.push(utilsGetMirrorMoveXZ(moves[i]));
+    }
+    return mirrored;
+}
+
+// Mirror one move about the XZ plane.
+function utilsGetMirrorMoveXZ(move) {
+    if (move === "|") {
+        return move;
+    }
+    for (var i = 0; i < move.length; i++) {
+        var c = move[i];
+        if (!(((c >= "0") && (c <= "9")) || (c === "-"))) {
+            // i now points to the first non-prefix character.
+            break;
+        }
+    }
+    if (i >= move.length) {
+        return move;
+    }
+
+    var prefix = i ? move.substr(0, i) : "";
+    var root = move[i];
+    var suffix = move.substr(i + 1);
+    var mirroredRoot = _utilsGetMirrorMoveRootXZ(root);
+    var mirroredMove = prefix + mirroredRoot + suffix;
+    if (_utilsMirrorMoveRootNeedsInverseXZ(mirroredRoot)) {
+        return _utilsGetMoveDirectionReversed(mirroredMove);
+    }
+    return mirroredMove;
+}
+
+// For a given move return the face/root letter, ignoring any numeric prefix.
+function utilsGetMoveFace(move) {
+    for (var i = 0; i < move.length; i++) {
+        var c = move[i];
+        if (!(((c >= "0") && (c <= "9")) || (c === "-"))) {
+            return move[i].toUpperCase();
+        }
+    }
+    return move;
+}
+
 // Given a sign, limLoIdx and limHiIdx produce an array of layers.
 function utilsGetLayersFromIndexes(sign, limLoIdx, limHiIdx) {
     var layers = [];
@@ -144,14 +396,14 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
         var layer = layers[i];
         if (layer) {
             if (end) {
-                // This should not happen.
-                console.log("Layers has multiple ends");
+                // Disjoint layer ranges cannot be represented by one move.
+                utilsLogVerbose("Unable to convert disjoint layers to a move");
                 return null;
             }
             if (amount) {
                 if (layer !== amount) {
-                    console.log("Unable to convert layers with multiple amounts " +
-                    "to a move");
+                    utilsLogVerbose("Unable to convert layers with multiple "
+                            + "amounts to a move");
                     return null;
                 }
             } else {
@@ -167,8 +419,7 @@ function utilsGetMoveRotationFromLayers(axis, layers) {
     }
 
     if (!amount) {
-        // This should not happen.
-        console.log("No layers were rotated");
+        utilsLogVerbose("Unable to convert unchanged layers to a move");
         return null;
     }
 
@@ -275,14 +526,13 @@ function utilsGetQueryParameters() {
             var keyValue = href.substr(begin, end - begin);
             begin = end + 1;
         }
-        var items = keyValue.split("=");
-        if (items.length !== 2) {
-            console.log("Ignoring query parameter does not have 2 items: " +
-                    items);
+        var eqIndex = keyValue.indexOf("=");
+        if (eqIndex === -1) {
+            console.log("Ignoring query parameter without '=': " + keyValue);
             continue;
         }
-        var key = items[0];
-        var value = decodeURIComponent(items[1]);
+        var key = keyValue.substr(0, eqIndex);
+        var value = decodeURIComponent(keyValue.substr(eqIndex + 1));
         var oldValue = qParams[key];
         if (oldValue) {
             oldValue.push(value);
@@ -347,12 +597,12 @@ function utilsLargestAbsoluteAxis(vector) {
     return axisName;
 }
 
-// Convert a map to a space separated key:value list.
+// Convert a map to a space-separated key=value list.
 function utilsMapToString(map) {
     var first = true;
     var str = "";
     for ( var item in map) {
-        str += (first ? "" : " ") + item + ":" + map[item];
+        str += (first ? "" : " ") + item + "=" + map[item];
         first = false;
     }
     return str;
@@ -384,12 +634,18 @@ function utilsShuffleArray(nums, begin, end) {
 function utilsSetGlobal(varName, varValueStr) {
     console.log("setting global " + varName + " to " + varValueStr);
     var varValue;
+    if ((window[varName] === undefined) || (window[varName] === null)) {
+        return _utilsSetGlobalError(varName, varValueStr,
+                "unknown variable");
+    }
     var varType = window[varName].constructor;
     if (!varType) {
-        console.log("Ignoring unknown variable \"" + varName + "\".");
-        return;
+        return _utilsSetGlobalError(varName, varValueStr,
+                "unknown variable type");
     }
-    if (varType === Array) {
+    if (varName === "cubiesColorMissingSticker") {
+        varValue = _utilsNormalizeColorOrBlendSetting(varValueStr, "0.5");
+    } else if (varType === Array) {
         if (varValueStr !== "") {
             varValue = varValueStr.split(" ");
             if ((window[varName].length > 0)
@@ -397,7 +653,12 @@ function utilsSetGlobal(varName, varValueStr) {
                 // If the array contained numbers then convert to that.
                 var varValueNum = [];
                 for (var i = 0; i < varValue.length; i++) {
-                    varValueNum.push(parseFloat(varValue[i]));
+                    var parsed = _utilsParseStrictNumber(varValue[i]);
+                    if (parsed === null) {
+                        return _utilsSetGlobalError(varName, varValueStr,
+                                "expected numeric array");
+                    }
+                    varValueNum.push(parsed);
                 }
                 varValue = varValueNum;
             }
@@ -408,10 +669,10 @@ function utilsSetGlobal(varName, varValueStr) {
     } else if (varType === Boolean) {
         varValue = varValueStr.toLowerCase().substr(0, 1) === "t";
     } else if (varType === Number) {
-        if (varValueStr.indexOf(".") !== -1) {
-            varValue = parseFloat(varValueStr);
-        } else {
-            varValue = parseInt(varValueStr);
+        varValue = _utilsParseStrictNumber(varValueStr);
+        if (varValue === null) {
+            return _utilsSetGlobalError(varName, varValueStr,
+                    "expected number");
         }
     } else if (varType === Object) {
         varValue = varValueStr.split(" ");
@@ -421,9 +682,12 @@ function utilsSetGlobal(varName, varValueStr) {
             if (!entry) {
                 continue;
             }
-            var keyValue = entry.split(":");
-            var key = keyValue[0];
-            var value = keyValue[1];
+            var eqIndex = entry.indexOf("=");
+            if (eqIndex === -1) {
+                continue;
+            }
+            var key = entry.substr(0, eqIndex);
+            var value = entry.substr(eqIndex + 1);
             if (!key || !value) {
                 continue;
             }
@@ -434,6 +698,46 @@ function utilsSetGlobal(varName, varValueStr) {
         varValue = varValueStr;
     }
     window[varName] = varValue;
+    return {
+        ok : true
+    };
+}
+
+// Return a structured error for a setting that could not be applied.
+function _utilsSetGlobalError(varName, varValueStr, error) {
+    console.warn("Ignoring invalid setting " + varName + "=\""
+            + varValueStr + "\": " + error + ".");
+    return {
+        ok : false,
+        varName : varName,
+        varValueStr : varValueStr,
+        error : error
+    };
+}
+
+// Parse a number while rejecting partial parses like "1x" and NaN.
+function _utilsParseStrictNumber(value) {
+    var valueStr = String(value).trim();
+    if (valueStr === "") {
+        return null;
+    }
+    var parsed = Number(valueStr);
+    return isFinite(parsed) ? parsed : null;
+}
+
+// Normalize settings that accept either an explicit color or numeric blend.
+function _utilsNormalizeColorOrBlendSetting(value, defaultValue) {
+    var valueStr = String(value).trim();
+    if (!valueStr || (valueStr === "true") || (valueStr === "false")) {
+        return defaultValue;
+    }
+    return valueStr;
+}
+
+// Like Math.sign, but values near zero are treated as zero.
+function utilsSignWithTolerance(value, tolerance) {
+    var eps = (typeof tolerance === "number") ? tolerance : 0.001;
+    return Math.abs(value) < eps ? 0 : Math.sign(value);
 }
 
 // Log a warning without it actually being a warning (console.warn).
@@ -472,6 +776,31 @@ function _utilsGetMoveFromRotation(rotation) {
     return rotateRotationToMove[rotation];
 }
 
+// Swap move roots that change names under XZ mirroring.
+function _utilsGetMirrorMoveRootXZ(root) {
+    var mirrorRoots = {
+        R : "L",
+        L : "R",
+        r : "l",
+        l : "r"
+    };
+    return mirrorRoots[root] || root;
+}
+
+// Return true if XZ mirroring reverses the move direction for a root.
+function _utilsMirrorMoveRootNeedsInverseXZ(root) {
+    return "UFDBYZESufdbyzRLrl".indexOf(root) !== -1;
+}
+
+// Reverse move direction, including double-prime notation. This is different
+// from undo/inverse because doubles are not directionless for animation.
+function _utilsGetMoveDirectionReversed(move) {
+    if (move.indexOf("'") !== -1) {
+        return move.replace("'", "");
+    }
+    return move + "'";
+}
+
 // Converts a move to a rotation. Returns undefined for savepoints.
 function _utilsGetRotationFromMove(move) {
     // There is no rotation for savepoints.
@@ -490,14 +819,19 @@ function _utilsGetRotationFromMove(move) {
             buf += c;
         } else if (c === "-") {
             if (!buf) {
-                // This should not happen.
-                console.log("Invalid prefix for move \"" + move + "\".");
-                return null;
+                // Open-ended low side, as in "-3R" or "-R".
+                lo = 1;
+            } else {
+                lo = parseInt(buf);
+                if (!(lo > 0)) {
+                    // This should not happen. "if" constructed to allow for NaN.
+                    console.log("Invalid prefix (lo) for move \"" + move + "\".");
+                    return null;
+                }
             }
-            lo = parseInt(buf);
-            if (!(lo > 0)) {
-                // This should not happen.  "if" constructed to allow for NaN.
-                console.log("Invalid prefix (lo) for move \"" + move + "\".");
+            if (dash) {
+                console.log("Invalid prefix with multiple dashes for move \""
+                        + move + "\".");
                 return null;
             }
             buf = "";
@@ -505,14 +839,18 @@ function _utilsGetRotationFromMove(move) {
         } else {
             // i points to the first non-prefix character.
             if (i) {
-                if (!buf) {
-                    // This should not happen.
-                    console.log("Invalid prefix for move \"" + move + "\".");
-                    return null;
-                }
                 if (dash) {
-                    hi = parseInt(buf);
+                    if (buf) {
+                        hi = parseInt(buf);
+                    } else {
+                        hi = cubiesOrder;
+                    }
                 } else {
+                    if (!buf) {
+                        // This should not happen.
+                        console.log("Invalid prefix for move \"" + move + "\".");
+                        return null;
+                    }
                     lo = hi = parseInt(buf);
                 }
                 if (!(hi > 0)) {
@@ -524,6 +862,11 @@ function _utilsGetRotationFromMove(move) {
             }
             break;
         }
+    }
+
+    if (i >= move.length) {
+        console.log("Move missing face after prefix \"" + move + "\".");
+        return null;
     }
 
     if (lo > hi) {
@@ -556,7 +899,14 @@ function _utilsGetRotationFromMove(move) {
     }
 
     // The prefix is not part of the table.
-    var rotation = rotateMoveToRotation[move.substr(i, j - i + 1)];
+    var moveNoPrefix = move.substr(i, j - i + 1);
+    var moveDoublePrime = (moveNoPrefix.indexOf("2") !== -1)
+            && (moveNoPrefix.indexOf("'") !== -1);
+    // Accept double-prime forms like U2' as equivalent to U2 for lookup.
+    if (moveDoublePrime) {
+        moveNoPrefix = moveNoPrefix.replace("'", "");
+    }
+    var rotation = rotateMoveToRotation[moveNoPrefix];
     if (!rotation) {
         // Probably a savepoint.
         return null;
@@ -564,6 +914,10 @@ function _utilsGetRotationFromMove(move) {
 
     // There was a range prefix.
     rotation = rotation.slice();
+    if (moveDoublePrime) {
+        // Preserve animation direction for double-prime moves.
+        rotation[0] = -rotation[0];
+    }
     var limLo = rotation[2];
     var limHi = rotation[3];
     var diff = limHi - limLo;

@@ -1,0 +1,79 @@
+# See cfop-help.txt for CFOP DB file format details.
+
+# OLL algorithms. These were originally taken from
+# http://www.badmephisto.com/oll.php . A copy with mirrored moves removed with
+# the chosen algorithms highlighted can be found at
+# https://selliott.org/badmephisto/oll.html . OLL #55 is different, but the rest
+# are unchanged.
+# Note that for OLLs numbers 1 and 35 "R'R' was changed to "R2'" to make it
+# easier for clients to follow solves, since they may be consolidating moves as
+# they are made. Also, some OLLs have rotations appended to the end so that they
+# can have no net cube rotation. Also note that the OLL numbering has been changed
+# to match the other CFOP DB files. See
+# resources/misc/oll-nums-badmephisto-to-speedsolving for details.
+
+# phase signature           algorithm                       flag    name    mname   probability
+OLL     ***,***,***,***     none                            d       0               1/216
+OLL     *U*,UUU,*U*,UUU     RU2R2'FRF'U2R'FRF'              d       1               2/216
+OLL     *UU,*U*,UU*,UUU     FRUR'U'F'fRUR'U'f'              d       2               4/216
+OLL     *U*,*UU,*UU,*UU     fRUR'U'f'UFRUR'U'F'             m       4       3       2*4/216
+OLL     ***,**U,*UU,*UU     rU2R'U'RU'r'                    m       6       5       2*4/216
+OLL     U**,UU*,UU*,***     rUR'URU2r'                      m       7       8       2*4/216
+OLL     UU*,*U*,U**,U**     RUR'UR'FRF'RU2R'                m       10      9       2*4/216
+OLL     *U*,**U,**U,*UU     FRUR'U'F'UFRUR'U'F'             m       12      11      2*4/216
+OLL     UU*,U**,UU*,***     FURU'R2F'RURU'R'                m       13      14      2*4/216
+OLL     *U*,**U,*UU,**U     rUr'RUR'U'rU'r'                 m       16      15      2*4/216
+OLL     *UU,*U*,*U*,UU*     RUR'UR'FRF'U2R'FRF'             d       17              4/216
+OLL     UUU,*U*,*U*,*U*     FRUR'UF'Y'U2R'FRF'Y             d       18              4/216
+OLL     *U*,*UU,*U*,UU*     MURUR'U'M'R'FRF'                d       19              4/216
+OLL     *U*,*U*,*U*,*U*     MURUR'U'M2URU'r'                d       20              1/216
+OLL     U*U,***,U*U,***     FRUR'U'RUR'U'RUR'U'F'           d       21              2/216
+OLL     **U,***,U**,U*U     fRUR'U'f'FRUR'U'F'              d       22              4/216
+OLL     ***,***,U*U,***     R2DR'U2RD'R'U2R'                d       23              4/216
+OLL     U**,***,**U,***     rUR'U'r'FRF'                    d       24              4/216
+OLL     ***,***,U**,**U     F'rUR'U'r'FR                    d       25              4/216
+OLL     U**,U**,U**,***     RUR'URU2R'                      m       27      26      2*4/216
+OLL     *U*,***,***,*U*     M'UMU2M'UM                      d       28              4/216
+OLL     U**,*U*,*UU,***     FRUR'U'F'U2RUR'U'R'FRF'         m       29      30      2*4/216
+OLL     U**,***,*UU,*U*     R'U'FURU'R'F'R                  m       31      32      2*4/216
+OLL     UU*,***,*UU,***     RUR'U'R'FRF'                    d       33              4/216
+OLL     *U*,U**,*U*,**U     RUR2U'R'FRURU'F'                d       34              4/216
+OLL     *U*,U**,**U,*U*     RU2R2'FRF'RU2R'                 d       35              4/216
+OLL     ***,UU*,*UU,***     FRU'R'U'RUR'F'                  d       37              4/216
+OLL     U**,*UU,*U*,***     RUR'URU'R'U'R'FRF'              m       38      36      2*4/216
+OLL     *UU,***,*U*,U**     R'FRUR'U'F'UR                   m       40      39      2*4/216
+OLL     U*U,*U*,*U*,***     RUR'URU2R'FRUR'U'F'             m       41      42      2*4/216
+OLL     *U*,***,***,UUU     fRUR'U'f'                       m       44      43      2*4/216
+OLL     *U*,***,*U*,U*U     FRUR'U'F'                       d       45              4/216
+OLL     ***,UUU,***,*U*     R'U'R'FRF'UR                    d       46              4/216
+OLL     **U,*U*,UU*,U*U     FRUR'U'RUR'U'F'                 m       48      47      2*4/216
+OLL     **U,***,UU*,UUU     R'FR'F'R2U2YR'FRF'Y'            m       49      50      2*4/216
+OLL     *UU,***,UU*,U*U     fRUR'U'RUR'U'f'                 d       51              4/216
+OLL     U**,UUU,**U,*U*     RUR'URd'RU'R'F'Y'               d       52              4/216
+OLL     ***,U*U,*U*,UUU     rUR'URU'R'URU2'r'               m       54      53      2*4/216
+OLL     UUU,***,UUU,***     FRUR'U'F'fRUR'U'f'FRUR'U'F'     d       55              2/216
+OLL     *U*,U*U,*U*,U*U     FRUR'U'RF'rUR'U'r'              d       56              2/216
+OLL     *U*,***,*U*,***     RUR'U'M'URU'r'                  d       57              2/216
+
+# PLL algorithms. These were originally taken from
+# http://www.badmephisto.com/pll.php . A copy with mirrored moves removed with
+# the chosen algorithms highlighted can be found at
+# https://selliott.org/badmephisto/pll.html .  Also, some OLLs have rotations
+# appended to the end so that they have no net cube rotation.
+
+# phase signature           algorithm                       flag    name    mname   probability
+PLL     RBR,FRL,BFF,LLB     XR'UR'D2RU'R'D2R2X'             m       Aa      Ab      2*4/72
+PLL     LBR,FRB,RFL,BLF     X'RU'R'DRUR'D'RUR'DRU'R'D'X     d       E               2/72
+PLL     BBB,RLF,LFR,FRL     R'U2R'd'R'F'R2U'R'UR'FRU'FY'    d       F               4/72
+PLL     LBB,RFL,BLR,FRF     R2u'RU'RUR'uR2YRU'R'Y'          m       Gc      Ga      2*4/72
+PLL     RLF,LRR,FBL,BFB     RUR'Y'R2u'RU'R'UR'uR2Y          m       Gd      Gb      2*4/72
+PLL     BFB,RLR,FBF,LRL     M2UM2U2M2UM2                    d       H               1/72
+PLL     BBR,FFB,RRF,LLL     RUR'F'RUR'U'R'FR2U'R'U'         m       Jb      Ja      2*4/72
+PLL     BFF,LRR,FBB,RLL     R'UL'U2RU'LR'UL'U2RU'LU'        m       Nb      Na      2*1/72
+PLL     BBB,RRR,FFF,LLL     none                            d       O               1/72
+PLL     RBL,BFR,FRF,LLB     R'U2RU2R'FRUR'U'R'F'R2U'        m       Rb      Ra      2*4/72
+PLL     BBR,FLB,RFF,LRL     RUR'U'R'FR2U'R'U'RUR'F'         d       T               4/72
+PLL     BBB,RFR,FLF,LRL     R2URUR'U'R'U'R'UR'              m       Ub      Ua      2*4/72
+PLL     FRB,RBL,BFF,LLR     R'UR'd'R'F'R2U'R'UR'FRFY'       d       V               4/72
+PLL     FLB,RRL,BFF,LBR     FRU'R'U'RUR'F'RUR'U'R'FRF'      d       Y               4/72
+PLL     BLB,RFR,FRF,LBL     M2UM2UM'U2M2U2M'U2              d       Z               2/72

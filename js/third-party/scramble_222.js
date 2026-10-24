@@ -34,7 +34,7 @@ scramblers["222"] = (function() {
   var seq = new Array();
   function solved(){
       for (var i=0;i<24; i+=4){
-          c=posit[i];
+          var c=posit[i];
           for(var j=1;j<4;j++)
               if(posit[i+j]!=c) return(false);
       }

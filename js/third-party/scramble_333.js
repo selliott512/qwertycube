@@ -1716,6 +1716,11 @@ var Cnk, ckmv, ckmv2, cornerColor, cornerFacelet, edgeColor, edgeFacelet, fact, 
     };
   }
 
+  var solveFacelets = function(facelets) {
+    ini();
+    return $solution(search, facelets);
+  };
+
 
   return {
     /* mark2 interface */
@@ -1723,6 +1728,7 @@ var Cnk, ckmv, ckmv2, cornerColor, cornerFacelet, edgeColor, edgeFacelet, fact, 
     initialize: ini,
     setRandomSource: function() {console.log("setRandomSource is deprecated. It has no effect anymore.")},
     getRandomScramble: getRandomScramble,
+    solveFacelets: solveFacelets,
     drawScramble: drawScramble,
 
     /* Other methods */
